@@ -55,10 +55,13 @@
   }
 }
 \SetKeys[tucseating]{
-  seat border=black,
-  seat background = white,
+  seat empty border=lightgray,
+  seat empty =lightgray!20,
+  seat empty text =lightgray!20,
+  seat assigned = lightgray!30,
+  seat assigned border = black,
   seat font = \tiny,
-  seat text = black
+  seat assigned text = black
 }
 \ProcessKeyOptions
 \usetikzlibrary{shapes.geometric}
@@ -73,14 +76,26 @@
 }
 \newcommand\tucs@configtikz{
   \tikzset{
-    empty seat/.style={draw=\tucs@sc@emptyborder,
-      fill=\tucs@sc@empty},
-    empty label/.style={text=\tucs@sc@emptytext,
+    empty seat/.style={
+      draw=\tucs@sc@emptyborder,
+      fill=\tucs@sc@empty,
+      font=\tucs@s@emptyfont,
+      text=\tucs@sc@empty,
+      inner sep=0.5pt
+    },
+    empty label/.style={
+      text=\tucs@sc@emptytext,
       font=\tucs@s@emptyfont
     },
-    assigned seat/.style={draw=\tucs@sc@assignedborder,
-      fill=\tucs@sc@assigned},
-    assigned label/.style={text=\tucs@sc@assignedtext,
+    assigned seat/.style={
+      draw=\tucs@sc@assignedborder,
+      fill=\tucs@sc@assigned,
+      text=\tucs@sc@assigned,
+      font=\tucs@s@assignedfont,
+      inner sep=0.5pt
+    },
+    assigned label/.style={
+      text=\tucs@sc@assignedtext,
       font=\tucs@s@assignedfont
     }
   }
