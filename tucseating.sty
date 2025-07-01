@@ -1,0 +1,46 @@
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\def\packagename{tucseating}
+\ProvidesPackage{\packagename}[2025/08/1 v0.1]
+\RequirePackage{luacode}
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{translator}
+\IfFormatAtLeastTF{2022/06/01}{}{
+  \PackageError{\packagename}{
+    \packagename requires at least the TeX format \MessageBreak
+    from 2022/06. \MessageBreak
+  }{Update your LaTeX.}
+}
+\newtoggle{tucs@rectshapt}
+\RequirePackage{iftex}               % für Test auf Lua(La)TeX
+\ifLuaTeX\else
+  \PackageError{\packagename}{
+    LuaLaTeX is required to use this package. \MessageBreak
+    Sorry!
+ }{Use LuaLaTex.}
+\fi
+\DeclareKeys{
+  room.store = \tucs@room,
+  room.usage = load,
+  shape.choice: ,
+  shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
+  shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
+  rows.store = \tucs@rows,
+  seats per row.store = \tucs@seatsperrow,
+  blackboard.if = tucs@blackboard,
+  aisle.store = \tucs@aisle,
+}
+\ProcessKeyOptions
+\usetikzlibrary{shapes.geometric}
+
+\NewDocumentCommand{\tucsInitSeating}{}{
+  \luadirect{Require(tucseating.lua)}
+}
+
+\NewDocumentCommand{\tucsDrawSeating}{o}{
+  \begin{tikzpicture}[x=0.01\linewidth,#1]
+      \foreach \i in {1,..., \luadirect{seatnum()}}{
+        \luadirect{seat()}{\i}
+      }
+  \end{tikzpicture}
+}
