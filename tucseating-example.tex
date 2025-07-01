@@ -1,12 +1,18 @@
 \documentclass[
-a4paper,landscape]{article}
+]
+{scrartcl}
 
-\usepackage[a4paper,landscape]{geometry}
+\usepackage[a4paper,
+landscape,
+inner=10pt,
+outer=10pt,
+top=1cm,
+bottom=1cm]{geometry}
 \usepackage[
 room=201,
 shape=rectangle,
 rows=17,
-seats per row=16,
+seats per row=35,
 % blackboard
 ]{tucseating}
 
@@ -19,7 +25,8 @@ seats per row=16,
   % seat empty border = black,
   % seat assigned = white,
   % seat assigned border = black,
-  seat assigned text = blue
+  seat assigned text = blue,
+  seat font = \small
 }
 \removeSeatAt{1}{1}
 \removeSeatAt{1}{20}

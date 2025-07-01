@@ -32,11 +32,11 @@
   seat empty.store =\tucs@sc@empty,
   seat empty border.store = \tucs@sc@emptyborder,
   seat empty text.store = \tucs@sc@emptytext,
-  seat empty font.store = \tucs@sc@emptyfont,
+  seat empty font.store = \tucs@s@emptyfont,
   seat assigned.store = \tucs@sc@assigned,
   seat assigned border.store = \tucs@sc@assignedborder,
   seat assigned text.store = \tucs@sc@assignedtext,
-  seat assigned font.store = \tucs@sc@assignedfont,
+  seat assigned font.store = \tucs@s@assignedfont,
   seat background.code:n = {
     \gdef\tucs@sc@empty{#1}
     \gdef\tucs@sc@assigned{#1}
@@ -50,8 +50,8 @@
     \gdef\tucs@sc@assignedborder{#1}
   },
   seat font.code:n = {
-    \gdef\tucs@sc@emptyfont{#1}
-    \gdef\tucs@sc@assignedfont{#1}
+    \gdef\tucs@s@emptyfont{#1}
+    \gdef\tucs@s@assignedfont{#1}
   }
 }
 \SetKeys[tucseating]{
@@ -76,15 +76,12 @@
     empty seat/.style={draw=\tucs@sc@emptyborder,
       fill=\tucs@sc@empty},
     empty label/.style={text=\tucs@sc@emptytext,
-      font=\tucs@sc@emptytextfont
+      font=\tucs@s@emptyfont
     },
     assigned seat/.style={draw=\tucs@sc@assignedborder,
       fill=\tucs@sc@assigned},
-    empty label/.style={text=\tucs@sc@emptytext,
-      font=\tucs@sc@emptytextfont
-    },
     assigned label/.style={text=\tucs@sc@assignedtext,
-      font=\tucs@sc@assignedtextfont
+      font=\tucs@s@assignedfont
     }
   }
 }
@@ -102,4 +99,6 @@
 }
 \NewDocumentCommand{\assignSeatAt}{m m m}{
   \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
+}
+\NewDocumentCommand{\setRowAsAisle}{m}{
 }

@@ -73,13 +73,13 @@ function removeSeatAt(y,x)
 end
 function seatempty(s) 
    local width = 100/AllSeats["cols"]
-   tex.sprint("\\node[rectangle,empty seat, minimum width=",0.95/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {};")
-   tex.sprint("\\node[empty label, minimum width=",0.95/AllSeats["cols"],"\\linewidth,font=\\tiny] at (",s.x*width,",",s.y,") {",s.id,"};")
+   tex.sprint("\\node[rectangle,empty seat, minimum width=",0.9/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {};")
+   tex.sprint("\\node[empty label, minimum width=",0.9/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {",s.id,"};")
 end
 function seatassigned(s) 
    local width = 100/AllSeats["cols"]
-   tex.sprint("\\node[rectangle,assigned seat, minimum width=",0.95/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {};")
-   tex.sprint("\\node[assigned label,minimum width=",0.95/AllSeats["cols"],"\\linewidth,font=\\tiny] at (",s.x*width,",",s.y,") {",s.label,"};")
+   tex.sprint("\\node[rectangle,assigned seat, minimum width=",0.9/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {};")
+   tex.sprint("\\node[assigned label,minimum width=",0.9/AllSeats["cols"],"\\linewidth] at (",s.x*width,",",s.y,") {",s.label,"};")
 end
 
 function seatremoved(s) 
