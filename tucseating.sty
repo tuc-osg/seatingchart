@@ -1,9 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \def\packagename{tucseating}
-\ProvidesPackage{\packagename}[2025/08/1 v0.1]
+\ProvidesPackage{\packagename}[2025-08-01 v0.1]
 \RequirePackage{luacode}
-\RequirePackage{tikz}
-\RequirePackage{etoolbox}
 \RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
   \PackageError{\packagename}{
@@ -11,15 +9,17 @@
     from 2022/06. \MessageBreak
   }{Update your LaTeX.}
 }
-\newtoggle{tucs@rectshapt}
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
 \RequirePackage{iftex}               % für Test auf Lua(La)TeX
 \ifLuaTeX\else
-  \PackageError{\packagename}{
-    LuaLaTeX is required to use this package. \MessageBreak
-    Sorry!
- }{Use LuaLaTex.}
+ \PackageError{\packagename}{
+   LuaLaTeX is required to use this package. \MessageBreak
+   Sorry!
+}{Use LuaLaTex.}
 \fi
-\DeclareKeys{
+\newtoggle{tucs@rectshapt}
+\DeclareKeys[tucseating]{
   room.store = \tucs@room,
   room.usage = load,
   shape.choice: ,
@@ -28,19 +28,78 @@
   rows.store = \tucs@rows,
   seats per row.store = \tucs@seatsperrow,
   blackboard.if = tucs@blackboard,
-  aisle.store = \tucs@aisle,
+  %aisle.store = \tucs@aisle,
+  seat empty.store =\tucs@sc@empty,
+  seat empty border.store = \tucs@sc@emptyborder,
+  seat empty text.store = \tucs@sc@emptytext,
+  seat empty font.store = \tucs@sc@emptyfont,
+  seat assigned.store = \tucs@sc@assigned,
+  seat assigned border.store = \tucs@sc@assignedborder,
+  seat assigned text.store = \tucs@sc@assignedtext,
+  seat assigned font.store = \tucs@sc@assignedfont,
+  seat background.code:n = {
+    \gdef\tucs@sc@empty{#1}
+    \gdef\tucs@sc@assigned{#1}
+  },
+  seat text.code:n = {
+    \gdef\tucs@sc@emptytext{#1}
+    \gdef\tucs@sc@assignedtext{#1}
+  },
+  seat border.code:n = {
+    \gdef\tucs@sc@emptyborder{#1}
+    \gdef\tucs@sc@assignedborder{#1}
+  },
+  seat font.code:n = {
+    \gdef\tucs@sc@emptyfont{#1}
+    \gdef\tucs@sc@assignedfont{#1}
+  }
+}
+\SetKeys[tucseating]{
+  seat border=black,
+  seat background = white,
+  seat font = \tiny,
+  seat text = black
 }
 \ProcessKeyOptions
 \usetikzlibrary{shapes.geometric}
 
-\NewDocumentCommand{\tucsInitSeating}{}{
-  \luadirect{Require(tucseating.lua)}
+\NewDocumentCommand{\tucsInitSeating}{o}{
+  \luadirect{require("tucseating.lua")}
+  \luadirect{initRec(\tucs@rows,\tucs@seatsperrow)}
+}
+\NewDocumentCommand{\tucsConfig}{m}{
+  \SetKeys[tucseating]{#1}%
+  \tucs@configtikz%
+}
+\newcommand\tucs@configtikz{
+  \tikzset{
+    empty seat/.style={draw=\tucs@sc@emptyborder,
+      fill=\tucs@sc@empty},
+    empty label/.style={text=\tucs@sc@emptytext,
+      font=\tucs@sc@emptytextfont
+    },
+    assigned seat/.style={draw=\tucs@sc@assignedborder,
+      fill=\tucs@sc@assigned},
+    empty label/.style={text=\tucs@sc@emptytext,
+      font=\tucs@sc@emptytextfont
+    },
+    assigned label/.style={text=\tucs@sc@assignedtext,
+      font=\tucs@sc@assignedtextfont
+    }
+  }
+}
+\NewDocumentCommand{\tucsDrawSeating}{O{}}{
+  \begin{tikzpicture}[x=0.0098\linewidth,#1]
+    \iftucs@blackboard
+    \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
+    \fi
+    \luadirect{drawSeats()};
+  \end{tikzpicture}
 }
 
-\NewDocumentCommand{\tucsDrawSeating}{o}{
-  \begin{tikzpicture}[x=0.01\linewidth,#1]
-      \foreach \i in {1,..., \luadirect{seatnum()}}{
-        \luadirect{seat()}{\i}
-      }
-  \end{tikzpicture}
+\NewDocumentCommand{\removeSeatAt}{m m}{
+  \luadirect{removeSeatAt(#1,#2)}
+}
+\NewDocumentCommand{\assignSeatAt}{m m m}{
+  \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
 }
