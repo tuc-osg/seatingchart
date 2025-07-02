@@ -19,15 +19,30 @@
 }{Use LuaLaTex.}
 \fi
 \newtoggle{tucs@rectshapt}
+\newtoggle{tucs@rnleft}
+\newtoggle{tucs@rnright}
 \DeclareKeys[tucseating]{
   room.store = \tucs@room,
   room.usage = load,
   shape.choice: ,
   shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
   shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
+  shape.usage = preamble,
   rows.store = \tucs@rows,
+  rows.usage = preamble,
   seats per row.store = \tucs@seatsperrow,
+  seats per row.usage = preamble,
   blackboard.if = tucs@blackboard,
+  rownumbers.choice:,
+  rownumbers/left.code = { \toggletrue{tucs@rnleft} },
+  rownumbers/right.code = { \toggletrue{tucs@rnright} },
+  rownumbers/both.code:n = {
+    \toggletrue{tucs@rnleft}\toggletrue{tucs@rnright}
+  },
+  rownumbers/none.code:n = {
+    \togglefalse{tucs@rnleft}\togglefalse{tucs@rnright}
+  },
+  rownumber distance.store= \tucs@rnsep,
   %aisle.store = \tucs@aisle,
   seat empty.store =\tucs@sc@empty,
   seat empty border.store = \tucs@sc@emptyborder,
@@ -54,6 +69,7 @@
     \gdef\tucs@s@assignedfont{#1}
   }
 }
+% defaults
 \SetKeys[tucseating]{
   seat empty border=lightgray,
   seat empty =lightgray!20,
@@ -61,10 +77,13 @@
   seat assigned = lightgray!30,
   seat assigned border = black,
   seat font = \tiny,
-  seat assigned text = black
+  seat assigned text = black,
+  blackboard = false,
+  rownumber distance = 2pt
 }
 \ProcessKeyOptions
 \usetikzlibrary{shapes.geometric}
+
 
 \NewDocumentCommand{\tucsInitSeating}{o}{
   \luadirect{require("tucseating.lua")}
@@ -74,6 +93,15 @@
   \SetKeys[tucseating]{#1}%
   \tucs@configtikz%
 }
+\newcommand{\tucsrownumformat}[1]{
+  \tiny#1
+}
+\newcommand{\tucsassignedlabelformat}[1]{%
+  \small#1
+}
+\newcommand{\tucemptylabelformat}[1]{%
+}
+
 \newcommand\tucs@configtikz{
   \tikzset{
     empty seat/.style={
@@ -100,13 +128,45 @@
     }
   }
 }
-\NewDocumentCommand{\tucsDrawSeating}{O{}}{
-  \begin{tikzpicture}[x=0.0098\linewidth,#1]
-    \iftucs@blackboard
-    \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
-    \fi
-    \luadirect{drawSeats()};
-  \end{tikzpicture}
+\NewDocumentCommand{\tucsDrawSeating}{sO{}}{
+  \newlength\tucsseatwidth
+  \newlength\tucsseatheight
+  \newlength\tucsremainingspace
+  \newlength\tucstmplen
+  \IfBooleanTF{#1}{
+    \settowidth{\tucsseatwidth}{xxx}
+    \settoheight{\tucsseatheight}{Xy}
+  }{
+    \setlength{\tucsremainingspace}{\linewidth}
+    \typeout{Linewidth: \the\linewidth}
+    \settowidth{\tucstmplen}{\tucsrownumformat{99}}
+    \typeout{Numswidth: \the\tucstmplen}
+    \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucstmplen-\tucs@rnsep}}}{}
+    \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucstmplen-\tucs@rnsep}}}{}
+    \typeout{Remaining: \the\tucsremainingspace}
+    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/\tucs@seatsperrow - 2pt}}
+
+    \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
+    \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - 2pt}}
+   
+  }
+  \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}
+  \begin{tikzpicture}[x=\tucsseatwidth+2pt,y=\tucsseatheight+2pt]
+      \iftucs@blackboard
+          \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
+      \fi
+      \iftoggle{tucs@rnleft}{
+            \foreach \r in {1,..., \tucs@rows} {
+              \node[anchor=west,xshift=-\tucs@rnsep] at (\fpeval{-(\tucs@seatsperrow+1)/2},\r-1) {\tucsrownumformat{\r}};
+            }
+          }{}
+     \iftoggle{tucs@rnright}{
+            \foreach \r in {1,..., \tucs@rows} {
+              \node[anchor=east,xshift=\tucs@rnsep] at (\fpeval{(\tucs@seatsperrow+1)/2},\r-1) {\tucsrownumformat{\r}};
+            }
+          }{}
+      \luadirect{drawSeats()}
+    \end{tikzpicture}
 }
 
 \NewDocumentCommand{\removeSeatAt}{m m}{

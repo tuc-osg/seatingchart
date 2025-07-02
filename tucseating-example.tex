@@ -8,16 +8,18 @@ inner=10pt,
 outer=10pt,
 top=1cm,
 bottom=1cm]{geometry}
+
 \usepackage[
 room=201,
 shape=rectangle,
 rows=17,
 seats per row=35,
-% blackboard
+blackboard,
+rownumbers = both
 ]{tucseating}
 
 \begin{document}
-\centering\textbf{\Huge Sitzplan}\bigskip
+\centering\textbf{\Huge\sffamily Sitzplan}\bigskip
 
 \tucsInitSeating
 \tucsConfig{
@@ -26,11 +28,11 @@ seats per row=35,
   % seat assigned = white,
   % seat assigned border = black,
   seat assigned text = blue,
-  seat font = \small
+  seat assigned font = \small\bfseries
 }
 \removeSeatAt{1}{1}
-\removeSeatAt{1}{20}
-\assignSeatAt{1}{2}{B}
+\removeSeatAt{1}{-1}
+
 \tucsDrawSeating
 
 \end{document}
