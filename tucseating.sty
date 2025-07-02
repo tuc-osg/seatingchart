@@ -18,11 +18,16 @@
    Sorry!
 }{Use LuaLaTex.}
 \fi
+\let\IfToggle=\iftoggle
 \newtoggle{tucs@rectshapt}
 \newtoggle{tucs@rnleft}
 \newtoggle{tucs@rnright}
+\newtoggle{tucs@room}
 \DeclareKeys[tucseating]{
-  room.store = \tucs@room,
+  room.code:n = {
+    \gdef\tucs@room{#1}
+    \toggletrue{tucs@room}
+  },
   room.usage = load,
   shape.choice: ,
   shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
@@ -71,6 +76,10 @@
 }
 % defaults
 \SetKeys[tucseating]{
+  % invalid layout
+  rows = 0,
+  seats per row = 0,
+  % standard style
   seat empty border=lightgray,
   seat empty =lightgray!20,
   seat empty text =lightgray!20,
@@ -82,9 +91,6 @@
   rownumber distance = 2pt
 }
 \ProcessKeyOptions
-\usetikzlibrary{shapes.geometric}
-
-
 \NewDocumentCommand{\tucsInitSeating}{o}{
   \luadirect{require("tucseating.lua")}
   \luadirect{initRec(\tucs@rows,\tucs@seatsperrow)}
@@ -177,3 +183,45 @@
 }
 \NewDocumentCommand{\setRowAsAisle}{m}{
 }
+% Now we can start.
+% Check...
+% ... if there exist a layout
+\ifboolexpr{
+      (test {\ifnumcomp{\tucs@rows}{=}{0}} or
+       test {\ifnumcomp{\tucs@seatsperrow}{=}{0}}
+      ) and not togl {tucs@room}         
+}{
+  \PackageError{\packagename}{
+    No room is set up}{
+    Provide room layout}
+}{}
+\IfToggle{tucs@room}{
+  % .. if the room file exist
+  \InputIfFileExists{\tucs@room.tsr}{
+    % ... if room *and* layout options are given
+    \ifboolexpr{
+          test {\ifnumcomp{\tucs@rows}{>}{0}} or
+          test {\ifnumcomp{\tucs@seatsperrow}{>}{0}}
+    }{
+      \PackageWarningNoLine{\packagename}{You provided room and layout
+        option(s).\MessageBreak
+        The later will be ignored}
+    }{}
+  }{
+       \PackageError{\packagename}{Can't open file '\tucs@room.tsr'}{Check if the room is
+         correct.}
+   }
+}{}
+% ... for usefull layout parameter
+\ifboolexpr{
+       test {\ifnumcomp{\tucs@rows}{<}{1}} or
+       test {\ifnumcomp{\tucs@seatsperrow}{<}{1}}
+      }{
+        \PackageError{\packagename}{Invalid layout option:\MessageBreak
+          can't be smaller than 1}{
+          Set correct layout options}
+        }{}
+\typeout{Base layout: \tucs@rows x \tucs@seatsperrow}
+   
+\usetikzlibrary{shapes.geometric}
+
