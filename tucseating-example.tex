@@ -1,20 +1,13 @@
-\documentclass[
-]
-{scrartcl}
+\documentclass{scrartcl}
+% Wir versuchen das Papier bestmöglich auszunutzen.
+\usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
 
-\usepackage[a4paper,
-landscape,
-inner=10pt,
-outer=10pt,
-top=1cm,
-bottom=1cm]{geometry}
-
+% Der Raum ist noch nicht aufgenommen, wir müssen ihn selbst bauen
 \usepackage[
-%shape=rectangle,
-rows=17,
-%seats per row=35,
-room=A10.201,
-blackboard,
+shape=rectangle,  % Sitzreihen bilden ein Rechtecke
+rows=10,          % aus 10 Reihen
+seats per row=14, % mit 12 sitzen und 2 Zwischengängen
+blackboard=false,
 rownumbers = both,
 ]{tucseating}
 
@@ -22,14 +15,7 @@ rownumbers = both,
 \centering\textbf{\Huge\sffamily Sitzplan}\bigskip
 
 \tucsInitSeating
-\tucsConfig{
-  % seat empty = gray!20,
-  % seat empty border = black,
-  % seat assigned = white,
-  % seat assigned border = black,
-  seat assigned text = blue,
-  seat assigned font = \small\bfseries
-}
+% Die erste Reihe ist kürzer
 \removeSeatAt{1}{1}
 \removeSeatAt{1}{-1}
 

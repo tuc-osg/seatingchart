@@ -32,7 +32,7 @@ function initRec(rows, cols)
 	 AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rot=0, kind=SEATEMPTY, label=tostring(cid)})
 	 -- if cid % 21 == 0 then
 	 --   tex.sprint("\\typeout{***** Try to remove *****",AllSeats[cid].kind,"}")
-	 ---   AllSeats[cid].kind = SEATASSIGND
+	 ---   AllSeats[cid].kind = SEATASSIGNED
 	 -- end
 	 AllSeats["size"]=AllSeats["size"]+1
       end

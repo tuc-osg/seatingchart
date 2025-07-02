@@ -4,3 +4,4 @@
   rows=17,
   seats per row=16,
 }
+\tucsInitSeating
