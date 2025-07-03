@@ -48,7 +48,6 @@
     \togglefalse{tucs@rnleft}\togglefalse{tucs@rnright}
   },
   rownumber distance.store= \tucs@rnsep,
-  %aisle.store = \tucs@aisle,
   seat empty.store =\tucs@sc@empty,
   seat empty border.store = \tucs@sc@emptyborder,
   seat empty text.store = \tucs@sc@emptytext,
@@ -77,6 +76,7 @@
 % defaults
 \SetKeys[tucseating]{
   % invalid layout
+  shape=rectangle,
   rows = 0,
   seats per row = 0,
   % standard style
@@ -140,7 +140,7 @@
   \newlength\tucsseatheight
   \newlength\tucsremainingspace
   \newlength\tucsrnlength
-  \IfBooleanTF{#1}{
+  \IfBooleanTF{#1}{% ToDo: API for user
     \settowidth{\tucsseatwidth}{xxx}
     \settoheight{\tucsseatheight}{Xy}
   }{
@@ -153,9 +153,8 @@
     \typeout{Remaining: \the\tucsremainingspace}
     \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - 2pt}}
     \typeout{Seatwidth: \the\tucsseatwidth}
-    \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2
-        % *\tucs@seatsperrow + 2*
-      }}
+    \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow +
+        \tucsrnlength*2 + \tucs@rnsep*2}}
  
     \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
     \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - 2pt}}
@@ -187,10 +186,100 @@
 \NewDocumentCommand{\assignSeatAt}{m m m}{
   \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
 }
-
-\NewDocumentCommand{\setRowAsAisle}{m}{
-  
+\def\tucs@parserange#1-#2\relax{%
+  \def\@firstval{\ifx\relax#1\relax1\else#1\fi}%
+  \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
 }
+
+\NewDocumentCommand{\setAisle}{O{-}m}{
+  \begingroup
+  \edef\@tmp{#1}%
+  \expandafter\tucs@parserange\@tmp\relax
+  \luadirect{removeAisle(#2,\@firstval,\@lastval)}
+  \endgroup
+}
+
+
+\DeclareKeys[tucsseatingscheme]{
+  row sep.store = \tss@rowsep,
+  col sep.store = \tss@colsep,
+  start row.store = \tss@startrow,
+  row restart after.store= \tss@rowrestart,
+  aisle counts.store = \tss@aislecnt,
+  aisle restarts scheme.choice:,
+  aisle restarts scheme/true.store=\tss@aislerestart,
+  aisle restarts scheme/false.store=\tss@aislerestart,
+  aisle restarts scheme.default:n = true,
+  ignore aisle.meta:n = {
+    aisle counts=0
+  },
+  rtol.choice:,
+  rtol/true.store = \tss@rtol,
+  rtol/false.store = \tss@rtol,,
+  rtol.default:n = true,
+  ignore removed seats.choice:,
+  ignore removed seats/true.store=\tss@ignoreremoved,
+  ignore removed seats/false.store=\tss@ignoreremoved,
+  ignore removed seats.default:n = true,
+  pattern.store=\tss@pattern,
+  row scheme.choice:,
+  row scheme/simple.meta:n={
+    row sep=2,
+    pattern=X-,
+    aisle restarts scheme=true,
+    row restart after=100
+  },
+  row scheme/sixpack.meta:n={
+    row sep=2,
+    pattern=X--,
+    aisle restarts scheme=true,
+    row restart after=100
+  },
+  row scheme/sixpack.meta:n={
+    row sep=2,
+    pattern=X--,
+    aisle restarts scheme=true,
+    row restart after=3
+  }
+}
+
+\SetKeys[tucsseatingscheme]{
+  start row = 1,
+  row sep = 2,
+  row restart after= 100,
+  rtol = false,
+  aisle restarts scheme=false,
+  aisle counts=1,
+  ignore removed seats=false,
+}
+\NewDocumentCommand{\setupSeatingScheme}{m}{
+  \SetKeys[tucsseatingscheme]{#1}
+}
+
+\NewDocumentCommand{\seatingSchemeInRows}{s o m}{
+ 
+  \IfValueTF{#2}{%
+    \edef\tucsrowset{{#2}}%
+  }{%
+    \edef\tucsrowset{{["all"]=true}}%
+  }%
+  \def\tucspolicy{
+    {["aisle restarts"]=\tss@aislerestart,
+      ["rtol"]=\tss@rtol,
+      ["aisle counts"]=\tss@aislecnt,
+      ["ignore removed seats"]=\tss@ignoreremoved,
+      ["row sep"]=\tss@rowsep,
+      ["row restart"]=\tss@rowrestart,
+      ["first row"]=\tss@startrow
+    }}
+  \typeout{POLICY=\tucspolicy, rowset=\tucsrowset}
+  \IfBooleanTF{#1}{
+  }{
+    \luadirect{seatingSchemeInRows(\tucsrowset,\luastring{#3},\tucspolicy)}
+  }
+}
+
+
 % Now we can start.
 % Check...
 % ... if there exist a layout

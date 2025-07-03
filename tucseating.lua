@@ -55,18 +55,16 @@ function findSeatAt(y,x)
       x = AllSeats["cols"] + x + 1
    end
    local ndx = (y-1)* AllSeats["cols"] + x
-   if AllSeats[ndx].kind ~= SEATREMOVED then
    return ndx
-   else
-      return nil
-   end
 end
 
 function assignSeat(ndx,l,a)
    a = a or SEATASSIGNED
    if ndx ~= nil and AllSeats[ndx].kind == SEATEMPTY then
       AllSeats[ndx].kind = a
-      AllSeats[ndx].label=l
+      if l ~= nil then
+	 AllSeats[ndx].label=l
+      end
       return true
    else
       return false
@@ -75,15 +73,73 @@ end
 function assignSeatAt(y,x,l,a)
    assignSeat(findSeatAt(y,x),l,a)
 end
-function removeSeat(ndx)
-   if ndx ~= nil then
-      AllSeats[ndx].kind = SEATREMOVED
+function removeSeatAt(y,x)
+   assignSeat(findSeatAt(y,x),nil,SEATREMOVED)
+end
+function removeAisle(c,from,to)
+   for r = from, to do
+      assignSeatAt(r,c,nil,AISLE)
    end
 end
-
-function removeSeatAt(y,x)
-   removeSeat(findSeatAt(y,x))
+-- Seating
+function getLabel(r,c)
+   return "X"
 end
+function seatingSchemeInRows(rs,pat,policy)
+   local numseats =  AllSeats["cols"]
+   local numrows =  AllSeats["rows"]
+   if rs["all"] ~= nil then
+      local frow = policy["first row"]
+      local rstep = policy["row sep"]
+      local rres  = policy["row restart"]
+      rs={}
+      for r = 1, numrows do
+	 if (r-frow) % rstep == 0 then
+	    table.move({r}, 1, 1, #rs + 1, rs)
+	 end
+	 if (r-frow) == rres-1 then
+	    frow = frow + rres
+	 end
+      end
+   end
+   if string.len(pat) < numseats then
+      pat = string.rep(pat,math.ceil(numseats/string.len(pat)))
+   end
+   for _,r in ipairs(rs) do
+      tex.sprint("\\typeout{**** seatingSchemeInRow called r=",r,"}")
+      local step = 1
+      local pndx = 1
+      local seat = 1
+      if policy["rtol"] then
+	 step = -1
+	 pndx = -1
+	 seat = numseats
+      end
+      tex.sprint("\\typeout{ Seatscheme is ",pat,"}")
+      while ((seat >= 1) and (seat<= numseats)) do
+	 local curkind = AllSeats[findSeatAt(r,seat)].kind
+	 tex.sprint("\\typeout{ Try seat ",seat,"(kind=",curkind,") with 'pat[",pndx,"]=",string.upper(string.sub(pat,pndx,pndx)),"'}")
+	 if string.upper(string.sub(pat,pndx,pndx)) == 'X' and (curkind == SEATEMPTY) then
+	    tex.sprint("\\typeout{*** Ask for assignment, seat.kind=",AllSeats[findSeatAt(r,seat)].kind,"}")
+	    assignSeatAt(r,seat,getLabel(r,seat),SEATASSIGNED)
+	    pndx = pndx + step
+	 elseif curkind == SEATEMPTY then
+	    pndx = pndx + step
+	 elseif curkind == SEATREMOVED and  policy["ignore removed seats"]==false then 
+	    pndx = pndx + step
+	 elseif curkind == AISLE then
+	    if policy["aisle restarts"] then
+	       pndx = step
+	    else
+	       pndx = pndx + policy["aisle counts"]*step
+	    end
+	 end
+	 seat = seat + step
+      end
+   end
+end
+	
+-- Drawing
 function seatempty(s) 
    local width = AllSeats["seatwidth"]
    local height = AllSeats["seatheight"]
@@ -98,8 +154,6 @@ function seatassigned(s)
 end
 
 function seatremoved(s) 
-   -- local width = 100/AllSeats["cols"]
-   -- tex.sprint("\\node[rectangle,draw=red, minimum width =",0.95/AllSeats["cols"],"\\linewidth,font=\\tiny] at (",s.x*width,",",s.y,") {};")
 end
 
 function drawSeats()

@@ -2,12 +2,12 @@
 % Wir versuchen das Papier bestmöglich auszunutzen.
 \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
 
-% Der Raum ist noch nicht aufgenommen, wir müssen ihn selbst bauen
+% Der Raum ist noch nicht aufgenommen, wir müssen ihn selbst "bauen".
 \usepackage[
 shape=rectangle,  % Sitzreihen bilden ein Rechtecke
 rows=10,          % aus 10 Reihen
 seats per row=14, % mit 12 sitzen und 2 Zwischengängen
-blackboard=false,
+blackboard,       % Wir wollen eine Tafel
 rownumbers = both,
 ]{tucseating}
 
@@ -15,10 +15,20 @@ rownumbers = both,
 \centering\textbf{\Huge\sffamily Sitzplan}\bigskip
 
 \tucsInitSeating
+% Zwei Mittelgänge
+\setAisle{5}
+\setAisle{10}
 % Die erste Reihe ist kürzer
 \removeSeatAt{1}{1}
 \removeSeatAt{1}{-1}
 
+% Damit ist das Raumlayout beendet.
+% Nun können wir uns an das Sitzschema machen
+\setupSeatingScheme{
+  aisle restarts scheme,
+  row restart after=3
+}
+\seatingSchemeInRows{X--}
 \tucsDrawSeating
 
 \end{document}
