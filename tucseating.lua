@@ -20,6 +20,7 @@ SEATREMOVED  = 1
 SEATEMPTY    = 2
 SEATASSIGNED = 3
 AISLE        = 4
+SPECIAL      = 5
 
 function initRec(rows, cols)
    local cid = 0
@@ -30,24 +31,22 @@ function initRec(rows, cols)
       for c = 1, cols do
 	 cid = cid+1
 	 AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rot=0, kind=SEATEMPTY, label=tostring(cid)})
-	 -- if cid % 21 == 0 then
-	 --   tex.sprint("\\typeout{***** Try to remove *****",AllSeats[cid].kind,"}")
-	 ---   AllSeats[cid].kind = SEATASSIGNED
-	 -- end
 	 AllSeats["size"]=AllSeats["size"]+1
       end
    end
 end
+
 function seatDim(w,h)
    AllSeats["seatwidth"] = w
    AllSeats["seatheight"] = h
 end
-
+--[[
 function seatIds()
    for ndx, v in ipairs(AllSeats) do
       tex.sprint(tostring(ndx),",")
    end
 end
+--]]
 function findSeatAt(y,x)
    if y<0 then
       y = AllSeats["rows"] + y + 1
@@ -61,30 +60,27 @@ function findSeatAt(y,x)
    else
       return nil
    end
-   --for ndx,s in ipairs(AllSeats) do SEATREMOVED then
-   --   if s.col ~= nil and s.kind ~= SEATREMOVED then
-   --	 if s.col == x and s.row == y then
-   --	    return ndx
-   --	 end
-   --   end
-   --end
-   --return nil
-end	 
-function assignSeat(ndx,l)
+end
+
+function assignSeat(ndx,l,a)
+   a = a or SEATASSIGNED
    if ndx ~= nil and AllSeats[ndx].kind == SEATEMPTY then
-      AllSeats[ndx].kind = SEATASSIGNED
+      AllSeats[ndx].kind = a
       AllSeats[ndx].label=l
+      return true
+   else
+      return false
    end
 end
-function assignSeatAt(y,x,l)
-   assignSeat(findSeatAt(y,x),l)
+function assignSeatAt(y,x,l,a)
+   assignSeat(findSeatAt(y,x),l,a)
 end
 function removeSeat(ndx)
    if ndx ~= nil then
       AllSeats[ndx].kind = SEATREMOVED
-      --tex.sprint("\\typeout{remove seat ",ndx," at ",AllSeats[ndx].col,",",AllSeats[ndx].row,"}")
    end
 end
+
 function removeSeatAt(y,x)
    removeSeat(findSeatAt(y,x))
 end

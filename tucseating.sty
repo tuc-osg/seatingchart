@@ -139,20 +139,24 @@
   \newlength\tucsseatwidth
   \newlength\tucsseatheight
   \newlength\tucsremainingspace
-  \newlength\tucstmplen
+  \newlength\tucsrnlength
   \IfBooleanTF{#1}{
     \settowidth{\tucsseatwidth}{xxx}
     \settoheight{\tucsseatheight}{Xy}
   }{
     \setlength{\tucsremainingspace}{\linewidth}
     \typeout{Linewidth: \the\linewidth}
-    \settowidth{\tucstmplen}{\tucsrownumformat{99}}
-    \typeout{Numswidth: \the\tucstmplen}
-    \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucstmplen-\tucs@rnsep}}}{}
-    \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucstmplen-\tucs@rnsep}}}{}
+    \settowidth{\tucsrnlength}{\tucsrownumformat{99}}
+    \typeout{Numswidth: \the\tucsrnlength}
+    \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
+    \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
     \typeout{Remaining: \the\tucsremainingspace}
-    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/\tucs@seatsperrow - 2pt}}
-
+    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - 2pt}}
+    \typeout{Seatwidth: \the\tucsseatwidth}
+    \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2
+        % *\tucs@seatsperrow + 2*
+      }}
+ 
     \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
     \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - 2pt}}
    
@@ -164,12 +168,12 @@
       \fi
       \iftoggle{tucs@rnleft}{
             \foreach \r in {1,..., \tucs@rows} {
-              \node[anchor=west,xshift=-\tucs@rnsep] at (\fpeval{-(\tucs@seatsperrow+1)/2},\r-1) {\tucsrownumformat{\r}};
+              \node[anchor=east,xshift=-\fpeval{\tucsseatwidth/2+\tucs@rnsep}] at (\fpeval{(1-\tucs@seatsperrow)/2},\r-1) {\tucsrownumformat{\r}};
             }
           }{}
      \iftoggle{tucs@rnright}{
             \foreach \r in {1,..., \tucs@rows} {
-              \node[anchor=east,xshift=\tucs@rnsep] at (\fpeval{(\tucs@seatsperrow+1)/2},\r-1) {\tucsrownumformat{\r}};
+              \node[anchor=east,xshift=\fpeval{\tucsseatwidth/2+\tucs@rnsep+\tucsrnlength}] at (\fpeval{(\tucs@seatsperrow-1)/2},\r-1) {\tucsrownumformat{\r}};
             }
           }{}
       \luadirect{drawSeats()}
@@ -179,10 +183,13 @@
 \NewDocumentCommand{\removeSeatAt}{m m}{
   \luadirect{removeSeatAt(#1,#2)}
 }
+
 \NewDocumentCommand{\assignSeatAt}{m m m}{
   \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
 }
+
 \NewDocumentCommand{\setRowAsAisle}{m}{
+  
 }
 % Now we can start.
 % Check...
@@ -204,7 +211,7 @@
           test {\ifnumcomp{\tucs@rows}{>}{0}} or
           test {\ifnumcomp{\tucs@seatsperrow}{>}{0}}
     }{
-      \PackageWarningNoLine{\packagename}{You provided room and layout
+      \PackageWarningNoLine{\packagename}{You provided room as well as layout
         option(s).\MessageBreak
         The later will be ignored}
     }{}
@@ -223,6 +230,5 @@
           Set correct layout options}
         }{}
 \typeout{Base layout: \tucs@rows x \tucs@seatsperrow}
-   
+ 
 \usetikzlibrary{shapes.geometric}
-
