@@ -21,12 +21,19 @@ rownumbers = both,
 % Die erste Reihe ist kürzer
 \removeSeatAt{1}{1}
 \removeSeatAt{1}{-1}
+% Damit ist das Raumlayout fertig.
+% Wir wollen aber noch ein paar Anpassungen bei der Darstellung vornehmen:
+\tucsConfig{
+  seat label font=\sffamily\bfseries,
+  seat label color=blue
+}
 
-% Damit ist das Raumlayout beendet.
+
 % Nun können wir uns an das Sitzschema machen
 \setupSeatingScheme{
   aisle restarts scheme,
-  row restart after=3
+  row restart after=4,
+  start row=2
 }
 \seatingSchemeInRows{X--}
 \tucsDrawSeating

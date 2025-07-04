@@ -1,6 +1,14 @@
+%% -----------------------------------------------------------
+%% Package:     tucseating
+%% Version:     v0.1 (2025-07-04)
+%% Author:      Matthias Werner
+%% Description: Seatings schemes (for Chemnitz
+%%              University of Technology)
+%% License:     GPLv3
+%% -----------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \def\packagename{tucseating}
-\ProvidesPackage{\packagename}[2025-08-01 v0.1]
+\ProvidesPackage{\packagename}[2025-07-04 v0.1]
 \RequirePackage{luacode}
 \RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
@@ -33,11 +41,15 @@
   shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
   shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
   shape.usage = preamble,
+  shape.initial:n = rectangle,
   rows.store = \tucs@rows,
   rows.usage = preamble,
+  rows.initial:n = 0,
   seats per row.store = \tucs@seatsperrow,
   seats per row.usage = preamble,
+  seats per row.initial:n = 0,
   blackboard.if = tucs@blackboard,
+  blackboard.initial:n = false,
   rownumbers.choice:,
   rownumbers/left.code = { \toggletrue{tucs@rnleft} },
   rownumbers/right.code = { \toggletrue{tucs@rnright} },
@@ -47,49 +59,56 @@
   rownumbers/none.code:n = {
     \togglefalse{tucs@rnleft}\togglefalse{tucs@rnright}
   },
+  seat x distance.store =\tucs@sdist@x,
+  seat y distance.store =\tucs@sdist@y,
+  seat distance.meta:n = {
+    seat x distance=#1,
+    seat y distance=#1
+  },
+  seat distance.initial:n=2pt,
+  rownumbers.initial:n = none,
   rownumber distance.store= \tucs@rnsep,
-  seat empty.store =\tucs@sc@empty,
-  seat empty border.store = \tucs@sc@emptyborder,
-  seat empty text.store = \tucs@sc@emptytext,
-  seat empty font.store = \tucs@s@emptyfont,
-  seat assigned.store = \tucs@sc@assigned,
-  seat assigned border.store = \tucs@sc@assignedborder,
-  seat assigned text.store = \tucs@sc@assignedtext,
-  seat assigned font.store = \tucs@s@assignedfont,
-  seat background.code:n = {
-    \gdef\tucs@sc@empty{#1}
-    \gdef\tucs@sc@assigned{#1}
+  rownumber distance.initial:n = 2pt,
+  rownumber font.store = \tucs@rnfont,
+  rownumber font.initial:n = \tiny,
+  rownumber color.store = \tucs@rncolor,
+  rownumber color.initial:n = darkgray,
+  empty seat background color.store =\tucs@sc@empty,
+  empty seat background color.initial:n = lightgray!20,
+  empty seat border color.store = \tucs@sc@emptyborder,
+  empty seat border color.initial:n = lightgray,
+  empty seat label color.store = \tucs@sc@emptytext,
+  empty seat label color.initial:n = lightgray!30,
+  empty seat label font.store = \tucs@s@emptyfont,
+  assigned seat background color.store = \tucs@sc@assigned,
+  assigned seat background color.initial:n = lightgray!30,
+  assigned seat border color.store = \tucs@sc@assignedborder,
+  assigned seat border color.initial:n = black,
+  assigned seat label color.store = \tucs@sc@assignedtext,
+  assigned seat label color.initial:n = black,
+  assigned seat label font.store = \tucs@s@assignedfont,
+  seat background color.meta:n = {
+    empty seat background color=#1,
+    assigned seat background color =#1
   },
-  seat text.code:n = {
-    \gdef\tucs@sc@emptytext{#1}
-    \gdef\tucs@sc@assignedtext{#1}
+  seat label color.meta:n = {
+    empty seat label color = #1,
+    assigned seat label color = #1
   },
-  seat border.code:n = {
-    \gdef\tucs@sc@emptyborder{#1}
-    \gdef\tucs@sc@assignedborder{#1}
+  seat border color.meta:n = {
+    empty seat border color = #1,
+    assigned seat border color = #1
   },
-  seat font.code:n = {
-    \gdef\tucs@s@emptyfont{#1}
-    \gdef\tucs@s@assignedfont{#1}
+  seat label font.meta:n = {
+  },
+  seat label font.initial:n = \small,
+  seat label font.meta:n = {
+    empty seat label font=#1,
+    assigned seat label font = #1
   }
 }
 % defaults
-\SetKeys[tucseating]{
-  % invalid layout
-  shape=rectangle,
-  rows = 0,
-  seats per row = 0,
-  % standard style
-  seat empty border=lightgray,
-  seat empty =lightgray!20,
-  seat empty text =lightgray!20,
-  seat assigned = lightgray!30,
-  seat assigned border = black,
-  seat font = \tiny,
-  seat assigned text = black,
-  blackboard = false,
-  rownumber distance = 2pt
-}
+
 \ProcessKeyOptions
 \NewDocumentCommand{\tucsInitSeating}{o}{
   \luadirect{require("tucseating.lua")}
@@ -99,14 +118,6 @@
   \SetKeys[tucseating]{#1}%
   \tucs@configtikz%
 }
-\newcommand{\tucsrownumformat}[1]{
-  \tiny#1
-}
-\newcommand{\tucsassignedlabelformat}[1]{%
-  \small#1
-}
-\newcommand{\tucemptylabelformat}[1]{%
-}
 
 \newcommand\tucs@configtikz{
   \tikzset{
@@ -115,7 +126,7 @@
       fill=\tucs@sc@empty,
       font=\tucs@s@emptyfont,
       text=\tucs@sc@empty,
-      inner sep=0.5pt
+      inner sep=0pt
     },
     empty label/.style={
       text=\tucs@sc@emptytext,
@@ -126,11 +137,16 @@
       fill=\tucs@sc@assigned,
       text=\tucs@sc@assigned,
       font=\tucs@s@assignedfont,
-      inner sep=0.5pt
+      inner sep=0pt
     },
     assigned label/.style={
       text=\tucs@sc@assignedtext,
       font=\tucs@s@assignedfont
+    },
+    rownumber/.style={
+      font=\tucs@rnfont,
+      text=\tucs@rncolor,
+      anchor=east
     }
   }
 }
@@ -145,34 +161,31 @@
     \settoheight{\tucsseatheight}{Xy}
   }{
     \setlength{\tucsremainingspace}{\linewidth}
-    \typeout{Linewidth: \the\linewidth}
+    %\typeout{Linewidth: \the\linewidth}
     \settowidth{\tucsrnlength}{\tucsrownumformat{99}}
-    \typeout{Numswidth: \the\tucsrnlength}
+    %\typeout{Numswidth: \the\tucsrnlength}
     \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
     \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
-    \typeout{Remaining: \the\tucsremainingspace}
-    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - 2pt}}
-    \typeout{Seatwidth: \the\tucsseatwidth}
-    \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow +
-        \tucsrnlength*2 + \tucs@rnsep*2}}
- 
+    %\typeout{Remaining: \the\tucsremainingspace}
+    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - \tucs@sdist@x}}
+    %\typeout{Seatwidth: \the\tucsseatwidth}
+    %\typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
     \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
-    \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - 2pt}}
-   
+    \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - \tucs@sdist@y}}
   }
   \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}
-  \begin{tikzpicture}[x=\tucsseatwidth+2pt,y=\tucsseatheight+2pt]
+  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y]
       \iftucs@blackboard
           \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
       \iftoggle{tucs@rnleft}{
             \foreach \r in {1,..., \tucs@rows} {
-              \node[anchor=east,xshift=-\fpeval{\tucsseatwidth/2+\tucs@rnsep}] at (\fpeval{(1-\tucs@seatsperrow)/2},\r-1) {\tucsrownumformat{\r}};
+              \node[rownumber,xshift=-\fpeval{\tucsseatwidth/2+\tucs@rnsep}] at (\fpeval{(1-\tucs@seatsperrow)/2},\r-1) {\tucsrownumformat{\r}};
             }
           }{}
      \iftoggle{tucs@rnright}{
             \foreach \r in {1,..., \tucs@rows} {
-              \node[anchor=east,xshift=\fpeval{\tucsseatwidth/2+\tucs@rnsep+\tucsrnlength}] at (\fpeval{(\tucs@seatsperrow-1)/2},\r-1) {\tucsrownumformat{\r}};
+              \node[rownumber,xshift=\fpeval{\tucsseatwidth/2+\tucs@rnsep+\tucsrnlength}] at (\fpeval{(\tucs@seatsperrow-1)/2},\r-1) {\tucsrownumformat{\r}};
             }
           }{}
       \luadirect{drawSeats()}
@@ -191,14 +204,13 @@
   \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
 }
 
-\NewDocumentCommand{\setAisle}{O{-}m}{
+\NewDocumentCommand{\setAisle}{O{-}m}{%
   \begingroup
   \edef\@tmp{#1}%
   \expandafter\tucs@parserange\@tmp\relax
   \luadirect{removeAisle(#2,\@firstval,\@lastval)}
   \endgroup
 }
-
 
 \DeclareKeys[tucsseatingscheme]{
   row sep.store = \tss@rowsep,
@@ -222,24 +234,39 @@
   ignore removed seats/false.store=\tss@ignoreremoved,
   ignore removed seats.default:n = true,
   pattern.store=\tss@pattern,
-  row scheme.choice:,
-  row scheme/simple.meta:n={
+  scheme.choice:,
+  scheme/simple.meta:n={
     row sep=2,
     pattern=X-,
     aisle restarts scheme=true,
     row restart after=100
   },
-  row scheme/sixpack.meta:n={
+  scheme/2x2.meta:n={
+    scheme=simple
+  },
+  scheme/sixpack.meta:n={
     row sep=2,
     pattern=X--,
     aisle restarts scheme=true,
     row restart after=100
   },
-  row scheme/sixpack.meta:n={
+  scheme/2x3.meta:n={
+    scheme=sixpack
+  },
+  scheme/sixpack-.meta:n={
     row sep=2,
     pattern=X--,
     aisle restarts scheme=true,
     row restart after=3
+  },
+  scheme/dense.meta:n={
+    row sep=2,
+    pattern=X-,
+    aisle restarts scheme=true,
+    row restart after=3
+  },
+  scheme/2x2-.meta:n={
+    scheme=dense
   }
 }
 
@@ -257,7 +284,6 @@
 }
 
 \NewDocumentCommand{\seatingSchemeInRows}{s o m}{
- 
   \IfValueTF{#2}{%
     \edef\tucsrowset{{#2}}%
   }{%
@@ -272,13 +298,42 @@
       ["row restart"]=\tss@rowrestart,
       ["first row"]=\tss@startrow
     }}
-  \typeout{POLICY=\tucspolicy, rowset=\tucsrowset}
+  %\typeout{POLICY=\tucspolicy, rowset=\tucsrowset}
   \IfBooleanTF{#1}{
+    \SetKeys[tucsseatingscheme]{scheme=#3}
+    \luadirect{seatingSchemeInRows(\tucsrowset,\luastring{\tss@pattern},\tucspolicy)}
   }{
     \luadirect{seatingSchemeInRows(\tucsrowset,\luastring{#3},\tucspolicy)}
   }
 }
+\ExplSyntaxOn
+\newcommand{\inttoalph}[1]{
+  \int_to_alph:n{#1}
+}
+\newcommand{\inttoAlph}[1]{
+  \MakeUppercase{\int_to_alph:n{#1}}
+}
+\ExplSyntaxOff
+\NewDocumentCommand{\tucsassignedlabelformat}{m m m m m}{
+  % #1: absolute row
+  % #2: absolute seat
+  % #3: running row
+  % #4: running seat
+  % #5: text
+  
+  {#1}-\inttoAlph{#4}
+}
+\NewDocumentCommand{\tucemptylabelformat}{m m m m m}{
+  % #1: absolute row
+  % #2: absolute seat
+  % #3: running row
+  % #4: running seat
+  % #5: text
+}
 
+\newcommand{\tucsrownumformat}[1]{%
+  #1
+}
 
 % Now we can start.
 % Check...
@@ -318,6 +373,6 @@
           can't be smaller than 1}{
           Set correct layout options}
         }{}
-\typeout{Base layout: \tucs@rows x \tucs@seatsperrow}
+%\typeout{Base layout: \tucs@rows\ x \tucs@seatsperrow}
  
 \usetikzlibrary{shapes.geometric}

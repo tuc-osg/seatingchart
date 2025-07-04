@@ -16,11 +16,12 @@ rownumbers = both,% Rechts und links Sitzreihennummern
 % Anpassungen: Wir wollen
 \tucsConfig{
   %  Die Platzbezeichnungen blau...
-  seat assigned text = blue,
+  assigned seat label color = teal,
   % und fett in kleiner Schrift.
-  seat assigned font = \small\bfseries
+  assigned seat label font = \small\bfseries
 }
 
+\seatingSchemeInRows*{2x2-}
 
 \tucsDrawSeating
 
