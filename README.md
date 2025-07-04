@@ -1,2 +1,2 @@
 # tucseating
-Sitzplangenerierung
+Generation of seating charts
