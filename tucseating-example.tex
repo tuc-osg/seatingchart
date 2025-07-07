@@ -40,13 +40,14 @@ rownumbers = both,
 % Nun können wir uns an das Sitzschema machen
 \setupSeatingScheme{
   aisle restarts scheme,
-  row restart after=4,
+  row sep=1,
+  %row restart after=4,
   start row=1,
   ignore removed seats
 }
 \seatingSchemeInRows{X--}
-\scalebox{.7}{
+%\scalebox{.7}{
   \tucsDrawSeating
-}
+%}
 \end{document}
 

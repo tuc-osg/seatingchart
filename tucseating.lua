@@ -25,16 +25,12 @@ AISLE        = 4
 SPECIAL      = 5
 
 function initSeating(rows, cols, shape)
-   local shaperect = true
-   if shape == "arc" then
-      shaperect=false
-   end
    local cid = 0
    AllSeats.size=0
    AllSeats.rows=rows
    AllSeats.cols=cols
    tex.sprint("\\typeout{*** initSeating CALLED, ndx: }")
-   if shaperect then
+   if shape == "rect" then
       for r = 1, rows do
 	 for c = 1, cols do
 	    cid = cid+1
@@ -42,9 +38,9 @@ function initSeating(rows, cols, shape)
 	    AllSeats.size=AllSeats.size+1
 	 end
       end
-   else
-      local arc=30
-      local d=50
+   elseif shape ==  "arc" then
+      local arc=120
+      local d=8
       local rot
       local x
       local y
@@ -52,9 +48,9 @@ function initSeating(rows, cols, shape)
       for r = 1, rows do
 	 for c = 1, cols do
 	    cid = cid+1
-	    phi=(c-(cols+1)/2)/(cols/2)*arc*math.pi/180
+	    phi=(c-(cols+1)/2)/(2*r+(cols/2))*arc*math.pi/180
 	    x = (d+r)*math.sin(phi)
-	    y= (d+r)*math.cos(phi)
+	    y= (d+r)*math.cos(phi)-d/2
 	    rot=-phi/math.pi*180
 	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c,
 				      rotate=rot,
