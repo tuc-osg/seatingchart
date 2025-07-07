@@ -17,7 +17,6 @@
     from 2022/06. \MessageBreak
   }{Update your LaTeX.}
 }
-\RequirePackage{tikz}
 \RequirePackage{etoolbox}
 \RequirePackage{iftex}               % für Test auf Lua(La)TeX
 \ifLuaTeX\else
@@ -32,12 +31,22 @@
 \newtoggle{tucs@rnright}
 \newtoggle{tucs@room}
 \DeclareKeys[tucseating]{
-  room.code:n = {
-    \gdef\tucs@room{#1}
-    \toggletrue{tucs@room}
+  room.choice:,
+  room/unknown.code:n={
+    \PackageError{\packagename}{
+      Room #1 is not in the database}{Check if the room name is correct or define an own room.}
   },
   room.usage = load,
-  shape.choice: ,
+  init.code:n={
+    \toggletrue{tucs@room}
+    \tucsInitSeating
+  },
+  init.usage = load,
+  remove.code:n = {%
+    \removeSeats{#1}
+  },
+  remove.usage = preamble,
+  shape.choice:,
   shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
   shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
   shape.usage = preamble,
@@ -48,6 +57,9 @@
   seats per row.store = \tucs@seatsperrow,
   seats per row.usage = preamble,
   seats per row.initial:n = 0,
+  aisle.code:n={
+    \keySetAisle{#1}
+  },
   blackboard.if = tucs@blackboard,
   blackboard.initial:n = false,
   rownumbers.choice:,
@@ -107,13 +119,50 @@
     assigned seat label font = #1
   }
 }
+\NewDocumentCommand{\tucsDeclareRoom}{m m}{%
+  \DeclareKeys[tucseating]{room/#1.meta:n={#2}}%
+}
+\NewDocumentCommand{\removeSeatAt}{m m}{
+  \luadirect{removeSeatAt(#1,#2)}
+}
+\NewDocumentCommand{\tucs@removeSeat}{>{\SplitArgument{1}{,}}m}{
+  \removeSeatAt#1
+}
+\NewDocumentCommand{\removeSeats}{>{\SplitList{,}} m}{
+  \ProcessList{#1}{\tucs@removeSeat}
+} 
+\NewDocumentCommand{\assignSeatAt}{m m m}{
+  \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
+}
+\def\tucs@parserange#1-#2\relax{%
+  \def\@firstval{\ifx\relax#1\relax1\else#1\fi}%
+  \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
+}
+\newcommand{\keySetAisle}[1]{
+  \setAisle[-]{#1}
+  \typeout{**** setAisle: #1}
+}
+\NewDocumentCommand{\setAisle}{O{-}m}{%
+  \begingroup
+  \edef\@tmp{#1}%
+  \expandafter\tucs@parserange\@tmp\relax
+  \luadirect{removeAisle(#2,\@firstval,\@lastval)}
+  \endgroup
+}
+\NewDocumentCommand{\tucsInitSeating}{}{
+  \luadirect{require("tucseating.lua")}
+  \iftoggle{tucs@rectshapt}{
+    \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{rect})}
+  }{
+  \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{arc})}
+  }
+}
+\InputIfFileExists{rooms1.tsr}{}{}
+
 % defaults
 
 \ProcessKeyOptions
-\NewDocumentCommand{\tucsInitSeating}{o}{
-  \luadirect{require("tucseating.lua")}
-  \luadirect{initRec(\tucs@rows,\tucs@seatsperrow)}
-}
+
 \NewDocumentCommand{\tucsConfig}{m}{
   \SetKeys[tucseating]{#1}%
   \tucs@configtikz%
@@ -161,20 +210,27 @@
     \settoheight{\tucsseatheight}{Xy}
   }{
     \setlength{\tucsremainingspace}{\linewidth}
-    %\typeout{Linewidth: \the\linewidth}
-    \settowidth{\tucsrnlength}{\tucsrownumformat{99}}
-    %\typeout{Numswidth: \the\tucsrnlength}
-    \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
-    \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
-    %\typeout{Remaining: \the\tucsremainingspace}
-    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - \tucs@sdist@x}}
-    %\typeout{Seatwidth: \the\tucsseatwidth}
-    %\typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
-    \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
-    \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - \tucs@sdist@y}}
+      \settowidth{\tucsrnlength}{\tucsrownumformat{99}}
+ %   \iftoggle{tucs@rectshapt}{
+      % \typeout{Linewidth: \the\linewidth}
+      % \typeout{Numswidth: \the\tucsrnlength}
+      \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
+      \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{\dimeval{-\tucsrnlength-\tucs@rnsep}}}{}
+      % \typeout{Remaining: \the\tucsremainingspace}
+      \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - \tucs@sdist@x}}
+      % \typeout{Seatwidth: \the\tucsseatwidth}
+      % \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
+      \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}
+      \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) -
+          \tucs@sdist@y}}
+ %   }{ % else: arc
+       
+  %  }
+      % A seat that is deeper than it is wide looks a bit silly.
+    \ifdimcomp{\tucsseatheight}{>}{\tucsseatwidth}{\setlength{\tucsseatheight}{\tucsseatwidth}}{}
   }
   \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}
-  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y]
+  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y,#2]
       \iftucs@blackboard
           \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
@@ -192,36 +248,22 @@
     \end{tikzpicture}
 }
 
-\NewDocumentCommand{\removeSeatAt}{m m}{
-  \luadirect{removeSeatAt(#1,#2)}
-}
-
-\NewDocumentCommand{\assignSeatAt}{m m m}{
-  \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
-}
-\def\tucs@parserange#1-#2\relax{%
-  \def\@firstval{\ifx\relax#1\relax1\else#1\fi}%
-  \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
-}
-
-\NewDocumentCommand{\setAisle}{O{-}m}{%
-  \begingroup
-  \edef\@tmp{#1}%
-  \expandafter\tucs@parserange\@tmp\relax
-  \luadirect{removeAisle(#2,\@firstval,\@lastval)}
-  \endgroup
-}
-
 \DeclareKeys[tucsseatingscheme]{
   row sep.store = \tss@rowsep,
+  row sep.initial:n = 2,
   col sep.store = \tss@colsep,
+  col sep.initial:n = 2,
   start row.store = \tss@startrow,
+  start row.initial:n=1,
   row restart after.store= \tss@rowrestart,
+  row restart after.initial:n = 100,%should be sufficient
   aisle counts.store = \tss@aislecnt,
+  aisle counts.initial:n = 1,
   aisle restarts scheme.choice:,
   aisle restarts scheme/true.store=\tss@aislerestart,
   aisle restarts scheme/false.store=\tss@aislerestart,
   aisle restarts scheme.default:n = true,
+  aisle restarts scheme.initial:n = false,
   ignore aisle.meta:n = {
     aisle counts=0
   },
@@ -229,10 +271,12 @@
   rtol/true.store = \tss@rtol,
   rtol/false.store = \tss@rtol,,
   rtol.default:n = true,
+  rtol.initial:n = false,
   ignore removed seats.choice:,
   ignore removed seats/true.store=\tss@ignoreremoved,
   ignore removed seats/false.store=\tss@ignoreremoved,
   ignore removed seats.default:n = true,
+  ignore removed seats.initial:n = false,
   pattern.store=\tss@pattern,
   scheme.choice:,
   scheme/simple.meta:n={
@@ -270,15 +314,6 @@
   }
 }
 
-\SetKeys[tucsseatingscheme]{
-  start row = 1,
-  row sep = 2,
-  row restart after= 100,
-  rtol = false,
-  aisle restarts scheme=false,
-  aisle counts=1,
-  ignore removed seats=false,
-}
 \NewDocumentCommand{\setupSeatingScheme}{m}{
   \SetKeys[tucsseatingscheme]{#1}
 }
@@ -347,32 +382,32 @@
     No room is set up}{
     Provide room layout}
 }{}
-\IfToggle{tucs@room}{
-  % .. if the room file exist
-  \InputIfFileExists{\tucs@room.tsr}{
-    % ... if room *and* layout options are given
-    \ifboolexpr{
-          test {\ifnumcomp{\tucs@rows}{>}{0}} or
-          test {\ifnumcomp{\tucs@seatsperrow}{>}{0}}
-    }{
-      \PackageWarningNoLine{\packagename}{You provided room as well as layout
-        option(s).\MessageBreak
-        The later will be ignored}
-    }{}
-  }{
-       \PackageError{\packagename}{Can't open file '\tucs@room.tsr'}{Check if the room is
-         correct.}
-   }
-}{}
+% \IfToggle{tucs@room}{
+%   % .. if the room file exist
+%   \InputIfFileExists{\tucs@room.tsr}{
+%     % ... if room *and* layout options are given
+%     \ifboolexpr{
+%           test {\ifnumcomp{\tucs@rows}{>}{0}} or
+%           test {\ifnumcomp{\tucs@seatsperrow}{>}{0}}
+%     }{
+%       \PackageWarningNoLine{\packagename}{You provided room as well as layout
+%         option(s).\MessageBreak
+%         The later will be ignored}
+%     }{}
+%   }{
+%        \PackageError{\packagename}{Can't open file '\tucs@room.tsr'}{Check if the room is
+%          correct.}
+%    }
+% }{}
 % ... for usefull layout parameter
 \ifboolexpr{
        test {\ifnumcomp{\tucs@rows}{<}{1}} or
        test {\ifnumcomp{\tucs@seatsperrow}{<}{1}}
-      }{
-        \PackageError{\packagename}{Invalid layout option:\MessageBreak
-          can't be smaller than 1}{
-          Set correct layout options}
-        }{}
-%\typeout{Base layout: \tucs@rows\ x \tucs@seatsperrow}
+}{
+  \PackageError{\packagename}{Invalid layout option:\MessageBreak
+    number of rows or number of seats per row can't be smaller than 1}{
+    Use correct layout options}
+}{}
  
+\RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric}

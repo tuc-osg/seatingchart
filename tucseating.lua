@@ -24,38 +24,67 @@ SEATASSIGNED = 3
 AISLE        = 4
 SPECIAL      = 5
 
-function initRec(rows, cols)
+function initSeating(rows, cols, shape)
+   local shaperect = true
+   if shape == "arc" then
+      shaperect=false
+   end
    local cid = 0
    AllSeats.size=0
    AllSeats.rows=rows
    AllSeats.cols=cols
-  
-   for r = 1, rows do
-      for c = 1, cols do
-	 cid = cid+1
-	 AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rrow=0, rcol=0, rotate=0, kind=SEATEMPTY, label=tostring(cid)})
-	 AllSeats.size=AllSeats.size+1
+   tex.sprint("\\typeout{*** initSeating CALLED, ndx: }")
+   if shaperect then
+      for r = 1, rows do
+	 for c = 1, cols do
+	    cid = cid+1
+	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rrow=0, rcol=0, rotate=0, kind=SEATEMPTY, label=tostring(cid)})
+	    AllSeats.size=AllSeats.size+1
+	 end
+      end
+   else
+      local arc=30
+      local d=50
+      local rot
+      local x
+      local y
+      local phi
+      for r = 1, rows do
+	 for c = 1, cols do
+	    cid = cid+1
+	    phi=(c-(cols+1)/2)/(cols/2)*arc*math.pi/180
+	    x = (d+r)*math.sin(phi)
+	    y= (d+r)*math.cos(phi)
+	    rot=-phi/math.pi*180
+	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c,
+				      rotate=rot,
+				      x=x,
+				      y=y,
+				      rrow=0, rcol=0, kind=SEATEMPTY, label=tostring(cid)})
+	    AllSeats.size=AllSeats.size+1
+	 end
       end
    end
+   
+end
+
+function initArc(rows, cols)
 end
 
 function seatDim(w,h)
    AllSeats.seatwidth = w
    AllSeats.seatheight = h
 end
---[[
-function seatIds()
-   for ndx, v in ipairs(AllSeats) do
-      tex.sprint(tostring(ndx),",")
-   end
-end
---]]
+
 function findSeatAt(y,x)
    if y<0 then
       y = AllSeats.rows + y + 1
    end
    if x<0 then
       x = AllSeats.cols + x + 1
+   end
+   if x>AllSeats.cols or y > AllSeats.rows then
+      tex.sprint("\\PackageError{\\packagename}{Index out of bound}{Check the used coordinates.}")
    end
    local ndx = (y-1)* AllSeats.cols + x
    return ndx
@@ -65,6 +94,7 @@ function assignSeat(ndx,d)
    local kind = d.kind or SEATASSIGNED
    local runningrow = d.rr or 0
    local runnigseat = d.rc or 0
+   -- tex.sprint("\\typeout{*** AllSeats[ndx] ",AllSeats,"[",ndx,"]}")
    -- tex.sprint("\\typeout{ kind=",kind,", text='",d.label,"', rr=",runningrow,", rs=",runnigseat,"}")
    if ndx ~= nil and AllSeats[ndx].kind == SEATEMPTY then
       AllSeats[ndx].kind = kind
@@ -80,7 +110,6 @@ function assignSeatAt(y,x,d)
    assignSeat(findSeatAt(y,x),d)
 end
 function removeSeatAt(y,x)
-   -- tex.sprint("\\typeout{ *** RemoveSeatAt called for x=",x,", y=",y,"}")
    assignSeat(findSeatAt(y,x),{kind=SEATREMOVED})
 end
 function removeAisle(c,from,to)
@@ -89,15 +118,14 @@ function removeAisle(c,from,to)
    end
 end
 -- Seating
-function getLabel(r,c,rr,cc)
+--function getLabel(r,c,rr,cc)
    -- tex.sprint("\\typeout{ row:",r,"(",rr,"), seat:",c,"(",cc,")}")
-   return 'X'
+  -- return 'X'
    -- tex.sprint("\\arabic{r}-alph{cc}")
-end
+-- end
 function seatingSchemeInRows(rs,pat,policy)
    local numseats =  AllSeats.cols
    local numrows =  AllSeats.rows
-   -- tex.sprint("\\typeout{**** pattern=",pat,", numseats=",numseats,"}")
    if rs["all"] ~= nil then
       local frow = policy["first row"]
       local rstep = policy["row sep"]
@@ -165,6 +193,7 @@ function seatempty(s)
    tex.sprint("\\node[empty label, minimum width=",width,",rotate=",s.rotate,"] at (",s.x,",",s.y,")"..
 	      "{\\tucemptylabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}};")
 end
+
 function seatassigned(s) 
    local width = AllSeats.seatwidth
    local height = AllSeats.seatheight

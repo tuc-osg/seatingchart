@@ -4,9 +4,10 @@
 
 % Der Raum ist noch nicht aufgenommen, wir müssen ihn selbst "bauen".
 \usepackage[
-shape=rectangle,  % Sitzreihen bilden ein Rechtecke
-rows=10,          % aus 10 Reihen
-seats per row=14, % mit 12 sitzen und 2 Zwischengängen
+shape=arc,  % Sitzreihen bilden ein Bogen
+rows=12,          % aus 10 Reihen
+seats per row=34, %
+init,
 blackboard,       % Wir wollen eine Tafel
 rownumbers = both,
 ]{tucseating}
@@ -15,12 +16,19 @@ rownumbers = both,
 \centering\textbf{\Huge\sffamily Sitzplan}\bigskip
 
 \tucsInitSeating
-% Zwei Mittelgänge
-\setAisle{5}
-\setAisle{10}
-% Die erste Reihe ist kürzer
-\removeSeatAt{1}{1}
-\removeSeatAt{1}{-1}
+\removeSeats{{1,1},{1,2},{1,3},{1,4},{1,5},{1,6},{1,-1},{1,-2},{1,-3},{1,-4},{1,-5},{1,-6}}
+\removeSeats{{2,1},{2,2},{2,3},{2,4},{2,5},{2,-1},{2,-2},{2,-3},{2,-4},{2,-5}}
+\removeSeats{{3,1},{3,2},{3,3},{3,4},{3,-1},{3,-2},{3,-3},{3,-4}}
+\removeSeats{{4,1},{4,2},{4,3},{4,4},{4,-1},{4,-2},{4,-3},{4,-4}}
+\removeSeats{{5,1},{5,2},{5,3},{5,-1},{5,-2},{5,-3}}
+\removeSeats{{6,1},{6,2},{6,-1},{6,-2}}
+\removeSeats{{7,1},{7,-1}}
+\removeSeats{{8,1},{8,-1}}
+\removeSeats{{9,1},{9,-1}}
+\removeSeats{{11,15},{11,16},{11,17},{11,18},{11,19},{11,20}}
+\removeSeats{{12,15},{12,16},{12,17},{12,18},{12,19},{12,20}}
+
+%\removeSeatAt{1}{-1}
 % Damit ist das Raumlayout fertig.
 % Wir wollen aber noch ein paar Anpassungen bei der Darstellung vornehmen:
 \tucsConfig{
@@ -33,10 +41,12 @@ rownumbers = both,
 \setupSeatingScheme{
   aisle restarts scheme,
   row restart after=4,
-  start row=2
+  start row=1,
+  ignore removed seats
 }
 \seatingSchemeInRows{X--}
-\tucsDrawSeating
-
+\scalebox{.7}{
+  \tucsDrawSeating
+}
 \end{document}
 
