@@ -3,3 +3,8 @@
 *.rel
 *.fdb_latexmk
 *.fls
+*.glo
+*.glsdefs
+*.ido
+*.toc
+*.xdy
