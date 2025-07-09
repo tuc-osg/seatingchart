@@ -4,14 +4,15 @@ module = "tucseating"
 unpackfiles = {}
 sourcefiles= {
    "*.sty",
-   "*.tro"
+   "*.tsr",
+   "*.lua"
 }
 installfiles= {
    "*.sty",
-   "*.tro"
+   "*.tsr",
+   "*.lua"
 }
+
 typesetfiles = {
-   "tucseating-doc.tex",
-   "tucseating-example-315.tex"
-   "tucseating-example-201.tex"
+   "tucseating-doc-de.tex",
 }

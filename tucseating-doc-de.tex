@@ -1,0 +1,81 @@
+\documentclass[
+%load=tucseating,
+babel=ngerman
+]{skdoc}
+\usepackage[room=A10.201]{tucseating}
+\microtypesetup{disable=true}
+
+\package{\packagename}
+\version{\packageversion}
+\repository{https://github.com/tuc-osg/tucseating}
+\author{Matthias Werner}
+\email{matthias.werner@informatik.tu-chemnitz.de}
+\title{Das \thepkg-Paket}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+    tucseating ermöglicht es, einfach Sitzpläne zu
+generieren, wie sie z. B. für Prüfungen benö-
+tigt werden. Eine Reihe verschiedener automa-
+tischer Platzierungsschemata sind vordefiniert,
+aber man kann auch feingranular eigene Plat-
+zierungen vornehmen.
+Während das Paket zunächst für den internen
+Gebrauch an der TU Chemnitz gedacht ist und
+(einige) vordefinierte Raumpläne enthält, sind
+einerseits sowohl die Raumdaten leicht erweiter-
+oder ersetzbar, andererseits können Räume auch
+ad hoc erstellt werden.
+\end{abstract}
+\tableofcontents
+
+\section{Einführung}
+Für die Durchführung von Prüfungen benötigen wir mitunter Sitzpläne.
+So haben sich über die einige mit Pläne  in Form von TikZ-unterstützten
+\LaTeX-Dateien angesammelt. 
+Je nach Anzahl der Studierenden in einer Prüfung (und für wie groß wir die
+Gefahr eines Betrugsversuches bewerten) nutzen wir unterschiedliche
+Platzierungsschemata, so dass wir die Dateien in anpassen müssen.
+Außerdem wird uns von Zeit zu Zeit ein neuer Raum zugewiesen, für den wir noch
+keine Pläne haben.
+
+Das \thepkg-Paket 
+\begin{itemize}
+  \item ermöglicht eine schnelle unde einfach Erstellung von Sitzpläne erstelltn;
+  \item trennt das Raumlayout und das Platzierungsschema voneinander;
+  \item bietet eine Reihe von Standardschemata für die Platzierung an;
+  \item enthält bereits eine Anzahl vordefinierter Raumlayouts;
+  \item erlaubt eine \emph{Ad-hoc}-Erstellung neuer Räume und Sitzschemata.
+\end{itemize}
+
+\section{Abhängigkeiten}
+Das \thepkg-Paket arbeitet nur mit Lua\LaTeX und erwartet eine hinreichend
+moderne \LaTeX-Version, mindestens vom Juli 2022.
+Es lädt folgende Pakete:
+\begin{itemize}
+  \item \pkg{etoolbox} 
+  \item \pkg{luacode}
+  \item \pkg{tikz}
+  \item \pkg{translator}
+  \item \pkg{xstring}
+\end{itemize}
+Diese Pakete sind in allen gängigen \TeX-Distributionen vorhanden.
+
+\section{Nutzung}
+Das Paket wird auf dem üblichen Weg mit
+
+\centerline{\cs{usepackage}\oarg{optionen}\{\thepkg\}}
+
+geladen.
+Wenn der genutzte Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist,
+kann man ihn mit der Option
+
+\Option{room=}\WithValues{\meta{Raumnummer}}
+festlegen.
+Ansonsten
+
+
+\end{document}

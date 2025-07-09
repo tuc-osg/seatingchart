@@ -3,6 +3,7 @@
   shape=rectangle,
   rows=17,
   seats per row=16,
+  init
 }
 % A10.204
 \tucsDeclareRoom{A10.305}{
@@ -40,7 +41,7 @@
     {12,15},{12,16},{12,17},{12,18},{12,19},{12,20}
   }
 }
-% 10.112
+% C10.112
 \tucsDeclareRoom{C10.112}{
   shape=rectangle,
   rows=13,
@@ -56,7 +57,7 @@
   init,
   remove={{1,1},{1,2},{1,-1},{1,-2},{16,-1},{6,12},{6,13},{6,14},{7,12},{7,13},{7,14}}
 }
-% 
+% C10.115
 \tucsDeclareRoom{C10.115}{
   shape=rectangle,
   rows=21,

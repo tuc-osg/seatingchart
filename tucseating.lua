@@ -119,23 +119,22 @@ end
   -- return 'X'
    -- tex.sprint("\\arabic{r}-alph{cc}")
 -- end
-function seatingSchemeInRows(rs,pat,policy)
+function seatingSchemeInRows(pat,policy)
    local numseats =  AllSeats.cols
    local numrows =  AllSeats.rows
-   if rs["all"] ~= nil then
-      local frow = policy["first row"]
-      local rstep = policy["row sep"]
-      local rres  = policy["row restart"]
-      local runningrow = 1
-      rs={}
-      for r = 1, numrows do
-	 if (r-frow) % rstep == 0 then
-	    table.move({{[1]=r,[2]=runningrow}}, 1, 1, #rs + 1, rs)
-	    runningrow=runningrow+1
-	 end
-	 if (r-frow) == rres-1 then
-	    frow = frow + rres
-	 end
+   local frow = policy["first row"]
+   local lrow = policy["last row"]
+   local rstep = policy["row sep"]
+   local rres  = policy["row restart"]
+   local runningrow = 1
+   rs={}
+   for r = frow, lrow do
+      if (r-frow) % rstep == 0 then
+	 table.move({{[1]=r,[2]=runningrow}}, 1, 1, #rs + 1, rs)
+	 runningrow=runningrow+1
+      end
+      if (r-frow) == rres-1 then
+	 frow = frow + rres
       end
    end
    -- tex.sprint("\\typeout{**** pattern=",pat,", numseats=",numseats,"}")

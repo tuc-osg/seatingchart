@@ -8,8 +8,10 @@
 %% -----------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \def\packagename{tucseating}
-\ProvidesPackage{\packagename}[2025-07-04 v0.1]
-\RequirePackage{luacode}
+\def\packagedate{2025-07-04}
+\def\packageversion{0.1}
+\ProvidesPackage{\packagename}[\packagedate\space \packageversion]
+\RequirePackage{xstring}
 \RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
   \PackageError{\packagename}{
@@ -18,13 +20,15 @@
   }{Update your LaTeX.}
 }
 \RequirePackage{etoolbox}
-\RequirePackage{iftex}               % für Test auf Lua(La)TeX
-\ifLuaTeX\else
+\ExplSyntaxOn
+\sys_if_engine_luatex:TF{}{
  \PackageError{\packagename}{
-   LuaLaTeX is required to use this package. \MessageBreak
+   LuaLaTeX~is~required~to~use~this~package.\MessageBreak
    Sorry!
-}{Use LuaLaTex.}
-\fi
+}{Use~LuaLaTex.} 
+}
+\RequirePackage{luacode}
+\ExplSyntaxOff
 \let\IfToggle=\iftoggle
 \newtoggle{tucs@rectshapt}
 \newtoggle{tucs@rnleft}
@@ -120,6 +124,7 @@
   }
 }
 \NewDocumentCommand{\tucsDeclareRoom}{m m}{%
+  \toggletrue{tucs@room}
   \DeclareKeys[tucseating]{room/#1.meta:n={#2}}%
 }
 \NewDocumentCommand{\removeSeatAt}{m m}{
@@ -134,13 +139,14 @@
 \NewDocumentCommand{\assignSeatAt}{m m m}{
   \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
 }
+\NewDocumentCommand{\tucs@ParseRows}{m}{
+}
 \def\tucs@parserange#1-#2\relax{%
   \def\@firstval{\ifx\relax#1\relax1\else#1\fi}%
   \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
 }
 \newcommand{\keySetAisle}[1]{
   \setAisle[-]{#1}
-  \typeout{**** setAisle: #1}
 }
 \NewDocumentCommand{\setAisle}{O{-}m}{%
   \begingroup
@@ -157,7 +163,7 @@
   \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{arc})}
   }
 }
-\InputIfFileExists{rooms1.tsr}{}{}
+\InputIfFileExists{rooms1.tsr}{\typeout{**** READING ROOMS}}{}
 
 % defaults
 
@@ -255,6 +261,8 @@
   col sep.initial:n = 2,
   start row.store = \tss@startrow,
   start row.initial:n=1,
+  end row.store = \tss@endrow,
+  end row.initial:n = \tucs@rows,
   row restart after.store= \tss@rowrestart,
   row restart after.initial:n = 100,%should be sufficient
   aisle counts.store = \tss@aislecnt,
@@ -272,6 +280,8 @@
   rtol/false.store = \tss@rtol,,
   rtol.default:n = true,
   rtol.initial:n = false,
+  in rows.code:n = {% ToDo!
+  },
   ignore removed seats.choice:,
   ignore removed seats/true.store=\tss@ignoreremoved,
   ignore removed seats/false.store=\tss@ignoreremoved,
@@ -318,11 +328,15 @@
   \SetKeys[tucsseatingscheme]{#1}
 }
 
-\NewDocumentCommand{\seatingSchemeInRows}{s o m}{
-  \IfValueTF{#2}{%
-    \edef\tucsrowset{{#2}}%
+\NewDocumentCommand{\tucsSeatingScheme}{s o m}{
+  \IfValueT{#2}{
+    \typeout{*** Set #2}
+    \SetKeys[tucsseatingscheme]{#2}
+  }
+  \IfBooleanTF{#1}{  %
+    \SetKeys[tucsseatingscheme]{pattern=#3}
   }{%
-    \edef\tucsrowset{{["all"]=true}}%
+    \SetKeys[tucsseatingscheme]{scheme=#3}
   }%
   \def\tucspolicy{
     {["aisle restarts"]=\tss@aislerestart,
@@ -331,15 +345,11 @@
       ["ignore removed seats"]=\tss@ignoreremoved,
       ["row sep"]=\tss@rowsep,
       ["row restart"]=\tss@rowrestart,
-      ["first row"]=\tss@startrow
+      ["first row"]=\tss@startrow,
+      ["last row"]=\tss@endrow
     }}
-  %\typeout{POLICY=\tucspolicy, rowset=\tucsrowset}
-  \IfBooleanTF{#1}{
-    \SetKeys[tucsseatingscheme]{scheme=#3}
-    \luadirect{seatingSchemeInRows(\tucsrowset,\luastring{\tss@pattern},\tucspolicy)}
-  }{
-    \luadirect{seatingSchemeInRows(\tucsrowset,\luastring{#3},\tucspolicy)}
-  }
+  \typeout{POLICY=\tucspolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
+  \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
 \ExplSyntaxOn
 \newcommand{\inttoalph}[1]{
@@ -349,7 +359,8 @@
   \MakeUppercase{\int_to_alph:n{#1}}
 }
 \ExplSyntaxOff
-\NewDocumentCommand{\tucsassignedlabelformat}{m m m m m}{
+
+\NewDocumentCommand{\tucsassignedlabelformat}{O{} m m m m m}{
   % #1: absolute row
   % #2: absolute seat
   % #3: running row

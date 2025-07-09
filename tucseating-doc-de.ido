@@ -1,0 +1,8 @@
+(indexentry :tkey (("iftex-pkg" "\\glossentry{index-iftex-pkg}") ) :locref "{}{2}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("luacode-pkg" "\\glossentry{index-luacode-pkg}") ) :locref "{}{2}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("etoolbox-pkg" "\\glossentry{index-etoolbox-pkg}") ) :locref "{}{2}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("tikz-pkg" "\\glossentry{index-tikz-pkg}") ) :locref "{}{2}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("translator-pkg" "\\glossentry{index-translator-pkg}") ) :locref "{}{2}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("usepackage-macro" "\\glossentry{index-usepackage-macro}") ) :locref "{}{3}" :attr "pageglsnumberformat" ) 
+(indexentry :tkey (("room=-opt" "\\glossentry{index-room=-opt}") ) :locref "{}{3}" :attr "pagehyperit" ) 
+(indexentry :tkey (("room=-opt" "\\glossentry{index-room=-opt}") ) :locref "{}{3}" :attr "pageglsnumberformat" ) 
