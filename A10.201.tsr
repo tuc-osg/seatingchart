@@ -1,7 +1,0 @@
-% Room A10.201
-\tucsConfig{
-  shape=rectangle,
-  rows=17,
-  seats per row=16,
-}
-\tucsInitSeating
