@@ -6,7 +6,7 @@
   init
 }
 % A10.204
-\tucsDeclareRoom{A10.305}{
+\tucsDeclareRoom{A10.204}{
   shape=rectangle,
   rows=8,
   seats per row=17,

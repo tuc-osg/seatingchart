@@ -165,9 +165,11 @@ function seatingSchemeInRows(pat,policy)
 	    pndx = pndx + step
 	 elseif curkind == SEATEMPTY then
 	    pndx = pndx + step
-	 elseif curkind == SEATREMOVED and  policy["ignore removed seats"]==false then 
+	 elseif string.upper(string.sub(pat,pndx,pndx)) == 'X' and curkind == SEATREMOVED and  policy["ignore removed seats"]==false then 
 	    pndx = pndx + step
 	    runningseat=runningseat+1
+	 elseif curkind == SEATREMOVED and  policy["ignore removed seats"]==false then
+	    pndx = pndx + step
 	 elseif curkind == AISLE then
 	    if policy["aisle restarts"] then
 	       pndx = step

@@ -289,23 +289,31 @@
   ignore removed seats.initial:n = false,
   pattern.store=\tss@pattern,
   scheme.choice:,
-  scheme/simple.meta:n={
+  scheme/2x2.meta:n={
     row sep=2,
     pattern=X-,
     aisle restarts scheme=true,
     row restart after=100
   },
-  scheme/2x2.meta:n={
-    scheme=simple
+  assigned seat format.store=\tss@as@format,
+  assigned seat format.initial:n=m{{\,}}D, 
+  scheme/simple.meta:n={
+    scheme=2x2
   },
-  scheme/sixpack.meta:n={
+  scheme/2x3.meta:n={
     row sep=2,
     pattern=X--,
     aisle restarts scheme=true,
     row restart after=100
   },
-  scheme/2x3.meta:n={
-    scheme=sixpack
+  scheme/sixpack.meta:n={
+    scheme=2x3
+  },
+  scheme/2x4.meta:n={
+    row sep=2,
+    pattern=X---,
+    aisle restarts scheme=true,
+    row restart after=100
   },
   scheme/sixpack-.meta:n={
     row sep=2,
@@ -313,14 +321,14 @@
     aisle restarts scheme=true,
     row restart after=3
   },
-  scheme/dense.meta:n={
+  scheme/2x2-.meta:n={
     row sep=2,
     pattern=X-,
     aisle restarts scheme=true,
     row restart after=3
   },
-  scheme/2x2-.meta:n={
-    scheme=dense
+  scheme/dense.meta:n={
+    scheme=2x2-
   }
 }
 
@@ -330,7 +338,6 @@
 
 \NewDocumentCommand{\tucsSeatingScheme}{s o m}{
   \IfValueT{#2}{
-    \typeout{*** Set #2}
     \SetKeys[tucsseatingscheme]{#2}
   }
   \IfBooleanTF{#1}{  %
@@ -352,30 +359,73 @@
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
 \ExplSyntaxOn
-\newcommand{\inttoalph}[1]{
-  \int_to_alph:n{#1}
-}
-\newcommand{\inttoAlph}[1]{
-  \MakeUppercase{\int_to_alph:n{#1}}
-}
-\ExplSyntaxOff
 
-\NewDocumentCommand{\tucsassignedlabelformat}{O{} m m m m m}{
-  % #1: absolute row
-  % #2: absolute seat
-  % #3: running row
-  % #4: running seat
-  % #5: text
+
+
+\newcommand\tuc@format@label[6]{
+  % absolut row, arabic:  m
+  % absolut row, alpha:   a 
+  % absolut row, Alpha:   A
+  % absolut row, roman:   y
+  % absolut row, Roman:   Y
+  % running row, arabic:  r
+  % running row, alpha:   b
+  % running row, Alpha:   B
+  % running row, roman:   i
+  % running row, Roman:   I
+  % absolut seat, arabic: n
+  % absolut seat, alpha:  c
+  % absolut seat, Alpha:  C
+  % absolut seat, roman:  x
+  % absolut seat, Roman:  X
+  % running seat, arabic: s
+  % running seat, alpha:  d
+  % running seat, Alpha:  D
+  % running seat, roman:  j
+  % running seat, Roman:  J
+  % Label:                l
+  \expandafter\str_case:NnTF{\tl_to_str:n{#6}}{
+  {m}{#1}
+  {a}{\int_to_alph:n{#1}}
+  {A}{\int_to_Alph:n{#1}}
+  {y}{\int_to_roman:n{#1}}
+  {Y}{\int_to_Roman:n{#1}}
+  {r}{#3}
+  {b}{\int_to_alph:n{#3}}
+  {B}{\int_to_Alph:n{#3}}
+  {i}{\int_to_roman:n{#3}}
+  {I}{\int_to_Roman:n{#3}}
+  {n}{#2}
+  {c}{\int_to_alph:n{#2}}
+  {C}{\int_to_Alph:n{#2}}
+  {x}{\int_to_roman:n{#2}}
+  {X}{\int_to_Roman:n{#2}}
+  {s}{#4}
+  {d}{\int_to_alph:n{#4}}
+  {D}{\int_to_Alph:n{#4}}
+  {j}{\int_to_roman:n{#4}}
+  {J}{\int_to_Roman:n{#4}}
+  {l}{#5}
+  }{}{#6}
+}
+
+\NewDocumentCommand{\tucsassignedlabelformat}{O{\tss@as@format} m m m m m}{
+  % #2: absolute row
+  % #3: absolute seat
+  % #4: running row
+  % #5: running seat
+  % #6: text
+  \tl_map_tokens:Nn{#1}{\tuc@format@label{#2}{#3}{#4}{#5}{#6}}
   
-  {#1}-\inttoAlph{#4}
 }
 \NewDocumentCommand{\tucemptylabelformat}{m m m m m}{
-  % #1: absolute row
-  % #2: absolute seat
-  % #3: running row
-  % #4: running seat
-  % #5: text
+  % #2: absolute row
+  % #3: absolute seat
+  % #4: running row
+  % #5: running seat
+  % #6: text
 }
+\ExplSyntaxOff
 
 \newcommand{\tucsrownumformat}[1]{%
   #1
@@ -410,7 +460,7 @@
 %          correct.}
 %    }
 % }{}
-% ... for usefull layout parameter
+% ... with usefull layout parameters
 \ifboolexpr{
        test {\ifnumcomp{\tucs@rows}{<}{1}} or
        test {\ifnumcomp{\tucs@seatsperrow}{<}{1}}
