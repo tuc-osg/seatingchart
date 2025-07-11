@@ -1,28 +1,29 @@
-\documentclass[
-%load=tucseating,
-babel=ngerman
-]{skdoc}
+\documentclass{cnltx-doc}
+% \documentclass[
+% %load=tucseating,
+% babel=ngerman
+% ]{skdoc}
+\RequirePackage{multicol}
+\RequirePackage{ragged2e}
 \usepackage[room=A10.201]{tucseating}
-\microtypesetup{disable=true}
-
-\package{\packagename}
-\version{\packageversion}
-\repository{https://github.com/tuc-osg/tucseating}
+%\microtypesetup{disable=true}
+\let\thepkg\packagename
+%\package{\packagename}
+%\version{\packageversion}
+%\repository{https://github.com/tuc-osg/tucseating}
 \author{Matthias Werner}
-\email{matthias.werner@informatik.tu-chemnitz.de}
-\title{Das \thepkg-Paket}
+%\email{matthias.werner@informatik.tu-chemnitz.de}
+\title{Das \pkg*{\packagename}-Paket}
 
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-    tucseating ermöglicht es, einfach Sitzpläne zu
-generieren, wie sie z. B. für Prüfungen benö-
-tigt werden. Eine Reihe verschiedener automa-
-tischer Platzierungsschemata sind vordefiniert,
-aber man kann auch feingranular eigene Plat-
-zierungen vornehmen.
+Das Paket \thepkg ermöglicht es, einfach Sitzpläne zu
+generieren, wie sie z. B. für Prüfungen benötigt werden. Eine Reihe
+verschiedener automatischer Platzierungsschemata sind vordefiniert, 
+aber man kann auch feingranular eigene Platzierungen vornehmen.
 Während das Paket zunächst für den internen
 Gebrauch an der TU Chemnitz gedacht ist und
 (einige) vordefinierte Raumpläne enthält, sind
@@ -59,8 +60,6 @@ Es lädt folgende Pakete:
   \item \pkg{etoolbox} 
   \item \pkg{luacode}
   \item \pkg{tikz}
-  \item \pkg{translator}
-  \item \pkg{xstring}
 \end{itemize}
 Diese Pakete sind in allen gängigen \TeX-Distributionen vorhanden.
 
@@ -73,7 +72,7 @@ geladen.
 Wenn der genutzte Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist,
 kann man ihn mit der Option
 
-\Option{room=}\WithValues{\meta{Raumnummer}}
+%\Option{room=}\WithValues{\meta{Raumnummer}}
 festlegen.
 Ansonsten
 
