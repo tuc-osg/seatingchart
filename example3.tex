@@ -4,8 +4,8 @@
 \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
 
 \usepackage[
-room=C10.115,     % Wird immer benötigt
-blackboard,       % falls wir eine Tafel darstellen wollen
+rows = 8,
+seats per row=5,
 rownumbers = both,% Rechts und links Sitzreihennummern
 ]{tucseating}
 
@@ -20,8 +20,7 @@ rownumbers = both,% Rechts und links Sitzreihennummern
   % und fett in kleiner Schrift.
   assigned seat label font = \small\bfseries
 }
-
-\seatingScheme{2x3}
+\tucsSeatingScheme{2x3}
 
 \tucsDrawSeating
 
