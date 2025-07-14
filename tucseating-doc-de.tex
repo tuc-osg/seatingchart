@@ -235,7 +235,7 @@ Zeichenkette kürzer als die Anzahl der Sitze in der Reihe, wird sie wiederholt 
 Reihe mehr Plätze als 
 Beispielsweise wird mit
 \begin{example}[code-only]
-  \tucsSeatingScheme{X--}
+  \tucsSeatingScheme*{X--}
 \end{example}
 jeder dritte Sitz belegt.
 
@@ -317,14 +317,15 @@ Es stehen dafür vier Zähler zur Verfügung:
 \item absolute Sitznummer: die Nummer des Sitzes im Sitzlayout. Ob hier auch
   entfernte Sitze berücksichtigt werden, hängt vom Wert des Schlüssels
   \option*{ignore removed seats} ab.
-\item laufende Sitznummer: die Nummer der \emph{belegten} Sitze, unbelegte Sitze
+\item laufende Sitznummer: die Nummer der \emph{belegten} Sitze. Unbelegte Sitze
   werden bei der Zählung übersprungen.
 \end{itemize}
 Jeder dieser Zähler kann unterschiedlich formatiert werden. Dafür werden in der
 Formatzeichenkette verschiedene Formatierungszeichen benutzt, die in der
-folgenden Tabelle gelistet sid:
+folgenden Tabelle gelistet sind:
+
 \begin{tabular}{llccccc}
-  \textbf{\sffamily Wert}&\textbf{\sffamily Anmerkung}&\multicolumn{5}{c}{\textbf{\sffamily Darstellung als\ldots}}\\
+  \textbf{\sffamily Zähler}&\textbf{\sffamily Anmerkung}&\multicolumn{5}{c}{\textbf{\sffamily Darstellung als\ldots}}\\
       &&\rotatebox{90}{(arabische) Zahl}&\rotatebox{90}{Kleinbuchstabe}&\rotatebox{90}{Großbuchstabe}&
  \rotatebox{90}{kleine römische Zahl}&\rotatebox{90}{große römische
                            Zahl}\\\hline
@@ -333,9 +334,14 @@ folgenden Tabelle gelistet sid:
   absolute Sitznummer&\emph{bezieht sich auf das Sitzlayout}&\code{n}&\code{c}&\code{C}&\code{x}&\code{X}\\
   laufende Sitznummer&\emph{bezieht sich auf das Belegungsschema}&\code{s}&\code{d}&\code{D}&\code{j}&\code{J}\\\hline
 \end{tabular}
+
 Teile der Beschriftung, die nicht als Formatierungszeichen interpretiert werden
 sollen, werden in doppelte geschweifte Klammern gesetzt
 (\code{\{\{\meta{geschützte Zeichenkette}\}\}}).
+\begin{example}[code-only]
+  \tucsSeatingScheme[]{2x3}
+  
+\end{example}
 \section{Beispiele}
 \label{sec:examples}
 To be done
