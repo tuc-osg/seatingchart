@@ -1,15 +1,23 @@
-%% -----------------------------------------------------------
-%% Package:     tucseating
-%% Version:     v0.1 (2025-07-04)
-%% Author:      Matthias Werner
-%% Description: Seatings schemes (for Chemnitz
-%%              University of Technology)
-%% License:     GPLv3
-%% -----------------------------------------------------------
+\ExplSyntaxOn
+\def\packagename{
+  %% Name:
+  tucseating
+}
+\def\packagedate{
+  %% Date:
+  2025-07-04
+}
+\def\packageversion{
+  %% Version:
+  v0.2
+}
+\ExplSyntaxOff
+  %% Author:      Matthias Werner
+  %% Description: Seatings schemes (for Chemnitz
+  %%              University of Technology)
+  %% License:     GPLv3
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
-\def\packagename{tucseating}
-\def\packagedate{2025-07-04}
-\def\packageversion{0.2}
+
 \ProvidesPackage{\packagename}[\packagedate\space \packageversion]
 \RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
@@ -188,32 +196,32 @@
 
 \ProcessKeyOptions
 
-\NewDocumentCommand{\tucsConfig}{m}{
+\NewDocumentCommand{\tucsConfig}{m}{%
   \SetKeys[tucseating]{#1}%
   \tucs@configtikz%
 }
-
+\ExplSyntaxOn
 \newcommand\tucs@configtikz{%
   \tikzset{%
-    empty seat/.style={
+    empty~seat/.style={
       draw=\tucs@sc@emptyborder,
       fill=\tucs@sc@empty,
       font=\tucs@s@emptyfont,
       text=\tucs@sc@empty,
-      inner sep=0pt
+      inner~sep=0pt
     },
-    empty label/.style={
+    empty~label/.style={
       text=\tucs@sc@emptytext,
       font=\tucs@s@emptyfont
     },
-    assigned seat/.style={
+    assigned~seat/.style={
       draw=\tucs@sc@assignedborder,
       fill=\tucs@sc@assigned,
       text=\tucs@sc@assigned,
       font=\tucs@s@assignedfont,
-      inner sep=0pt
+      inner~sep=0pt
     },
-    assigned label/.style={
+    assigned~label/.style={
       text=\tucs@sc@assignedtext,
       font=\tucs@s@assignedfont
     },
@@ -224,39 +232,44 @@
     }%
   }%
 }
-\ExplSyntaxOn
-\DeclareKeys{
-  seat width.dim_set:N=\tucsseatwidth,
-  seat height.dim_set:N=\tucsseatheight,
+\DeclareKeys[tucsdrawing]{
+  seat~width.code:n={
+    \setlength{\tucsseatwidth}{#1}
+  },
+  seat~height.code:n={
+    \setlength{\tucsseatheight}{#1}
+  }
 }
 \NewDocumentCommand{\tucsDrawSeating}{sO{}}{%
+  \par\noindent%
   \tucs@configtikz%
-  %\newlength\tucsseatwidth
-  %\newlength\tucsseatheight
+  \newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
+  \newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
   \newlength\tucsremainingspace%
   \newlength\tucsrnlength%
-  \IfBooleanTF{#1}{% ToDo: API for user
-    \settowidth{\tucsseatwidth}{xxx}%
-    \settoheight{\tucsseatheight}{Xy}%
-  }{%
-    \setlength{\tucsremainingspace}{\linewidth}%
+  \IfValueT{#2}{% 
+    \SetKeys[tucsdrawing]{#2}%
+  }
+  \IfBooleanF{#1}{%
+   \setlength{\tucsremainingspace}{\linewidth}%
     \settowidth{\tucsrnlength}{\tucsrownumformat{99}}%
-    % \typeout{Linewidth: \the\linewidth}
-    % \typeout{Numswidth: \the\tucsrnlength}
+    %\typeout{Linewidth: \the\linewidth~(\the\tucsremainingspace)}
+    %\typeout{Numswidth: \the\tucsrnlength~(seats:~\tucs@seatsperrow)}
     %\typeout{********* Remaining start: \the\tucsremainingspace}%
     \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{-\dimeval{\tucsrnlength+\tucs@rnsep}}}{}%
-    %\typeout{********* Remaining if left: \the\tucsremainingspace}%
+    %\typeout{********* Remaining~left~considered: \the\tucsremainingspace}%
     \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{-\dimeval{\tucsrnlength+\tucs@rnsep}}}{}%
-    %\typeout{********* Remaining if right: \the\tucsremainingspace}%
+    %\typeout{********* Remaining~right~considered: \the\tucsremainingspace}%
     \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - \tucs@sdist@x}}
-    % \typeout{Seatwidth: \the\tucsseatwidth}
-    % \typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
+    %\typeout{Seatwidth: \the\tucsseatwidth}
+    %\typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
     %\typeout{********* Total: \the\pagetotal\ Goal: \the\pagegoal\ Height: \the\textheight}%
     \ifdimequal{\pagetotal}{0pt}{%
       \setlength{\tucsremainingspace}{\textheight}%
     }{%
       \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}%
     }%
+    %\typeout{********* Total: \the\pagetotal\ Goal: \the\pagegoal\ Height: \the\textheight}%
     %\typeout{********* Remaining: \the\tucsremainingspace\ Width: \the\textwidth\ Height: \the\textheight}%
     \iftucs@blackboard%
       \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - \tucs@sdist@y}}%
@@ -266,11 +279,11 @@
     % A seat that is deeper than it is wide looks a bit silly.
     \ifdimcomp{\tucsseatheight}{>}{\tucsseatwidth}{\setlength{\tucsseatheight}{\tucsseatwidth}}{}%
   }%
+  %\typeout{*********~Seatwidth:~\the\tucsseatwidth, Seatheight:~\the\tucsseatheight}%
   \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}%
-  \noindent%
   \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y,#2]
-      \iftucs@blackboard
-         \node[rectangle, draw,minimum width=0.4\textwidth] at (0,-2) {Tafel};
+      \iftucs@blackboard%
+         \node[rectangle, draw,minimum~width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
       \iftoggle{tucs@rectshapt}{
         \iftoggle{tucs@rnleft}{
@@ -288,6 +301,7 @@
     \end{tikzpicture}
 }
 \ExplSyntaxOff
+
 
 \DeclareKeys[tucsseatingscheme]{
   row sep.store = \tss@rowsep,
@@ -308,9 +322,7 @@
   aisle restarts scheme.default:n = true,
   aisle restarts scheme.initial:n = false,
   ignore aisle.meta:n = {
-    \if#1false\relax\else
     aisle counts=0
-    \fi
   },
   rtol.choice:,
   rtol/true.store = \tss@rtol,
@@ -357,6 +369,12 @@
     aisle restarts scheme=true,
     row restart after=100
   },
+  scheme/3x4.meta:n={
+    row sep=3,
+    pattern=X---,
+    aisle restarts scheme=true,
+    row restart after=100
+  },
   scheme/sixpack-.meta:n={
     row sep=2,
     pattern=X--,
@@ -388,10 +406,10 @@
     \SetKeys[tucsseatingscheme]{scheme=#3}
   }%
   \def\tucspolicy{
-    {["aisle restarts"]=\tss@aislerestart,
+    {["aisle~restarts"]=\tss@aislerestart,
       ["rtol"]=\tss@rtol,
       ["aisle counts"]=\tss@aislecnt,
-      %["aisle restarts scheme"]=\tss@aislecnt,
+      ["aisle restarts scheme"]=\tss@aislecnt,
       ["ignore removed seats"]=\tss@ignoreremoved,
       ["row sep"]=\tss@rowsep,
       ["row restart"]=\tss@rowrestart,

@@ -179,7 +179,7 @@ function seatingSchemeInRows(pat,policy)
 	 end
 	 seat = seat + step
       end
-   end
+   end 
 end
 	
 -- Drawing

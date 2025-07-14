@@ -1,39 +1,79 @@
-\documentclass{cnltx-doc}
+% Patch cnltx-doc class
+\makeatletter
+\RequirePackage{luatex85}
 \RequirePackage{multicol}
 \RequirePackage{ragged2e}
-\usepackage[ngerman]{babel}
-\usepackage[hidelinks]{hyperref}
-\usepackage{url}
+\disable@package@load{libertinehologopatch.sty}{}
+\AddToHook{package/hyperref/after}{%
+  \newrobustcmd*\cnltx@tableofcontents{%
+    \begingroup
+    \let\tocbasic@listhead\@gobble
+    \RaggedRight
+    \tableofcontents
+    \endgroup
+  }%
+}
+\makeatother
+% end patch
+
+\documentclass[
+babel-options={ngerman},
+load-preamble-,
+title=compact
+]{cnltx-doc}
+
+%\usepackage[oldstyle]{libertine}
+%\usepackage[scaled=.81]{beramono}
+% \setmonofont[
+%             Scale = MatchLowercase,
+%             Ligatures = {NoCommon,NoRequired,NoContextual}
+%             ]{DejaVu Sans Mono}
+
 %\usepackage[room=A10.201]{tucseating}
- 
-%\microtypesetup{disable=true}
-\ifdef{\packagename}{}{
-  \def\packagename{tucseating}
+\providecommand{\packagename}{tucseating}
+\providecommand{\packageversion}{v0.2}
+\providecommand{\packagedate}{\today}
+\setcnltx{
+  name  = tucseating,
+  package  = \packagename,
+  version  = \packageversion,
+  date     = \packagedate,
+  title    = Das \pkg*{tucseating}-Paket,
+  info     = Erstellung von Sitzplänen,
+  authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
+  abstract = {Das Paket ermöglicht es, Sitzpläne, wie sie z. B. für Prüfungen
+    benötigt werden, einfach zu erstellen. Eine Reihe
+    verschiedener automatischer Platzierungsschemata sind vordefiniert, 
+    aber man kann auch feingranular eigene Platzierungen vornehmen.
+    Während das Paket zunächst für den internen
+    Gebrauch an der TU Chemnitz gedacht ist und
+    (einige) vordefinierte Raumpläne enthält, sind
+    einerseits sowohl die Raumdaten leicht erweiter-
+    oder ersetzbar, andererseits können Räume auch
+    ad hoc erstellt werden.},
+  url      =https://github.com/tuc-osg/tucseating,
+  build-title
 }
 \def\thepkg{\pkg*{\packagename}}
-%\repository{https://github.com/tuc-osg/tucseating}
-\author{Matthias Werner}
-\subtitle{Version 0.2}
-%\email{matthias.werner@informatik.tu-chemnitz.de}
-\title{Das \pkg*{\packagename}-Paket}
-
+ 
+% %\microtypesetup{disable=true}
+% %\repository{https://github.com/tuc-osg/tucseating}
+% \author{Matthias Werner}
+% \subtitle{Version 0.2}
+% %\email{matthias.werner@informatik.tu-chemnitz.de}
+% \title{Das \pkg*{\packagename}-Paket}
+% \makeatletter
+% \newrobustcmd*\cnltx@tableofcontents{%
+%   \begingroup
+%   \let\tocbasic@listhead\@gobble
+%   \RaggedRight
+%   \tableofcontents
+%   \endgroup
+% }
+% \makeatother
 
 \begin{document}
-\maketitle
 
-\begin{abstract}\noindent
-  Das Paket \thepkg\ ermöglicht es, Sitzpläne, wie sie z. B. für Prüfungen
-  benötigt werden, einfach zu erstellen. Eine Reihe
-  verschiedener automatischer Platzierungsschemata sind vordefiniert, 
-  aber man kann auch feingranular eigene Platzierungen vornehmen.
-  Während das Paket zunächst für den internen
-  Gebrauch an der TU Chemnitz gedacht ist und
-  (einige) vordefinierte Raumpläne enthält, sind
-  einerseits sowohl die Raumdaten leicht erweiter-
-  oder ersetzbar, andererseits können Räume auch
-  ad hoc erstellt werden.
-\end{abstract}
-\tableofcontents
 
 \section{Einführung}
 Für die Durchführung von Prüfungen benötigen wir mitunter Sitzpläne.
@@ -45,12 +85,12 @@ Platzierungsschemata, so dass wir die Dateien in anpassen müssen.
 Außerdem wird uns von Zeit zu Zeit ein neuer Raum zugewiesen, für den wir noch
 keine Pläne haben.
 
-Dies war die Motivation zur Erschaffung des \thepkg-Pakets. Es\ldots
+Dies war die Motivation zur Erschaffung des \thepkg-Pakets. Es \ldots
 \begin{itemize}
   \item ermöglicht eine schnelle und einfach Erstellung von Sitzplänen;
-  \item trennt das Raumlayout und das Platzierungsschema voneinander;
+  \item trennt das Sitzlayout und das Platzierungsschema voneinander;
   \item bietet eine Reihe von Standardschemata für die Platzierung an;
-  \item enthält bereits eine Anzahl vordefinierter Layouts der Sitze;
+  \item enthält bereits eine Anzahl vordefinierter Räume mit Layouts der Sitze;
   \item erlaubt eine \emph{Ad-hoc}-Erstellung neuer Räume und Platzierungsschemata.
 \end{itemize}
 
@@ -63,7 +103,10 @@ Es lädt folgende Pakete:
   \item \pkg{luacode}
   \item \pkg{tikz}
 \end{itemize}
-Diese Pakete sind in allen gängigen \TeX-Distributionen vorhanden.
+Diese Pakete sind in allen gängigen \TeX-Distributionen vorhanden und haben
+wiederum andere Pakete als Abhängigkeit.
+Insbesondere wird durch \pkg*{tikz} das Paket \pkg{xcolor} geladen, dessen
+Farbdefinition auch in \thepkg\ verwendet werden.
 
 \section{Sitzlayout}
 Das Paket wird auf dem üblichen Weg mit
@@ -72,8 +115,10 @@ Das Paket wird auf dem üblichen Weg mit
 \cs{usepackage}\oarg{optionen}\{\thepkg\}
 %}
 geladen.
-Dabei kann bereits weitgehend das Layout des Sitzplans festgelegt werden, also
-die Darstellung der Sitze im Raum.
+Dabei kann bereits weitgehend das Layout der Sitze festgelegt werden, also
+die Darstellung der Sitze im Raum. Die Zuweisung der Sitzbelegung erfogt später,
+siehe Abschnitt~\ref{sec:seat-assignment}.
+
 \subsection{Klassenoptionen}
 \label{sec:class-options}
 Durch einige der Optionen werden zwei grundsätzliche Anwendungsfälle
@@ -95,7 +140,7 @@ Beschreibung des Raumslayout gebraucht.
   jeweils maximalen Anzahl ausgehen. Für unvollständige Reihen werden später Sitze
   entfernt, aber es können keine Sitze mehr zugefügt werden, die außerhalb des einmal
   festgelegten Layoutrahmens liegen. \textbf{Achtung:} Auch Gänge zwischen
-  Blöcken von Sitzen müssen hier wie Sitze gezählt werden.
+  Blöcken von Sitzen müssen hier als Sitze mitgezählt werden.
 \end{options}
 Wenn Sie bei den Klassenoptionen \textbf{sowohl} den Schlüssel \option*{room}, \textbf{als auch}
 eine der Schlüssel \option*{rows} oder \option*{seats per row} angeben, ist das Ergebnis
@@ -195,26 +240,26 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
   dem Sitzplan einzeln eingestellt werden.
 \end{commands}
 
-
+Das folgende Beispiel zeigt den Code und das Ergebnis für ein einfaches Sitzplanlayout
+mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
-  \documentclass{scrartcl}
-  % Um das Papier gut auszunutzen, nutzen wir es in
-  % Landscape und reduzieren die Ränder
-  \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
-  \usepackage[
+    \documentclass{scrartcl}
+    % Um das Papier gut auszunutzen, nutzen wir es in
+    % Landscape und reduzieren die Ränder
+    \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
+    \usepackage[
     shape=rectangle,
     rows = 8,
     seats per row=9,
-  ]{tucseating}
-
-  \begin{document}
-    \tucsSetAisle{5}
-    \tucsRemoveSeatAt{1}{1}
-    \tucsDrawSeating
-  \end{document}
+    ]{tucseating}
+    
+    \begin{document}
+      \tucsSetAisle{5}
+      \tucsRemoveSeatAt{1}{1}
+      \tucsDrawSeating
+    \end{document}
 \end{example}
-Der vorstehende Code zeigt Erzeugung Darstellung eines einfachen Sitzplanlayouts
-mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
+
 
 
 \section{Sitzplatzbelegung}
@@ -222,15 +267,16 @@ mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
 \subsection{Parameter zur Konstruktion von Belegungsschemata}
 \label{sec:constr-scheme}
 Natürlich ist ein Sitzplan ohne die Markierung von belegten Plätzen
-etwas witzlos.
+nur bedingt nützlich.
+Daher 
 Zur Erzeugung eines Sitzschemas gibt es den Befehl
 \begin{commands}
   \command{tucsSeatingScheme}[\sarg\oarg{Schlüsselliste}\marg{Schema}]
 Das Pflichtargument enthält in der Standardvariante des Befehls eine Bezeichnung
-für ein vorgegebenes Sitzschema, siehe \ref{sec:defined-schemes}.
-In der Sternvariante wird hier eine Zeichenkette von "`X"' und "`-"' übergeben,
+für ein vorgegebenes Sitzschema, siehe Abschnitt~\ref{sec:defined-schemes}.
+In der Sternvariante wird hier eine Zeichenkette von "`\code{X}"' und "`\code{-}"' übergeben,
 die (den Anfang) eines Sitzschemas für eine einzelne Reihe beschreibt, wobei
-"`X"' für einen belegten und "`-"' für einen leeren Platz steht. Ist die
+"`\code{X}"' für einen belegten und "`\code{-}"' für einen leeren Platz steht. Ist die
 Zeichenkette kürzer als die Anzahl der Sitze in der Reihe, wird sie wiederholt angewendet.
 Reihe mehr Plätze als 
 Beispielsweise wird mit
@@ -252,10 +298,10 @@ werden:
   Durch diese beiden Schlüssel wird gesteuert, in welchen Reihen ein Schema
   angewendet wird. Dadurch können unterschiedliche Schemata für verschiedene
   Reihen genutzt werden.
-  % \keyval-{row restart after}{Anzahl}\Default
-  % Das Sitzschema wird nach \meta{Anzahl} Reihen zurückgesetzt. Damit wird es
-  % möglich, alternanierende Reihenabstände zu erzielen, vergleiche Beispiel x in
-  % \ref{}.
+  \keyval-{row restart after}{Anzahl}\Default
+  Das Sitzschema wird nach \meta{Anzahl} Reihen zurückgesetzt. Damit wird es
+  möglich, alternanierende Reihenabstände zu erzielen, vergleiche Beispiel x in
+  \ref{}.
   \keyval-{aisle counts}{Anzahl}\Default{1}
   Legt fest, wie viele Sitze ein Gang zählt. Dadurch kann berücksichtigt werden,
   dass ein Gang häufig breiter als ein Sitzplatz ist.
@@ -302,8 +348,16 @@ Platzierungsschemata. Manche haben auch einen Alternativnamen.
   \opt{2x3}
   Belegte Sitze haben einen seitlichen Abstand von zwei Sitzen und belegte
   Reihen einen Abstand von einer Leerreihe. Dies wird in unser Gruppe als das
-  anzustrebende Standardschem betrachtet.\newline Alternativname: \option{sixpack}
+  anzustrebende Standardschema für Prüfungen betrachtet.\newline Alternativname:
+  \option{sixpack}
+  \opt{2x4}
+  Belegte Sitze haben einen seitlichen Abstand von drei Sitzen und belegte
+  Reihen einen Abstand von einer Leerreihe.
+  \opt{3x4}
+  Belegte Sitze haben einen seitlichen Abstand von drei Sitzen und belegte
+  Reihen einen Abstand von zwei Leerreihen.
 \end{options}
+
 \subsection{Sitzbeschriftung}
 \label{sec:seat-label}
 Die Beschriftung der zugewiesenen Sitzplätze kann auf unterschiedliche Weise
@@ -322,9 +376,9 @@ Es stehen dafür vier Zähler zur Verfügung:
 \end{itemize}
 Jeder dieser Zähler kann unterschiedlich formatiert werden. Dafür werden in der
 Formatzeichenkette verschiedene Formatierungszeichen benutzt, die in der
-folgenden Tabelle gelistet sind:
+folgenden Tabelle gelistet sind:\medskip
 
-\begin{tabular}{llccccc}
+\begin{tabular}{llccccc}\hline
   \textbf{\sffamily Zähler}&\textbf{\sffamily Anmerkung}&\multicolumn{5}{c}{\textbf{\sffamily Darstellung als\ldots}}\\
       &&\rotatebox{90}{(arabische) Zahl}&\rotatebox{90}{Kleinbuchstabe}&\rotatebox{90}{Großbuchstabe}&
  \rotatebox{90}{kleine römische Zahl}&\rotatebox{90}{große römische
@@ -333,18 +387,56 @@ folgenden Tabelle gelistet sind:
   laufende Reihe&\emph{bezieht sich auf das Belegungsschema}&\code{r}&\code{b}&\code{B}&\code{i}&\code{I}\\ 
   absolute Sitznummer&\emph{bezieht sich auf das Sitzlayout}&\code{n}&\code{c}&\code{C}&\code{x}&\code{X}\\
   laufende Sitznummer&\emph{bezieht sich auf das Belegungsschema}&\code{s}&\code{d}&\code{D}&\code{j}&\code{J}\\\hline
-\end{tabular}
+\end{tabular}\medskip
 
+\noindent
 Teile der Beschriftung, die nicht als Formatierungszeichen interpretiert werden
 sollen, werden in doppelte geschweifte Klammern gesetzt
 (\code{\{\{\meta{geschützte Zeichenkette}\}\}}).
+Beispielsweise erzeugt
 \begin{example}[code-only]
-  \tucsSeatingScheme[]{2x3}
-  
+  \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
 \end{example}
+beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
 \section{Beispiele}
 \label{sec:examples}
-To be done
+
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+   % Um das Papier gut auszunutzen, nutzen wir es in
+   % Landscape und reduzieren die Ränder
+   \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
+   \usepackage[
+   room=C10.115,
+   blackboard
+  ]{tucseating}
+
+  \begin{document}
+      % Standardtitelei nimmt viel Platz weg.
+      \centering\textbf{\Huge\sffamily Sitzplan C10.115}\bigskip
+      \tucsSeatingScheme{sixpack}
+      \tucsDrawSeating
+  \end{document}
+\end{example}
+
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+   % Um das Papier gut auszunutzen, nutzen wir es in
+   % Landscape und reduzieren die Ränder
+   \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
+   \usepackage[
+   room=A10.316,
+   blackboard
+  ]{tucseating}
+
+  \begin{document}
+      % Standardtitelei nimmt viel Platz weg.
+      \centering\textbf{\Huge\sffamily Sitzplan A10.316}\bigskip
+      \tucsSeatingScheme[ignore removed seats]{2x2}
+      \tucsDrawSeating
+  \end{document}
+\end{example}
+
 \section{Deklaration neuer Räume}
 \section{Fehler}
 \end{document}
