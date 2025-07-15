@@ -304,10 +304,32 @@
 
 
 \DeclareKeys[tucsseatingscheme]{
+  empty seat background color.store =\tucs@sc@empty,
+  empty seat border color.store = \tucs@sc@emptyborder,
+  empty seat label color.store = \tucs@sc@emptytext,
+  empty seat label font.store = \tucs@s@emptyfont,
+  assigned seat background color.store = \tucs@sc@assigned,
+  assigned seat border color.store = \tucs@sc@assignedborder,
+  assigned seat label color.store = \tucs@sc@assignedtext,
+  assigned seat label font.store = \tucs@s@assignedfont,
+  seat background color.meta:n = {
+    empty seat background color=#1,
+    assigned seat background color =#1
+  },
+  seat label color.meta:n = {
+    empty seat label color = #1,
+    assigned seat label color = #1
+  },
+  seat border color.meta:n = {
+    empty seat border color = #1,
+    assigned seat border color = #1
+  },
+  seat label font.meta:n = {
+    empty seat label font=#1,
+    assigned seat label font = #1
+  },
   row sep.store = \tss@rowsep,
   row sep.initial:n = 2,
-  %col sep.store = \tss@colsep,
-  %col sep.initial:n = 2,
   start row.store = \tss@startrow,
   start row.initial:n=1,
   end row.store = \tss@endrow,
@@ -392,9 +414,9 @@
   }
 }
 
-% \NewDocumentCommand{\setupSeatingScheme}{m}{
-%   \SetKeys[tucsseatingscheme]{#1}
-% }
+\NewDocumentCommand{\tucsConfigScheme}{m}{
+  \SetKeys[tucsseatingscheme]{#1}
+}
 
 \NewDocumentCommand{\tucsSeatingScheme}{s o m}{
   \IfValueT{#2}{
