@@ -216,13 +216,30 @@ function drawSeats()
       end
    end
 end
+
+function extract_text_from_box(box_number)
+  local nodelist = tex.box[box_number].list
+  local text = {}
+
+  for n in node.traverse(nodelist) do
+    if n.id == node.id("glyph") then
+      -- Extrahiere Unicode-Zeichen
+      local char = utf8.char(n.char)
+      table.insert(text, char)
+    end
+  end
+
+  -- Ausgabe in die Konsole
+  print("Text in Box: " .. table.concat(text))
+end
  
-function generateseatlist(stream)
+function generateseatlist(stream,outb)
+   seatlogfile = io.open(stream, "w")
+   seatlogfile:write("")
+   seatlogfile:close()
    for _ ,s in  ipairs(AllSeats) do
       if s.kind == SEATASSIGNED then
-	 tex.sprint("\\edef\\tucslineout{\\tucsassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}}")
-	 tex.sprint("\\typeout{*** OUTPUT \\tucslineout}")
-	 tex.sprint("\\expandafter\\iownow\\expandafter",stream,"\\tucslineout")
+	 tex.sprint("\\writetolog{",stream,"}{\\tucsassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}}")
       end
    end
 end

@@ -18,11 +18,12 @@ rownumbers = both,% Rechts und links Sitzreihennummern
   %  Die Platzbezeichnungen blau...
   assigned seat label color = teal,
   % und fett in kleiner Schrift.
-  assigned seat label font = \small\bfseries
+  assigned seat label font = \small\bfseries,
 }
 
-\seatingScheme{2x3}
+\tucsSeatingScheme[assigned seat label={X{{\,}}a}]{2x3}
 
 \tucsDrawSeating
+\tucsSeatingList{list.csv}
 
 \end{document}

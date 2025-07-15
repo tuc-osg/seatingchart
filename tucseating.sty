@@ -301,12 +301,9 @@
     \end{tikzpicture}
 }
 
-\let\iownow=\iow_now:Nn
+\newbox\tucsoutbox
 \NewDocumentCommand{\tucsSeatingList}{s m}{
-  \iow_new:N{\tucsseatlistfile}
-  \iow_open:Nn\tucsseatlistfile{#2}
-  \luadirect{generateseatlist(\luastringN{\tucsseatlistfile})}
-  %\iow_close:N{#2}
+  \luadirect{generateseatlist(\luastring{#2})}
 }
 \ExplSyntaxOff
 
@@ -449,6 +446,20 @@
   %\typeout{POLICY=\tucspolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
+
+\NewDocumentCommand\writetolog{m m}{%
+  \setbox0\hbox{#2}%
+  \directlua{
+    -- tex.sprint("\typeout{******* writetolog called}")
+    seatlogfile = io.open(\luastring{#1}, "a")
+    for n in node.traverse(tex.box[0].head) do
+      -- tex.sprint("\typeout{*** id=",n.id,"}")
+      if n.id==13 or n.id==12 or n.id==11 then seatlogfile:write (" ") end
+      if n.id==29 then seatlogfile:write(string.char(n.char)) end
+    end
+    seatlogfile:write(string.char(10))
+    seatlogfile:close()
+}}
 \ExplSyntaxOn
 
 \newtoggle{tucs@formatother}
