@@ -121,6 +121,7 @@ function seatingSchemeInRows(pat,policy)
    local lrow = policy["last row"]
    local rstep = policy["row sep"]
    local rres  = policy["row restart"]
+   local ltext = policy["label text"]
    local runningrow = 1
    rs={}
    for r = frow, lrow do
@@ -153,9 +154,9 @@ function seatingSchemeInRows(pat,policy)
       while ((seat >= 1) and (seat<= numseats)) do
 	 local curkind = AllSeats[findSeatAt(r,seat)].kind
 	 -- tex.sprint("\\typeout{ Try seat ",seat,"(kind=",curkind,") with 'pat[",pndx,"]=",string.upper(string.sub(pat,pndx,pndx)),"'}")
-	 if string.upper(string.sub(pat,pndx,pndx)) == 'X' and (curkind == SEATEMPTY) then
-	 --   tex.sprint("\\typeout{*** Ask for assignment, rr=",rr,", rc=",runningseat,"}")
-	    assignSeatAt(r,seat,{ kind=SEATASSIGNED, rr=rr, rc=runningseat})
+	 if string.upper(string.sub(pat,pndx,pndx)) == 'X' and ((curkind == SEATEMPTY) or (curkind == SEATASSIGNED))then
+	    -- tex.sprint("\\typeout{*** Ask for assignment, rr=",rr,", rc=",runningseat,", label =",ltext,"}")
+	    assignSeatAt(r,seat,{ kind=SEATASSIGNED, rr=rr, rc=runningseat, label=ltext } )
 	    runningseat=runningseat+1
 	    pndx = pndx + step
 	 elseif curkind == SEATEMPTY then
@@ -216,3 +217,12 @@ function drawSeats()
    end
 end
  
+function generateseatlist(stream)
+   for _ ,s in  ipairs(AllSeats) do
+      if s.kind == SEATASSIGNED then
+	 tex.sprint("\\edef\\tucslineout{\\tucsassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}}")
+	 tex.sprint("\\typeout{*** OUTPUT \\tucslineout}")
+	 tex.sprint("\\expandafter\\iownow\\expandafter",stream,"\\tucslineout")
+      end
+   end
+end

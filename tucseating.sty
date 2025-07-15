@@ -300,8 +300,15 @@
       \luadirect{drawSeats()}
     \end{tikzpicture}
 }
-\ExplSyntaxOff
 
+\let\iownow=\iow_now:Nn
+\NewDocumentCommand{\tucsSeatingList}{s m}{
+  \iow_new:N{\tucsseatlistfile}
+  \iow_open:Nn\tucsseatlistfile{#2}
+  \luadirect{generateseatlist(\luastringN{\tucsseatlistfile})}
+  %\iow_close:N{#2}
+}
+\ExplSyntaxOff
 
 \DeclareKeys[tucsseatingscheme]{
   empty seat background color.store =\tucs@sc@empty,
@@ -419,9 +426,9 @@
 }
 
 \NewDocumentCommand{\tucsSeatingScheme}{s o m}{
-  \IfValueT{#2}{
+  \IfValueT{#2}{%
     \SetKeys[tucsseatingscheme]{#2}
-  }
+  }%
   \IfBooleanTF{#1}{  %
     \SetKeys[tucsseatingscheme]{pattern=#3}
   }{%
@@ -436,14 +443,18 @@
       ["row sep"]=\tss@rowsep,
       ["row restart"]=\tss@rowrestart,
       ["first row"]=\tss@startrow,
-      ["last row"]=\tss@endrow
+      ["last row"]=\tss@endrow,
+      ["label text"]=\luastringO{\tss@as@format}
     }}
   %\typeout{POLICY=\tucspolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
 \ExplSyntaxOn
 
-\newcommand\tuc@format@label[6]{
+\newtoggle{tucs@formatother}
+\newcommand\tucs@format@label[6]{%
+  %\typeout{**** try #6}
+  \togglefalse{tucs@formatother}
   % absolut row, arabic:  m
   % absolut row, alpha:   a 
   % absolut row, Alpha:   A
@@ -465,38 +476,47 @@
   % running seat, roman:  j
   % running seat, Roman:  J
   % Label:                l
-  \expandafter\str_case:NnTF{\tl_to_str:n{#6}}{
-  {m}{#1}
-  {a}{\int_to_alph:n{#1}}
-  {A}{\int_to_Alph:n{#1}}
-  {y}{\int_to_roman:n{#1}}
-  {Y}{\int_to_Roman:n{#1}}
-  {r}{#3}
-  {b}{\int_to_alph:n{#3}}
-  {B}{\int_to_Alph:n{#3}}
-  {i}{\int_to_roman:n{#3}}
-  {I}{\int_to_Roman:n{#3}}
-  {n}{#2}
-  {c}{\int_to_alph:n{#2}}
-  {C}{\int_to_Alph:n{#2}}
-  {x}{\int_to_roman:n{#2}}
-  {X}{\int_to_Roman:n{#2}}
-  {s}{#4}
-  {d}{\int_to_alph:n{#4}}
-  {D}{\int_to_Alph:n{#4}}
-  {j}{\int_to_roman:n{#4}}
-  {J}{\int_to_Roman:n{#4}}
-  {l}{#5}
-  }{}{#6}
+  \regex_match_case:nnTF{
+    {\cB.}{#6}% match all groups
+    {m}{#1}
+    {a}{\int_to_alph:n{#1}}
+    {A}{\int_to_Alph:n{#1}}
+    {y}{\int_to_roman:n{#1}}
+    {Y}{\int_to_Roman:n{#1}}
+    {r}{#3}
+    {b}{\int_to_alph:n{#3}}
+    {B}{\int_to_Alph:n{#3}}
+    {i}{\int_to_roman:n{#3}}
+    {I}{\int_to_Roman:n{#3}}
+    {n}{#2}
+    {c}{\int_to_alph:n{#2}}
+    {C}{\int_to_Alph:n{#2}}
+    {x}{\int_to_roman:n{#2}}
+    {X}{\int_to_Roman:n{#2}}
+    {s}{#4}
+    {d}{\int_to_alph:n{#4}}
+    {D}{\int_to_Alph:n{#4}}
+    {j}{\int_to_roman:n{#4}}
+    {J}{\int_to_Roman:n{#4}}
+    {l}{#5}
+  }{#6}{}{%
+    \PackageWarningNoLine{\packagename}{Unknown~formating~character '#6'}%
+  }
 }
 
-\NewDocumentCommand{\tucsassignedlabelformat}{O{\tss@as@format} m m m m m}{
+\NewDocumentCommand{\tucsassignedlabelformat}{o m m m m m}{
   % #2: absolute row
   % #3: absolute seat
   % #4: running row
   % #5: running seat
   % #6: text
-  \tl_map_tokens:Nn{#1}{\tuc@format@label{#2}{#3}{#4}{#5}{#6}}
+  \IfValueTF{#1}{%
+    \def\tucs@format{#1}%
+  }{%
+    \def\tucs@format{#6}
+  }%
+  %\typeout{*** Format: \tucs@format}
+  \expandafter\tl_map_tokens:Nn{\tucs@format}{\tucs@format@label{#2}{#3}{#4}{#5}{#6}}
   
 }
 \NewDocumentCommand{\tucemptylabelformat}{m m m m m}{
