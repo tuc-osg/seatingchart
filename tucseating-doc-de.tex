@@ -134,10 +134,10 @@ Beschreibung des Raumslayout gebraucht.
   Hier wird beschrieben, ob das Layout der Sitze rechteckig
   (\choices{rectangle}) oder bogenförmig (\choices{arc})\footnote{Z.\,B.\ an der
     TU~Chemnitz der Raum A10.316.} ist.
-  \keyval-{rows}{Anzahl der Sitzreihen}\Default*!{}
+  \keyval-{rows}{Anzahl der Sitzreihen}\Default*!{}\vspace{-.7\baselineskip}
   \keyval-{seats per row}{Sitze pro Sitzreihe}\Default!{}
-  Anzahl der Sitzreihen und Sitze pro Reihe. Dabei muss man immer von der
-  jeweils maximalen Anzahl ausgehen. Für unvollständige Reihen werden später Sitze
+  Besimmt Anzahl der Sitzreihen und Sitze pro Reihe. Dabei muss immer von der
+  jeweils maximalen Anzahl ausgegangen werden. Für unvollständige Reihen werden später Sitze
   entfernt, aber es können keine Sitze mehr zugefügt werden, die außerhalb des einmal
   festgelegten Layoutrahmens liegen. \textbf{Achtung:} Auch Gänge zwischen
   Blöcken von Sitzen müssen hier als Sitze mitgezählt werden.
@@ -156,7 +156,7 @@ Sie können auch später mit \cs{tucsConfig} gesetzt werden.
   Möchte man beides unterschiedlich haben, so muss man die beiden folgenden
   Schlüssel nutzen:
   
-  \keyval-{seat neighbor distance}{Abstand}\Default*{2pt}
+  \keyval-{seat neighbor distance}{Abstand}\Default*{2pt}\vspace{-.7\baselineskip}
   \keyval-{row distance}{Abstand}\Default{2pt}
 
   \keychoice{rownumbers}{none,left,right,both}\Default{none}
@@ -167,18 +167,18 @@ Sie können auch später mit \cs{tucsConfig} gesetzt werden.
   \keyval-{rownumber distance}{Abstand}\Default{2pt}
   Abstand der Reihennummern zu den äußeren Sitzen, wenn \option*{rownumbers}
   nicht \code{none} ist.
-  \keyval-{empty seat background color}{Farbe}\Default*{lightgray!20}
-  \keyval-{empty seat border color}{Farbe}\Default*{lightgray}
-  \keyval-{assigned seat background color}{Farbe}\Default*{lightgray!30}
+  \keyval-{empty seat background color}{Farbe}\Default*{lightgray!20}\vspace{-.7\baselineskip}
+  \keyval-{empty seat border color}{Farbe}\Default*{lightgray}\vspace{-.7\baselineskip}
+  \keyval-{assigned seat background color}{Farbe}\Default*{lightgray!30}\vspace{-.7\baselineskip}
   \keyval-{assigned seat border color}{Farbe}\Default{black}
   Legt die Farben für den Hintergrund und die Umrandung von leeren bzw.\ durch
   ein Sitzschema belegten Sitzen fest.
   Falls die Sitze nicht farblich unterschieden werden sollen, können auch die
   Schlüssel
-  \keyval-{seat background color}{Farbe}\Default*
+  \keyval-{seat background color}{Farbe}\Default*\vspace{-.7\baselineskip}
   \keyval-{seat border color}{Farbe}\Default
   verwendet werden.
-  \keyval{assigned seat label font}{Fontbefehl}\Default*{\cs*{small}}
+  \keyval{assigned seat label font}{Fontbefehl}\Default*{\cs*{small}}\vspace{-.7\baselineskip}
   \keyval-{assigned seat label color}{Farbe}\Default{black}
   Setzt die Größe und Farbe der Sitzbeschriftung.
 \end{options}
@@ -268,9 +268,10 @@ mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
 \label{sec:constr-scheme}
 Natürlich ist ein Sitzplan ohne die Markierung von belegten Plätzen
 nur bedingt nützlich.
-Daher 
+Die Belegung wird in \thepkg\ mit Sitzplatzschemata realisiert. 
 Zur Erzeugung eines Sitzschemas gibt es den Befehl
 \begin{commands}
+  \command{tucsSeatingScheme}[\oarg{Schlüsselliste}\marg{Name}] \vspace{-1.7\baselineskip}
   \command{tucsSeatingScheme}[\sarg\oarg{Schlüsselliste}\marg{Schema}]
 Das Pflichtargument enthält in der Standardvariante des Befehls eine Bezeichnung
 für ein vorgegebenes Sitzschema, siehe Abschnitt~\ref{sec:defined-schemes}.
@@ -293,7 +294,7 @@ werden:
 \begin{options}
   \keyval-{row sep}{Anzahl}\Default{2}
   Legt fest, in jeder wievielten Reihe Sitze belegt werden.
-  \keyval-{start row}{Nummer}\Default*{1}
+  \keyval-{start row}{Nummer}\Default*{1}\vspace{-.7\baselineskip}
   \keyval-{end row}{Nummer}\Default{\meta{Anzahl Reihen}}
   Durch diese beiden Schlüssel wird gesteuert, in welchen Reihen ein Schema
   angewendet wird. Dadurch können unterschiedliche Schemata für verschiedene
@@ -308,7 +309,7 @@ werden:
   \keybool{aisle restarts scheme}\Default{false}
   Startet das Schema nach einem Gang erneut. Der Schlüssel \option*{aisle
     counts} wird damit wirkungslos.
-  \keybool{ignore aisle}\Default*{false}
+  \keybool{ignore aisle}\Default*{false}\vspace{-.7\baselineskip}
   \keybool{ignore removed seats}\Default{false}
   Bei der Zählung von Sitzen, die im Platzlabel genutzt werden kann (vgl.\
   Abschnitt~\ref{sec:seat-label}) werden auch entfernte Sitze und Gänge
@@ -319,12 +320,17 @@ werden:
   insbesondere im Bogen-Grundlayout an.
   \keyval{assigned seat label}{Formatzeichenkette}\Default{m\{\{\string\,\}\}D}
   Über diesen Schlüssel kann festgelegt werden, wie die belegten Sitze
-  beschriftet werden. Voreingestellt ist die Nmmer der Reihe, gefolgt von einem
+  beschriftet werden. Voreingestellt ist die Nummer der Reihe, gefolgt von einem
   schmalen Leerzeichen und einem Buchstaben für den laufenden belegten Sitz
-  (z.\,B. "`3\,c"'). Es sind hier eine Menge anderer Möglichkeiten
+  (z.\,B. "`3\,c"'). Es sind hier eine Reihe anderer Möglichkeiten
   einstellbar. Details dazu sind im Abschnitt~\ref{sec:seat-label} beschrieben.
 \end{options}
+\command{tucsConfigScheme\marg{Schlüsselliste}}
+Setzt die Schlüssel wie beim optionalen Argument von \cs*{tucsSeatingScheme},
+führt aber keine Zuweisung von Sitzen aus.
 \end{commands}
+Schlüsselwerte, die durch \cs*{tucsSeatingScheme} oder \cs*{tucsConfigScheme}
+gesetzt werden, bleiben erhalten, bis sie explizit neu gesetzt werden.
 % Das Paket \thepkg\ kennt zwei Möglichkeiten der Markierung von Sitzplätzen:
 % manuelle Zuweisung und vordefinierte Sitzschemata.
 
@@ -398,6 +404,9 @@ Beispielsweise erzeugt
   \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
 \end{example}
 beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
+\subsection{Sitzliste}
+\label{sec:seats-list}
+
 \section{Beispiele}
 \label{sec:examples}
 
@@ -426,7 +435,8 @@ beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
    \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
    \usepackage[
    room=A10.316,
-   blackboard
+   blackboard,
+   assigned seat label color=blue
   ]{tucseating}
 
   \begin{document}
@@ -437,6 +447,37 @@ beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
   \end{document}
 \end{example}
 
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+    \usepackage[a4paper,left=1cm,right=1cm,top=1cm,bottom=1cm]{geometry}
+    \usepackage[
+       shape=rectangle,
+       rows=10,
+       seats per row=10,
+       blackboard=false,
+       assigned seat label color=blue,
+       assigned seat background color=teal,
+       empty seat background color=lime!50,
+       seat distance=0pt
+     ]{tucseating}
+  \usepackage{stix}
+  \begin{document}
+  % Standardtitelei nimmt viel Platz weg.
+  \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
+
+  \tucsConfigScheme{assigned seat label={}}
+  \tucsSeatingScheme*[start row=5, end row=7,row sep=2]{X-}
+  \tucsSeatingScheme*[start row=4, end row=6]{-X}
+  \tucsConfigScheme{assigned seat label font=\Huge, assigned seat label={{{\textcolor{white}{$\circledbullet$}}}}}
+  \tucsSeatingScheme*[start row=1, end row=3]{X-}
+  \tucsSeatingScheme*[start row=2, end row=2]{-X}
+  \tucsConfigScheme{assigned seat label={{{\textcolor{yellow}{$\circledbullet$}}}}}
+  \tucsSeatingScheme*[start row=9, end row=9]{X-}
+  \tucsSeatingScheme*[start row=8, end row=10]{-X}
+  
+  \tucsDrawSeating
+  \end{document}
+\end{example}
 \section{Deklaration neuer Räume}
 \section{Fehler}
 \end{document}
