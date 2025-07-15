@@ -113,12 +113,7 @@ function removeAisle(c,from,to)
       assignSeatAt(r,c,{kind=AISLE})
    end
 end
--- Seating
---function getLabel(r,c,rr,cc)
-   -- tex.sprint("\\typeout{ row:",r,"(",rr,"), seat:",c,"(",cc,")}")
-  -- return 'X'
-   -- tex.sprint("\\arabic{r}-alph{cc}")
--- end
+
 function seatingSchemeInRows(pat,policy)
    local numseats =  AllSeats.cols
    local numrows =  AllSeats.rows
