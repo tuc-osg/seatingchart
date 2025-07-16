@@ -301,9 +301,28 @@
     \end{tikzpicture}
 }
 
-\newbox\tucsoutbox
-\NewDocumentCommand{\tucsSeatingList}{s m}{
-  \luadirect{generateseatlist(\luastring{#2})}
+\newcount\tucsnumofseats
+\newtoggle{tucsfoundassigned}
+\NewDocumentCommand{\tucsSeatingList}{s o m}{
+  \luadirect{getNumberOfSeats()}
+  \togglefalse{tucsfoundassigned}
+  \loop
+  \luadirect{setupNextlabel(\the\tucsnumofseats)}\relax
+  \typeout{ i=\the\tucsnumofseats}
+  \iftoggle{tucsfoundassigned}{
+        %\typeout{**NEXT=\tucsnextlabel}
+        \setbox0=\hbox{\tucsnextlabel}
+        \luadirect{saveTextLabel(\the\tucsnumofseats)}
+      }{}
+  \advance \tucsnumofseats by -1
+  \unless\ifnum \tucsnumofseats<2
+  \repeat
+  \luadirect{generateSeatList(\luastring{#3},nil)}
+  % IfValueTF{#2}{
+  %   \luadirect{generateSeatList(\luastring{#3}, \luastring{#2})}
+  % }{
+  %   \luadirect{generateSeatList(\luastring{#3}, nil)}
+  % }
 }
 \ExplSyntaxOff
 
@@ -420,6 +439,7 @@
 
 \NewDocumentCommand{\tucsConfigScheme}{m}{
   \SetKeys[tucsseatingscheme]{#1}
+  
 }
 
 \NewDocumentCommand{\tucsSeatingScheme}{s o m}{
@@ -447,19 +467,19 @@
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
 
-\NewDocumentCommand\writetolog{m m}{%
-  \setbox0\hbox{#2}%
-  \directlua{
-    -- tex.sprint("\typeout{******* writetolog called}")
-    seatlogfile = io.open(\luastring{#1}, "a")
-    for n in node.traverse(tex.box[0].head) do
-      -- tex.sprint("\typeout{*** id=",n.id,"}")
-      if n.id==13 or n.id==12 or n.id==11 then seatlogfile:write (" ") end
-      if n.id==29 then seatlogfile:write(string.char(n.char)) end
-    end
-    seatlogfile:write(string.char(10))
-    seatlogfile:close()
-}}
+% \NewDocumentCommand\writetolog{m m}{%
+%   \setbox0\hbox{#2}%
+%   \directlua{
+%     -- tex.sprint("\typeout{******* writetolog called}")
+%     seatlogfile = io.open(\luastring{#1}, "a")
+%     for n in node.traverse(tex.box[0].head) do
+%       -- tex.sprint("\typeout{*** id=",n.id,"}")
+%       if n.id==13 or n.id==12 or n.id==11 then seatlogfile:write (" ") end
+%       if n.id==29 then seatlogfile:write(string.char(n.char)) end
+%     end
+%     seatlogfile:write(string.char(10))
+%     seatlogfile:close()
+% }}
 \ExplSyntaxOn
 
 \newtoggle{tucs@formatother}

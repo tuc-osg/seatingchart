@@ -1,27 +1,29 @@
 \documentclass{scrartcl}
-
-% Wir versuchen das Papier bestmöglich auszunutzen.
-\usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
-
-\usepackage[
-rows = 8,
-seats per row=5,
-rownumbers = both,% Rechts und links Sitzreihennummern
+  \usepackage[a4paper,left=1cm,right=1cm,top=1cm,bottom=1cm]{geometry}
+  \usepackage[
+    shape=rectangle,
+    rows=10,
+    seats per row=10,
+    blackboard=false,
+    assigned seat label color=blue,
+    assigned seat background color=teal,
+    empty seat background color=lime!50,
+    seat distance=0pt
 ]{tucseating}
-
+\usepackage{stix}
 \begin{document}
-% Original-Titelei nimmt viel Platz weg
-\centering\textbf{\Huge\sffamily Sitzplan}\bigskip
+  % Standardtitelei nimmt viel Platz weg.
+  \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
 
-% Anpassungen: Wir wollen
-\tucsConfig{
-  %  Die Platzbezeichnungen blau...
-  assigned seat label color = teal,
-  % und fett in kleiner Schrift.
-  assigned seat label font = \small\bfseries
-}
-\tucsSeatingScheme{2x3}
-
-\tucsDrawSeating
-
+  \tucsConfigScheme{assigned seat label={}}
+  \tucsSeatingScheme*[start row=5, end row=6,row sep=2]{X-}
+  \tucsSeatingScheme*[start row=6, end row=6]{-X}
+  \tucsConfigScheme{assigned seat label font=\Huge, assigned seat label={{{\textcolor{white}{$\circledbullet$}}}}}
+  \tucsSeatingScheme*[start row=1, end row=3]{X-}
+  \tucsSeatingScheme*[start row=2, end row=4]{-X}
+  \tucsConfigScheme{assigned seat label={{{\textcolor{yellow}{$\circledbullet$}}}}}
+  \tucsSeatingScheme*[start row=7, end row=9]{X-}
+  \tucsSeatingScheme*[start row=8, end row=10]{-X}
+  
+  \tucsDrawSeating
 \end{document}

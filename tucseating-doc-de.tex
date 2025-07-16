@@ -404,9 +404,37 @@ Beispielsweise erzeugt
   \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
 \end{example}
 beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
-\subsection{Sitzliste}
-\label{sec:seats-list}
 
+\subsection{Sitzplatzliste}
+\label{sec:seats-list}
+Insbesondere wenn es um den Anwendungsfall einer Prüfung geht, ist es nützlich,
+eine Sitzplatzliste zu erhalten, also eine tabellarische Zuordnung zwischen Prüfling und Sitzplatz.
+In der aktuellen Version erstellt \thepkg\ keine (\LaTeX)-Tabelle, kann aber
+die Tabellenerstellung (mit \LaTeX\ oder einer Tabellenkalkulation)
+unterstützen.
+\begin{commands}
+    \command{tucsSeatingList}[\oarg{Eingabedatei}\marg{Ausgabedatei}]\vspace{-.7\baselineskip}
+    \command{tucsSeatingList}[\sarg\oarg{Eingabedatei}\marg{Ausgabedatei}]
+    Erstellt eine CVS-Datei \meta{Ausgabedatei} mit den Labels der belegten
+    Plätze, jeweils einen pro Zeile.
+    Wenn die Ausgabe einer solchen Datei gewünscht ist, empfiehlt es sich nicht
+    (wie bei der Vorgabeeinstellug) in
+    der Formatzeichenkette von \opt{assigned seat label} Befehle zu
+    verwenden, die \LaTeX-Skips oder -Glues oder andere \LaTeX-Spezifika
+    erzeugen.
+    Solche werden in der Dateiausgabe ignoriert oder in Leerzeichen gewandelt.
+
+    In der Sternvariante werden zusätzlich in jeder Zeile kommasepariert noch
+    die absoluten Koordinaten (Reihe, Platznummger) ausgegeben, bezogen auf das
+    Grundlayout.
+
+    Wenn eine Eingabedatei vorhanden ist, wird ihr Inhalt zweilenweise den
+    erzeugten Zeilen zugeordnet. Diese Eingabedatei könnte beispielsweise die Namen
+    oder die Immatrikulationsnummern von Studierenden enthalten, die dann in der
+    Ausgabedatei den markierten Plätzen zugeordnet werden.
+
+    
+\end{commands}
 \section{Beispiele}
 \label{sec:examples}
 

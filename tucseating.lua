@@ -8,7 +8,8 @@ Seat = {
    rcol = 0,
    rotate = 0,
    kind = nil,
-   label=""
+   label="",
+   textlabel=""
 }
 function Seat:new(o)
    o = o or {}
@@ -34,7 +35,7 @@ function initSeating(rows, cols, shape)
       for r = 1, rows do
 	 for c = 1, cols do
 	    cid = cid+1
-	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rrow=0, rcol=0, rotate=0, kind=SEATEMPTY, label=tostring(cid)})
+	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c, x=c-(cols+1)/2, y=r-1.0, rrow=0, rcol=0, rotate=0, kind=SEATEMPTY, label=tostring(cid), textlabel=""})
 	    AllSeats.size=AllSeats.size+1
 	 end
       end
@@ -217,29 +218,69 @@ function drawSeats()
    end
 end
 
-function extract_text_from_box(box_number)
-  local nodelist = tex.box[box_number].list
-  local text = {}
-
-  for n in node.traverse(nodelist) do
-    if n.id == node.id("glyph") then
-      -- Extrahiere Unicode-Zeichen
-      local char = utf8.char(n.char)
-      table.insert(text, char)
-    end
-  end
-
-  -- Ausgabe in die Konsole
-  print("Text in Box: " .. table.concat(text))
+function getNumberOfSeats()
+   tex.count["tucsnumofseats"]=AllSeats.size
 end
- 
-function generateseatlist(stream,outb)
-   seatlogfile = io.open(stream, "w")
-   seatlogfile:write("")
-   seatlogfile:close()
-   for _ ,s in  ipairs(AllSeats) do
-      if s.kind == SEATASSIGNED then
-	 tex.sprint("\\writetolog{",stream,"}{\\tucsassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}}")
+
+function setupNextlabel(ndx)
+   print("ndx=",ndx, "type:",type(ndx))
+   local s = AllSeats[ndx]
+   if s and (s.kind ~=nil) and (s.kind == SEATASSIGNED) then
+      print("S={",s.row,",",s.col,",",s.rrow,",",s.rcol,", '",s.label,"' }")
+      tex.sprint("\\toggletrue{tucsfoundassigned}")
+      tex.sprint("\\def\\tucsnextlabel{\\tucsassignedlabelformat{"..tostring(s.row).."}{"..tostring(s.col).."}{"..tostring(s.rrow).."}{"..tostring(s.rcol).."}{"..tostring(s.label).."}}")
+   end
+end
+
+function saveTextLabel(ndx)
+   if tex.box[0] and AllSeats[ndx] and AllSeats[ndx].textlabel then
+      for n in node.traverse(tex.box[0].head) do
+	 if n.id==13 or n.id==12 or n.id==11 then AllSeats[ndx].textlabel=AllSeats[ndx].textlabel.." " end
+	 if n.id==29 then  AllSeats[ndx].textlabel=AllSeats[ndx].textlabel..string.char(n.char) end
       end
+   else
+      print("box=",tex.box[0])
+   end
+   
+end
+   
+function generateSeatList(outstream,instream, coor)
+   local names={}
+   local emtpydefault
+   if instream ~= nil then
+      f = io.open(instream,"r")
+      if not f then
+	 tex.print("\\PackageError{\\packagename}{Can't read file '",instream,"'}{}")
+	 return 
+      else
+	 for line in io.lines() do
+	    table.insert(names, line)
+	 end
+	 emptydefault=string.gsub(names[1],"[^,]","")
+	 f:close()
+      end
+   end
+   
+   seatfile = io.open(outstream, "w")
+   if not seatfile then
+	 tex.print("\\PackageError{\\packagename}{Can't read file '",instream,"'}{}")
+	 return 
+   else
+      local index=1
+      for _ ,s in  ipairs(AllSeats) do
+	 if s.kind == SEATASSIGNED then
+	    if coor then
+	       seatfile:write(tostring(s.row)..","..tostring(col)..",")
+	    end
+	    if names[index] ~= nil then
+	       seatfile:write(names[index]..",")
+	    elseif instream ~= nil then
+	       seatfile:write(emtpydefault..",")
+	    end
+	    seatfile:write(s.textlabel)
+	    seatfile:write(string.char(10))
+	 end
+      end
+      seatfile:close()
    end
 end
