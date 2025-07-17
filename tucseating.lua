@@ -223,25 +223,33 @@ function getNumberOfSeats()
 end
 
 function setupNextlabel(ndx)
-   print("ndx=",ndx, "type:",type(ndx))
+   -- print("ndx=",ndx, "type:",type(ndx))
    local s = AllSeats[ndx]
    if s and (s.kind ~=nil) and (s.kind == SEATASSIGNED) then
-      print("S={",s.row,",",s.col,",",s.rrow,",",s.rcol,", '",s.label,"' }")
+      -- print("S={",s.row,",",s.col,",",s.rrow,",",s.rcol,", '",s.label,"' }")
       tex.sprint("\\toggletrue{tucsfoundassigned}")
       tex.sprint("\\def\\tucsnextlabel{\\tucsassignedlabelformat{"..tostring(s.row).."}{"..tostring(s.col).."}{"..tostring(s.rrow).."}{"..tostring(s.rcol).."}{"..tostring(s.label).."}}")
    end
 end
 
 function saveTextLabel(ndx)
-   if tex.box[0] and AllSeats[ndx] and AllSeats[ndx].textlabel then
+   -- print("*** Try to assign textlabel to "..tostring(ndx), tex.box[0],AllSeats[ndx],AllSeats[ndx].textlabel)
+   if tex.box[0] and AllSeats[ndx] then
+      -- print("*** Do assign textlabel to "..tostring(ndx))
+      AllSeats[ndx].textlabel=""
+      -- print("\n")
       for n in node.traverse(tex.box[0].head) do
-	 if n.id==13 or n.id==12 or n.id==11 then AllSeats[ndx].textlabel=AllSeats[ndx].textlabel.." " end
+	 -- 12: glue, 13: kern
+	 if n.id==12 or n.id==13 then AllSeats[ndx].textlabel=AllSeats[ndx].textlabel.." " end
+	 -- 29: Glyph
 	 if n.id==29 then  AllSeats[ndx].textlabel=AllSeats[ndx].textlabel..string.char(n.char) end
+	 -- 7/2: disc, automatic
+	 if n.id==7 and n.subtype==2 then
+	    local rep = n.replace
+	    AllSeats[ndx].textlabel=AllSeats[ndx].textlabel..string.char(rep.char)
+	 end
       end
-   else
-      print("box=",tex.box[0])
    end
-   
 end
    
 function generateSeatList(outstream,instream, coor)
@@ -253,10 +261,13 @@ function generateSeatList(outstream,instream, coor)
 	 tex.print("\\PackageError{\\packagename}{Can't read file '",instream,"'}{}")
 	 return 
       else
-	 for line in io.lines() do
+	 for line in io.lines(instream) do
+	    -- print("*** TAKE "..line)
 	    table.insert(names, line)
 	 end
+	 -- print("names[1]="..names[1])
 	 emptydefault=string.gsub(names[1],"[^,]","")
+	 -- print("empty='"..emptydefault.."'")
 	 f:close()
       end
    end
@@ -267,20 +278,42 @@ function generateSeatList(outstream,instream, coor)
 	 return 
    else
       local index=1
-      for _ ,s in  ipairs(AllSeats) do
+      for j ,s in  ipairs(AllSeats) do
+	 -- print("j="..tostring(j))
 	 if s.kind == SEATASSIGNED then
-	    if coor then
-	       seatfile:write(tostring(s.row)..","..tostring(col)..",")
-	    end
 	    if names[index] ~= nil then
 	       seatfile:write(names[index]..",")
 	    elseif instream ~= nil then
-	       seatfile:write(emtpydefault..",")
+	       -- print("** empty='"..emptydefault.."'")
+	       seatfile:write(emptydefault..",")
 	    end
+	    if coor then
+	       seatfile:write(tostring(s.row)..","..tostring(s.col)..",")
+	    end
+	    -- print("Label is",s.textlabel)
 	    seatfile:write(s.textlabel)
 	    seatfile:write(string.char(10))
+	    index=index+1
 	 end
       end
       seatfile:close()
+      if index <= #names then
+	 luatexbase.add_to_callback("stop_run", tucsreportmissing(names,index), "Report" )
+      end
    end
 end
+
+function tucsreportmissing(names, index)
+   local report=string.char(10).."\27[34mPackage 'tucseating':"..string.char(10)..[[*******************************************
+The following person(s) couldn't be seated:]]..string.char(10)
+
+   for i=index, #names do
+      report=report.." - \27[1m"..names[i].."\27[22m"..string.char(10)
+   end
+   report=report.."*******************************************"..string.char(10)
+   return function()
+      texio.setescape(false)
+      texio.write_nl(report)
+   end
+end
+

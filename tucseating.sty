@@ -5,11 +5,11 @@
 }
 \def\packagedate{
   %% Date:
-  2025-07-04
+  2025-07-17
 }
 \def\packageversion{
   %% Version:
-  v0.2
+  v0.3
 }
 \ExplSyntaxOff
   %% Author:      Matthias Werner
@@ -232,26 +232,26 @@
     }%
   }%
 }
+\ExplSyntaxOff
+\newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
+\newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
 \DeclareKeys[tucsdrawing]{
-  seat~width.code:n={
-    \setlength{\tucsseatwidth}{#1}
+  seat width.code:n={%
+    \setlength{\tucsseatwidth}{#1}%
   },
-  seat~height.code:n={
-    \setlength{\tucsseatheight}{#1}
+  seat height.code:n={%
+    \setlength{\tucsseatheight}{#1}%
   }
 }
-\NewDocumentCommand{\tucsDrawSeating}{sO{}}{%
+\ExplSyntaxOn
+\NewDocumentCommand{\tucsDrawSeating}{o}{%
   \par\noindent%
-  \tucs@configtikz%
-  \newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
-  \newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
-  \newlength\tucsremainingspace%
-  \newlength\tucsrnlength%
-  \IfValueT{#2}{% 
-    \SetKeys[tucsdrawing]{#2}%
-  }
-  \IfBooleanF{#1}{%
-   \setlength{\tucsremainingspace}{\linewidth}%
+  \IfValueTF{#1}{% 
+    \SetKeys[tucsdrawing]{#1}%
+  }{%
+    \newlength\tucsremainingspace%
+    \newlength\tucsrnlength%
+    \setlength{\tucsremainingspace}{\linewidth}%
     \settowidth{\tucsrnlength}{\tucsrownumformat{99}}%
     %\typeout{Linewidth: \the\linewidth~(\the\tucsremainingspace)}
     %\typeout{Numswidth: \the\tucsrnlength~(seats:~\tucs@seatsperrow)}
@@ -279,9 +279,11 @@
     % A seat that is deeper than it is wide looks a bit silly.
     \ifdimcomp{\tucsseatheight}{>}{\tucsseatwidth}{\setlength{\tucsseatheight}{\tucsseatwidth}}{}%
   }%
+  \tucs@configtikz%  \newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
+  %\newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
   %\typeout{*********~Seatwidth:~\the\tucsseatwidth, Seatheight:~\the\tucsseatheight}%
   \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}%
-  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y,#2]
+  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y]
       \iftucs@blackboard%
          \node[rectangle, draw,minimum~width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
@@ -303,26 +305,30 @@
 
 \newcount\tucsnumofseats
 \newtoggle{tucsfoundassigned}
+
 \NewDocumentCommand{\tucsSeatingList}{s o m}{
   \luadirect{getNumberOfSeats()}
   \togglefalse{tucsfoundassigned}
   \loop
   \luadirect{setupNextlabel(\the\tucsnumofseats)}\relax
-  \typeout{ i=\the\tucsnumofseats}
+  %\typeout{ i=\the\tucsnumofseats}
   \iftoggle{tucsfoundassigned}{
-        %\typeout{**NEXT=\tucsnextlabel}
         \setbox0=\hbox{\tucsnextlabel}
         \luadirect{saveTextLabel(\the\tucsnumofseats)}
       }{}
   \advance \tucsnumofseats by -1
   \unless\ifnum \tucsnumofseats<2
   \repeat
-  \luadirect{generateSeatList(\luastring{#3},nil)}
-  % IfValueTF{#2}{
-  %   \luadirect{generateSeatList(\luastring{#3}, \luastring{#2})}
-  % }{
-  %   \luadirect{generateSeatList(\luastring{#3}, nil)}
-  % }
+  \IfBooleanTF{#1}{
+    \def\tucscoor{true}
+  }{
+    \def\tucscoor{nil}
+  }
+  \IfValueTF{#2}{
+     \luadirect{generateSeatList(\luastring{#3}, \luastring{#2}, \tucscoor)}
+   }{
+     \luadirect{generateSeatList(\luastring{#3}, nil, \tucscoor)}
+   }
 }
 \ExplSyntaxOff
 
@@ -408,6 +414,12 @@
   scheme/sixpack.meta:n={
     scheme=2x3
   },
+  scheme/2x3-.meta:n={
+    row sep=2,
+    pattern=X--,
+    aisle restarts scheme=true,
+    row restart after=3
+  },
   scheme/2x4.meta:n={
     row sep=2,
     pattern=X---,
@@ -466,25 +478,10 @@
   %\typeout{POLICY=\tucspolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
 }
-
-% \NewDocumentCommand\writetolog{m m}{%
-%   \setbox0\hbox{#2}%
-%   \directlua{
-%     -- tex.sprint("\typeout{******* writetolog called}")
-%     seatlogfile = io.open(\luastring{#1}, "a")
-%     for n in node.traverse(tex.box[0].head) do
-%       -- tex.sprint("\typeout{*** id=",n.id,"}")
-%       if n.id==13 or n.id==12 or n.id==11 then seatlogfile:write (" ") end
-%       if n.id==29 then seatlogfile:write(string.char(n.char)) end
-%     end
-%     seatlogfile:write(string.char(10))
-%     seatlogfile:close()
-% }}
 \ExplSyntaxOn
 
 \newtoggle{tucs@formatother}
 \newcommand\tucs@format@label[6]{%
-  %\typeout{**** try #6}
   \togglefalse{tucs@formatother}
   % absolut row, arabic:  m
   % absolut row, alpha:   a 
@@ -571,9 +568,11 @@
     number of rows or number of seats per row can't be smaller than 1}{
     Use correct layout options}
 }{}
+%\newlinechar=`\^^J
 
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric}
 \iftoggle{tucs@room}{}{
-  \tucsInitSeating
+      %\typeout{****** Call \string\tucsInitSeating}
+      \tucsInitSeating
 }
