@@ -17,8 +17,4 @@ typesetfiles = {
    "tucseating-doc-de.tex",
 }
 
-docfiles={
-   "cnltx-doc.cls"
-}
-
 typesetopts="-interaction=nonstopmode -shell-escape"
