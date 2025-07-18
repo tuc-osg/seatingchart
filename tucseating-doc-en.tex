@@ -1,0 +1,626 @@
+% Patch cnltx-doc class
+\makeatletter
+\RequirePackage{luatex85}
+\RequirePackage{multicol}
+\RequirePackage{ragged2e}
+\disable@package@load{libertinehologopatch.sty}{}
+\AddToHook{package/hyperref/after}{%
+  \newrobustcmd*\cnltx@tableofcontents{%
+    \begingroup
+    \let\tocbasic@listhead\@gobble
+    \RaggedRight
+    \tableofcontents
+    \endgroup
+  }%
+}
+\makeatother
+% end patch
+
+\documentclass[
+babel-options={english},
+load-preamble-,
+title=compact
+]{cnltx-doc}
+
+%\usepackage[oldstyle]{libertine}
+%\usepackage[scaled=.81]{beramono}
+% \setmonofont[
+%             Scale = MatchLowercase,
+%             Ligatures = {NoCommon,NoRequired,NoContextual}
+%             ]{DejaVu Sans Mono}
+
+%\usepackage[room=A10.201]{tucseating}
+\providecommand{\packagename}{tucseating}
+\providecommand{\packageversion}{v0.3}
+\providecommand{\packagedate}{\today}
+\setcnltx{
+  name  = tucseating,
+  package  = \packagename,
+  version  = \packageversion,
+  date     = \packagedate,
+  title    = The \pkg*{tucseating} Package,
+  info     = Generation and visualization of seating plans,
+  authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
+  abstract={
+    This package allows for easy creation of seating plans, such as those
+    required for examinations.
+    Several automatic placement schemes are predefined, but custom, fine-grained
+    seat assignments can also be specified.
+    While originally intended for internal use at TU Chemnitz and including some
+    predefined room layouts,
+    the package supports easily extensible or replaceable room data—and even the
+    creation of room definitions on thefly.
+  },
+  url      =https://github.com/tuc-osg/tucseating,
+  build-title
+}
+\def\thepkg{\pkg*{\packagename}}
+ 
+% %\microtypesetup{disable=true}
+% %\repository{https://github.com/tuc-osg/tucseating}
+% \author{Matthias Werner}
+% \subtitle{Version 0.2}
+% %\email{matthias.werner@informatik.tu-chemnitz.de}
+% \title{Das \pkg*{\packagename}-Paket}
+% \makeatletter
+% \newrobustcmd*\cnltx@tableofcontents{%
+%   \begingroup
+%   \let\tocbasic@listhead\@gobble
+%   \RaggedRight
+%   \tableofcontents
+%   \endgroup
+% }
+% \makeatother
+
+
+\begin{document}
+\section{Introduction}
+To conduct exams, we occasionally require seating plans.
+Over time, we have accumulated several such plans in the form of TikZ-supported
+\LaTeX\ files.
+Depending on the number of students in an exam—and how high we assess the
+risk of attempted cheating—we apply different placement schemes, which
+requires adapting the files accordingly.
+Moreover, we are sometimes assigned new rooms for which no seating plans exist yet.
+
+This was the motivation for developing the \thepkg\ package. It \ldots
+\begin{itemize}
+  \item enables quick and easy creation of seating plans;
+  \item separates seat layout from the placement scheme;
+  \item offers a set of standard placement schemes;
+  \item includes a number of predefined rooms with seat layouts;
+  \item allows for \emph{ad hoc} creation of new rooms and placement schemes.
+\end{itemize}
+% \section{Introduction}
+% For the organization of examinations, we occasionally need seating plans.
+% Over time, a number of such plans have accumulated in the form of TikZ-supported
+% \LaTeX\ files. 
+% Depending on the number of students in an exam—and on how high we assess
+% the risk of attempted cheating—we use different seating schemes, which means
+% we have to adapt the files accordingly.
+% Additionally, we are sometimes assigned a new room for which we do not yet
+% have a layout.
+
+% This was the motivation for developing the \thepkg\ package. It \ldots
+% \begin{itemize}
+%   \item enables quick and easy creation of seating plans;
+%   \item separates the seat layout from the placement scheme;
+%   \item provides a set of standard schemes for seat assignment;
+%   \item includes a number of predefined rooms with seat layouts;
+%   \item allows for \emph{ad hoc} creation of new rooms and placement schemes.
+% \end{itemize}
+\section{Dependencies}
+The \thepkg\ package works only with Lua\LaTeX\ and requires a sufficiently
+modern \LaTeX\ version, at least from July 2022.
+It loads the following packages:
+\begin{itemize}
+  \item \pkg{etoolbox} 
+  \item \pkg{luacode}
+  \item \pkg{tikz}
+\end{itemize}
+These packages are available in all major \TeX\ distributions and themselves
+depend on other packages.
+In particular, \pkg*{tikz} loads the \pkg{xcolor} package, whose color definitions
+are also used by \thepkg.
+\section{Dependencies}
+% The \thepkg\ package works only with Lua\LaTeX\ and requires a sufficiently
+% recent version of \LaTeX, at least from July 2022.
+% It loads the following packages:
+% \begin{itemize}
+%   \item \pkg{etoolbox} 
+%   \item \pkg{luacode}
+%   \item \pkg{tikz}
+% \end{itemize}
+% These packages are included in all major \TeX\ distributions and may themselves
+% depend on additional packages.
+% In particular, the \pkg*{tikz} package loads \pkg{xcolor}, whose color definitions
+% are also used by \thepkg.
+\section{Seat Layout}
+The package is loaded as usual with
+%
+%\centerline{
+\cs{usepackage}\oarg{options}\{\thepkg\}
+%}
+This allows the layout of the seats—i.e., their arrangement in the room—
+to be defined right away. Seat assignment is done later;
+see Section~\ref{sec:seat-assignment}.
+
+%\section{Seat Layout}
+% The package is loaded as usual with
+% %
+% %\centerline{
+% \cs{usepackage}\oarg{options}\{\thepkg\}
+% %}
+% At this point, the basic seat layout—i.e., the arrangement of seats in the room—
+% can already be defined. Seat assignment is done later;
+% see Section~\ref{sec:seat-assignment}.
+\subsection{Class Options}
+\label{sec:class-options}
+Some options distinguish between two fundamental use cases:
+\begin{options}
+  \keyval{room}{Room} This option key should be used if the desired room
+  is already predefined (see Section~\ref{sec:rooms}).
+  In that case, no further specification is required.
+  If the room is not known, it can also be created \emph{ad hoc}; see below.
+\end{options}
+If the room is not already known, several key–value options are required to describe the layout:
+
+% \subsection{Class Options}
+% \label{sec:class-options}
+% Some options distinguish between two fundamental use cases:
+% \begin{options}
+%   \keyval{room}{Room} This option key should be used if the desired room
+%   is already predefined (see Section~\ref{sec:rooms}).
+%   In that case, no further specification is required.
+%   If the room is not known, it can also be created \emph{ad hoc}; see below.
+% \end{options}
+
+% If the room is not already predefined, several key–value pairs are required to describe the room layout.
+\begin{options}
+  \keychoice{shape}{rectangle,arc}\Default{rectangle}
+  Specifies whether the seating layout is rectangular (\choices{rectangle}) or curved (\choices{arc}).%
+  \footnote{For example, room A10.316 at TU~Chemnitz uses an arc layout.}
+
+  \keyval{rows}{Number of rows}\Default*!{}\vspace{-.3\baselineskip}
+  \keyval{seats per row}{Seats per row}\Default!{}
+  Defines the number of seat rows and seats per row. The maximum number must always be specified here.
+  For incomplete rows, seats will be removed later, but no additional seats can be added that lie outside
+  the originally defined layout area.
+  \textbf{Note:} Aisles between blocks of seats must be counted here as seats as well.
+\end{options}
+
+% \begin{options}
+%   \keychoice{shape}{rectangle,arc}\Default{rectangle}
+%   Specifies whether the seat layout is rectangular (\choices{rectangle})
+%   or curved (\choices{arc}).\footnote{For example, room A10.316 at TU~Chemnitz is curved.}
+
+%   \keyval{rows}{Number of seat rows}\Default*!{}
+%   \keyval{seats per row}{Seats per row}\Default!{}
+%   Specifies the number of rows and the number of seats per row. The maximum
+%   number must always be given.
+%   If some rows are shorter, seats will be removed later; however, no seats
+%   can be added beyond the originally defined layout area.
+%   \textbf{Note:} Aisles between seat blocks must also be counted as seats.
+% \end{options}
+
+If you specify \textbf{both} the \option*{room} key \textbf{and} one of the keys
+\option*{rows} or \option*{seats per row} in the class options, the result is undefined.
+A warning will be issued in that case.\medskip
+
+% If both the \option*{room} key and one of the keys \option*{rows} or \option*{seats per row}
+% are specified in the class options, the behavior is undefined.
+% A warning will be issued in this case.
+
+All further class options define the visual representation of the room layout.
+They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.
+
+\begin{options}
+  \keybool{blackboard}\Default{false}
+  Draws a blackboard.
+
+  \keyval{seat distance}{Distance}\Default{2pt}
+  Distance between seats. This also determines the row spacing.
+  If you want these two values to differ, you must use the following keys:
+
+  \keyval{seat neighbor distance}{Distance}\Default*{2pt}\vspace{-.3\baselineskip}
+  \keyval{row distance}{Distance}\Default{2pt}
+
+  \keychoice{rownumbers}{none,left,right,both}\Default{none}
+  For rectangular layouts, defines whether to display row numbers on the left, right, or both sides.
+  Counting starts at the front (blackboard side).\newline
+  \emph{Note:} For arc-shaped layouts, this function is currently not implemented.
+
+  \keyval{rownumber distance}{Distance}\Default{2pt}
+  Distance between the row number and the outermost seats,
+  if \option*{rownumbers} is not \code{none}.
+
+  \keyval{empty seat background color}{Color}\Default*{lightgray!20}\vspace{-.3\baselineskip}
+  \keyval{empty seat border color}{Color}\Default*{lightgray}\vspace{-.3\baselineskip}
+  \keyval{assigned seat background color}{Color}\Default*{lightgray!30}\vspace{-.3\baselineskip}
+  \keyval{assigned seat border color}{Color}\Default{black}
+  Defines background and border colors for empty or assigned seats.
+\end{options}
+% All remaining class options affect the visual appearance of the room.
+% They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.
+
+% \begin{options}
+%   \keybool{blackboard}\Default{false}
+%   Draws a blackboard.
+
+%   \keyval{seat distance}{Distance}\Default{2pt}
+%   Distance between seats. This also determines the distance between rows.
+%   If these two should differ, the following options must be used:
+
+%   \keyval{seat neighbor distance}{Distance}\Default*{2pt}
+%   \keyval{row distance}{Distance}\Default{2pt}
+
+%   \keychoice{rownumbers}{none,left,right,both}\Default{none}
+%   For rectangular layouts, specifies whether to display row numbers on the left,
+%   right, or both sides. Rows are counted from the front (blackboard side).
+%   \emph{Note:} This feature is currently not implemented for curved layouts.
+
+%   \keyval{rownumber distance}{Distance}\Default{2pt}
+%   Distance from the row number to the outermost seats,
+%   if \option*{rownumbers} is not \code{none}.
+
+%   \keyval{empty seat background color}{Color}\Default*{lightgray!20}
+%   \keyval{empty seat border color}{Color}\Default*{lightgray}
+%   \keyval{assigned seat background color}{Color}\Default*{lightgray!30}
+%   \keyval{assigned seat border color}{Color}\Default{black}
+%   Colors for unassigned and assigned seats (background and border).
+% \end{options}
+
+\subsection{Late Option Selection}
+\label{sec:late-options}
+\begin{commands}
+  \command{tucsConfig}This command can be used to set all keys mentioned in
+  Section~\ref{sec:class-options}, except for
+  \option{room}, \option{shape}, \option{rows}, and \option{seats per row},
+  outside of the \cs*{documentclass} options.
+\end{commands}
+
+\subsection{Modifying the Seat Layout}
+\label{sec:modify-layout}
+Often, not all seats are present in every row.
+This is already taken into account when specifying a predefined room,
+but it may still be necessary to remove individual seats — for instance,
+if a folding seat is broken.
+
+When creating a custom layout, such modifications are typically required.
+For this purpose, \pkg\ provides the following commands:
+\begin{commands}
+  \command{tucsRemoveSeatAt}[\marg{row}\marg{seat number}]
+  Removes seat \meta{seat number} in row \meta{row} from the layout.
+  The values refer to the original layout and are unaffected by previously removed seats.
+  If \meta{seat number} is negative, counting starts from the right.
+
+  \command{tucsRemoveSeats}[\marg{list}]
+  Removes all seats listed in the comma-separated \meta{list}, where each entry
+  is of the form \code{\{\meta{row},\meta{seat number}\}}.
+  As with \cs*{tucsRemoveSeatAt}, row and seat numbers refer to the original layout.
+  In the following example, the first three seats on the left and the first seat
+  on the right in the first row are removed:
+  \begin{example}[code-only]
+    \tucsRemoveSeats{{1,1},{1,2},{1,3},{1,-1}}
+  \end{example}
+
+  \command{tucsSetAisle}[\Oarg{\meta{start row}-\meta{end row}}\marg{seat number}]
+  Inserts an aisle at the position of \meta{seat number} through all rows.
+  Use the optional argument if the aisle should not span all rows.
+
+  For horizontal aisles (which split a seat block into front and back instead of left and right),
+  please use \cs*{tucsRemoveSeats}.
+
+  While this is also possible for vertical aisles, automatically generated
+  seating schemes may treat aisles created via \cs*{tucsSetAisle} differently
+  than those created with \cs*{tucsRemoveSeats}.
+\end{commands}
+
+\subsection{Output}
+\label{sec:drawing}
+
+\begin{commands}
+  \command{tucsDrawSeating}[\sarg\Oarg{seat width=\meta{width}, seat height=\meta{height}}]\Default
+  Renders the seating plan. \thepkg\ attempts to calculate the seat dimensions
+  so that the available space for the complete plan is fully utilized.
+  Since this may not always meet all needs, the optional argument allows
+  the width and height of the seats on the plan to be adjusted individually.
+
+\end{commands}
+
+The following example shows the code and the result for a simple seating layout
+with a central aisle and one missing seat in the first row.
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
+  \documentclass{scrartcl}
+  % To make better use of the paper, we use landscape format
+  % and reduce the margins
+  \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
+  \usepackage[shape=rectangle, rows = 8, seats per row=9]{tucseating}
+  \begin{document}
+    \tucsSetAisle{5}
+    \tucsRemoveSeatAt{1}{1}
+    \tucsDrawSeating
+  \end{document}
+\end{example}
+
+\section{Seat Assignment}
+\label{sec:seat-assignment}
+
+\subsection{Parameters for Constructing Assignment Schemes}
+\label{sec:constr-scheme}
+
+A seating plan is only partially useful without indicating which seats are occupied.
+In \thepkg, seat assignment is handled via assignment schemes.
+To define such a scheme, the command
+
+\begin{commands}
+  \command{tucsSeatingScheme}[\oarg{key list}\marg{name}] \vspace{-1.7\baselineskip}
+  \command{tucsSeatingScheme}[\sarg\oarg{key list}\marg{pattern}]
+The mandatory argument, in the standard version of the command,
+is a name for a predefined seating scheme (see Section~\ref{sec:defined-schemes}).
+In the starred version, a string of "`\code{X}"’ and "`\code{-}"’ is passed,
+describing (the beginning of) a row assignment pattern, where
+"`\code{X}"’ denotes an occupied seat and "`\code{-}"’ an empty one.
+If the string is shorter than the number of seats in a row, it will be repeated.
+
+For example,
+\begin{example}[code-only]
+  \tucsSeatingScheme*{X--}
+\end{example}
+marks every third seat as occupied.
+
+The optional argument accepts a list of key–value pairs that control the remaining
+settings of the assignment scheme.
+These are especially important in the starred variant but may also be used
+in the standard one.
+
+\begin{options}
+  \keyval-{row sep}{number}\Default{2}
+  Specifies how many rows should lie between two occupied rows.
+
+  \keyval-{start row}{row}
+  First row to be included in the assignment.
+
+  \keyval-{end row}{row}
+  Last row to be included in the assignment.
+
+ \keyval-{row restart after}{number}\Default
+  Resets the seat pattern after \meta{number} rows. This allows for alternating
+  row spacing; see the example in Section~\ref{sec:ex:own1}.
+
+  \keyval-{aisle counts}{number}\Default{1}
+  Specifies how many seats wide an aisle should be considered. This allows
+  for wider aisles to be taken into account.
+
+  \keybool{aisle restarts scheme}\Default{false}
+  Restarts the scheme after an aisle. In that case, the \option*{aisle counts}
+  key has no effect.
+
+  \keybool{ignore aisle}\Default*{false}\vspace{-.3\baselineskip}
+  \keybool{ignore removed seats}\Default{false}
+  When determining seat numbers (used e.g. in labels; see
+  Section~\ref{sec:seat-label}), aisles and removed seats are normally counted.
+  This ensures that seat numbers are consistent across rows (in rectangular layouts).
+  If one of these keys is set, aisles or removed seats are no longer counted.
+  This is particularly useful in curved layouts.
+
+  \keyval{assigned seat label}{format string}\Default{m{{\,}}D}
+  Specifies how assigned seats should be labeled.
+  By default, this consists of the row number, a thin space,
+  and a letter for the current occupied seat
+  (e.g., "`3\,c"'). A number of other formats can be configured;
+  see Section~\ref{sec:seat-label} for details.
+\end{options}
+
+\command{tucsConfigScheme\marg{key list}}
+Sets keys just like the optional argument of \cs*{tucsSeatingScheme},
+but does not assign seats.
+\end{commands}
+
+Key values set by \cs*{tucsSeatingScheme} or \cs*{tucsConfigScheme}
+remain in effect until they are explicitly redefined.
+  
+\subsection{Predefined Seating Schemes}
+\label{sec:defined-schemes}
+The \thepkg\ package defines a set of predefined seating schemes.
+Some of them also have alternative names.
+\begin{options}
+  \opt{1x1}
+  Every seat is marked.\\newline Alternative name: \option{all}
+
+  \opt{2x2}
+  One empty seat and one empty row between two occupied ones.\\newline Alternative name: \option{simple}
+
+  \opt{2x2-}
+  One empty seat between two occupied ones. After a single empty row,
+  \emph{two} rows with occupied seats follow.
+  This scheme allows the largest number of students in a room during an exam
+  while still maintaining minimal lateral distance and enabling supervision
+  to reach every student (from the front or the back).\\newline Alternative name: \option{dense}
+
+  \opt{2x3}
+  Occupied seats have two empty seats between them laterally,
+  and one empty row between occupied rows.
+  This is considered the preferred default scheme for exams in our group.\\newline Alternative name: \option{sixpack}
+
+  \opt{2x3-}
+  Rows are occupied as in \option{2x2-}, but the lateral spacing
+  within an occupied row is two seats.
+
+  \opt{2x4}
+  Occupied seats have three empty seats between them laterally,
+  and one empty row between occupied rows.
+
+  \opt{3x4}
+  Occupied seats have three empty seats between them laterally,
+  and two empty rows between occupied rows.
+\end{options}
+
+\subsection{Seat Labeling}
+\label{sec:seat-label}
+The labeling of assigned seats can be done in various ways, controlled by
+assigning a format string to the key \option{assigned seat label}.
+Four counters are available for this purpose:
+\begin{itemize}
+\item absolute row: the row number in the seat layout
+\item occupied row: the number of the \emph{assigned} row.
+  Rows without any assigned seats are skipped.
+\item absolute seat number: the seat number in the seat layout.
+  Whether removed seats are counted depends on the value of
+  \option*{ignore removed seats}.
+\item occupied seat number: the number of the \emph{assigned} seats.
+  Unassigned seats are skipped in this count.
+\end{itemize}
+Each of these counters can be formatted differently.
+For this, the format string uses format specifiers listed in the following table:\medskip
+
+\begin{tabular}{llccccc}\hline
+  \textbf{\sffamily Counter}&\textbf{\sffamily Description}&\multicolumn{5}{c}{\textbf{\sffamily Rendered as\ldots}}\\
+      &&\rotatebox{90}{Arabic numeral}&\rotatebox{90}{lowercase letter}&\rotatebox{90}{uppercase letter}&
+ \rotatebox{90}{lower Roman numeral}&\rotatebox{90}{upper Roman numeral}\\\hline
+  absolute row&\emph{based on seat layout}&\code{m}&\code{a}&\code{A}&\code{y}&\code{Y}\\
+  occupied row&\emph{based on assigned rows}&\code{r}&\code{b}&\code{B}&\code{i}&\code{I}\\ 
+  absolute seat number&\emph{based on seat layout}&\code{n}&\code{c}&\code{C}&\code{x}&\code{X}\\
+  occupied seat number&\emph{based on assigned seats}&\code{s}&\code{d}&\code{D}&\code{j}&\code{J}\\\hline
+\end{tabular}\medskip
+
+\noindent
+Parts of the label that should not be interpreted as format specifiers must be
+wrapped in double braces: \code{{\{\meta{protected string}\}}}.
+
+For example,
+\begin{example}[code-only]
+  \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
+\end{example}
+produces the label "`III-B"' for the fourth seat (from the left) in the third
+row.
+
+\subsection{Seat List}
+\label{sec:seats-list}
+Especially in the context of examinations, it is useful to generate a seat list,
+i.e., a tabular mapping between student and assigned seat.
+In its current version, \thepkg\ does not create a \LaTeX\ table,
+but it can support table generation (e.g., using \LaTeX\ or a spreadsheet application).
+
+\begin{commands}
+  \command{tucsSeatingList}[\oarg{input file}\marg{output file}]\vspace{-1.7\baselineskip}
+  \command{tucsSeatingList}[\sarg\oarg{input file}\marg{output file}]
+  Creates a CSV file \meta{output file} containing the labels of the assigned seats,
+  one per line.\medskip
+
+  \framebox{\parbox{\linewidth}{
+    \textbf{Note!}
+    The label texts written to \meta{output file} are extracted from the
+    corresponding \LaTeX\ boxes, and only printable characters are included.
+    When using this function, it's therefore recommended to avoid excessive
+    \TeX-level formatting in the \option*{assigned seat label} format string.
+  }}\medskip
+
+  In the starred variant, each line is prefixed with the absolute coordinates
+  (row, seat number, relative to the layout), comma-separated, before the label.
+
+  If an input file is specified, its content is prepended line-by-line
+  to the generated lines. For example, the input file could contain names
+  and/or student IDs, which will then be matched to the assigned seats in the output.
+  If there are fewer entries in \meta{input file} than assigned seats,
+  the corresponding fields in the output will be left empty.
+  If, on the other hand, there are more entries than available seats,
+  \thepkg\ will report which entries could not be assigned a seat.
+\end{commands}
+
+\section{Examples}
+\label{sec:examples}
+To demonstrate the behavior of \thepkg, a few usage examples are documented
+here.
+\subsection{Predefined Room, Rectangular}
+\label{sec:ex:std-rect}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+    % To make better use of the paper, we use landscape format
+    % and reduce the margins
+    \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
+    \usepackage[
+      room=C10.115,
+      blackboard
+    ]{tucseating}
+
+  \begin{document}
+    % Default title takes up too much space.
+    \centering\textbf{\Huge\sffamily Seating Plan C10.115}\bigskip
+    \tucsSeatingScheme{sixpack}
+    \tucsDrawSeating
+  \end{document}
+\end{example}
+\subsection{Predefined Room, Curved}
+\label{sec:ex:std-arc}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+    % To make better use of the paper, we use landscape format
+    % and reduce the margins
+    \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
+    \usepackage[
+      room=A10.316,
+      blackboard,
+      assigned seat label color=blue
+    ]{tucseating}
+
+   \begin{document}
+     % Default title takes up too much space.
+     \centering\textbf{\Huge\sffamily Seating Plan A10.316}\bigskip
+     \tucsSeatingScheme[ignore removed seats]{2x2}
+     \tucsDrawSeating
+   \end{document}
+\end{example}
+
+\subsection{Custom Layout and Seating Scheme}
+\label{sec:ex:own1}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+    % To make better use of the paper, we use landscape format
+    % and reduce the margins
+    \usepackage[a4paper,landscape,inner=10pt,outer=10pt,top=1cm,bottom=1cm]{geometry}
+    \usepackage[
+      shape=rectangle, rows=9, seats per row=9,
+      assigned seat background color=yellow
+    ]{tucseating}
+    
+    \begin{document}
+      \tucsRemoveSeats{{1,1},{1,-1},{2,1},{2,-1},{3,1},{3,-1}}
+        
+      \tucsSeatingScheme[ignore removed seats,end row=3]{2x3}
+      \tucsSeatingScheme[start row=5, end row=10]{2x4}
+      \tucsDrawSeating
+  \end{document}
+\end{example}
+
+\subsection{Checkers}
+\label{sec:ex:dame}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
+  \documentclass{scrartcl}
+    \usepackage[a5paper,landscape,top=1cm,bottom=1cm]{geometry}
+    \usepackage[shape=rectangle, rows=10,seats per row=10,
+       assigned seat label color=blue, assigned seat background color=teal,
+       empty seat background color=lime!50,
+       seat distance=0pt]{tucseating}
+    \usepackage{stix}
+    \begin{document}
+      \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
+
+      \tucsConfigScheme{assigned seat label={}}
+      \tucsSeatingScheme*[start row=5, end row=5]{X-}
+      \tucsSeatingScheme*[start row=6, end row=6]{-X}
+      \tucsConfigScheme{assigned seat label font=\Huge, assigned seat label={{{\textcolor{white}{$\circledbullet$}}}}}
+      \tucsSeatingScheme*[start row=1, end row=3,row sep=2]{X-}
+      \tucsSeatingScheme*[start row=2, end row=4]{-X}
+      \tucsConfigScheme{assigned seat label={{{\textcolor{yellow}{$\circledbullet$}}}}}
+      \tucsSeatingScheme*[start row=7, end row=9]{X-}
+      \tucsSeatingScheme*[start row=8, end row=10]{-X}
+
+      \tucsDrawSeating[seat width=1cm, seat height=1cm]
+  \end{document}
+\end{example}
+\section{Declaration of New Rooms}
+To be done.
+\section{Errors}
+To be done.
+\end{document}

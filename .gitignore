@@ -8,8 +8,5 @@
 *.ido
 *.toc
 *.xdy
-tucseating-doc-de-cnltx-1.pdf
-tucseating-doc-de-cnltx-1.tex
-tucseating-doc-de-cnltx.code
+tucseating-doc-*-cnltx*
 .DS_Store
-tucseating-doc-de.out

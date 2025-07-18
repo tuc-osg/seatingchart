@@ -14,7 +14,8 @@ installfiles= {
 }
 
 typesetfiles = {
-   "tucseating-doc-de.tex",
+   "tucseating-doc-en.tex",
+   "tucseating-doc-de.tex"
 }
 
 typesetopts="-interaction=nonstopmode -shell-escape"
