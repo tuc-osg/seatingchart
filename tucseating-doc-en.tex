@@ -1,43 +1,35 @@
 % Patch cnltx-doc class
-\makeatletter
-\RequirePackage{luatex85}
-\RequirePackage{multicol}
-\RequirePackage{ragged2e}
-\disable@package@load{libertinehologopatch.sty}{}
-\AddToHook{package/hyperref/after}{%
-  \newrobustcmd*\cnltx@tableofcontents{%
-    \begingroup
-    \let\tocbasic@listhead\@gobble
-    \RaggedRight
-    \tableofcontents
-    \endgroup
-  }%
+\AddToHook{class/scrartcl/after}{
+  \NewCommandCopy{\originalAfterPackage}{\AfterPackage}
+  \RenewDocumentCommand{\AfterPackage}{t! m m}{
+    \IfBooleanTF{#1}{#3}{%
+      \originalAfterPackage{#2}{#3}
+    }
+  }
 }
 \makeatother
-% end patch
-
+\typeout{*** Patch cnltx-doc}
 \documentclass[
 babel-options={english},
 load-preamble-,
 title=compact
 ]{cnltx-doc}
 
-%\usepackage[oldstyle]{libertine}
-%\usepackage[scaled=.81]{beramono}
-% \setmonofont[
-%             Scale = MatchLowercase,
-%             Ligatures = {NoCommon,NoRequired,NoContextual}
-%             ]{DejaVu Sans Mono}
+\usepackage[oldstyle]{libertine}
+\usepackage[scaled=.81]{DejaVuSansMono}
+% Since the cnltx class doesn't do examples with lualatex,
+% we can't include our package.
+% Thus, we use readprov to get file information.
+\usepackage{readprov}
+\ReadFileInfos{tucseating.sty}
 
-%\usepackage[room=A10.201]{tucseating}
 \providecommand{\packagename}{tucseating}
-\providecommand{\packageversion}{v0.3}
-\providecommand{\packagedate}{\today}
+\def\thepkg{\pkg*{\packagename}}
 \setcnltx{
   name  = tucseating,
   package  = \packagename,
-  version  = \packageversion,
-  date     = \packagedate,
+  version  = \UseVersionOf{\packagename.sty},
+  date     = \UseDateOf{\packagename.sty},
   title    = The \pkg*{tucseating} Package,
   info     = Generation and visualization of seating plans,
   authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
@@ -156,26 +148,15 @@ see Section~\ref{sec:seat-assignment}.
 % see Section~\ref{sec:seat-assignment}.
 \subsection{Class Options}
 \label{sec:class-options}
-Some options distinguish between two fundamental use cases:
+The use of the option \option{room} distinguishes between two fundamental use cases:
 \begin{options}
   \keyval{room}{Room} This option key should be used if the desired room
-  is already predefined (see Section~\ref{sec:rooms}).
-  In that case, no further specification is required.
-  If the room is not known, it can also be created \emph{ad hoc}; see below.
+  is already predefined.
+
 \end{options}
-If the room is not already known, several key–value options are required to describe the layout:
+If the room is not already known, it can also be created \emph{ad hoc}, whereas
+several key–value options are required to describe the layout: 
 
-% \subsection{Class Options}
-% \label{sec:class-options}
-% Some options distinguish between two fundamental use cases:
-% \begin{options}
-%   \keyval{room}{Room} This option key should be used if the desired room
-%   is already predefined (see Section~\ref{sec:rooms}).
-%   In that case, no further specification is required.
-%   If the room is not known, it can also be created \emph{ad hoc}; see below.
-% \end{options}
-
-% If the room is not already predefined, several key–value pairs are required to describe the room layout.
 \begin{options}
   \keychoice{shape}{rectangle,arc}\Default{rectangle}
   Specifies whether the seating layout is rectangular (\choices{rectangle}) or curved (\choices{arc}).%
@@ -189,27 +170,9 @@ If the room is not already known, several key–value options are required to de
   \textbf{Note:} Aisles between blocks of seats must be counted here as seats as well.
 \end{options}
 
-% \begin{options}
-%   \keychoice{shape}{rectangle,arc}\Default{rectangle}
-%   Specifies whether the seat layout is rectangular (\choices{rectangle})
-%   or curved (\choices{arc}).\footnote{For example, room A10.316 at TU~Chemnitz is curved.}
-
-%   \keyval{rows}{Number of seat rows}\Default*!{}
-%   \keyval{seats per row}{Seats per row}\Default!{}
-%   Specifies the number of rows and the number of seats per row. The maximum
-%   number must always be given.
-%   If some rows are shorter, seats will be removed later; however, no seats
-%   can be added beyond the originally defined layout area.
-%   \textbf{Note:} Aisles between seat blocks must also be counted as seats.
-% \end{options}
-
 If you specify \textbf{both} the \option*{room} key \textbf{and} one of the keys
 \option*{rows} or \option*{seats per row} in the class options, the result is undefined.
 A warning will be issued in that case.\medskip
-
-% If both the \option*{room} key and one of the keys \option*{rows} or \option*{seats per row}
-% are specified in the class options, the behavior is undefined.
-% A warning will be issued in this case.
 
 All further class options define the visual representation of the room layout.
 They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.

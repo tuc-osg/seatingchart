@@ -1,44 +1,36 @@
 % Patch cnltx-doc class
-\makeatletter
-\RequirePackage{luatex85}
-\RequirePackage{multicol}
-\RequirePackage{ragged2e}
-\disable@package@load{libertinehologopatch.sty}{}
-\AddToHook{package/hyperref/after}{%
-  \newrobustcmd*\cnltx@tableofcontents{%
-    \begingroup
-    \let\tocbasic@listhead\@gobble
-    \RaggedRight
-    \tableofcontents
-    \endgroup
-  }%
+\AddToHook{class/scrartcl/after}{
+  \NewCommandCopy{\originalAfterPackage}{\AfterPackage}
+  \RenewDocumentCommand{\AfterPackage}{t! m m}{
+    \IfBooleanTF{#1}{#3}{%
+      \originalAfterPackage{#2}{#3}
+    }
+  }
 }
 \makeatother
-% end patch
-
+\typeout{*** Patch cnltx-doc}
 \documentclass[
 babel-options={ngerman},
 load-preamble-,
-title=compact
+scrartcl={headings=small}
 ]{cnltx-doc}
 
-%\usepackage[oldstyle]{libertine}
-%\usepackage[scaled=.81]{beramono}
-% \setmonofont[
-%             Scale = MatchLowercase,
-%             Ligatures = {NoCommon,NoRequired,NoContextual}
-%             ]{DejaVu Sans Mono}
+\usepackage[oldstyle]{libertine}
+\usepackage[scaled=.81]{DejaVuSansMono}
+% Since the cnltx class doesn't do examples with lualatex,
+% we can't include our package.
+% Thus, we use readprov to get file information.
+\usepackage{readprov}
+\ReadFileInfos{tucseating.sty}
 
-%\usepackage[room=A10.201]{tucseating}
 \providecommand{\packagename}{tucseating}
-\providecommand{\packageversion}{v0.3}
-\providecommand{\packagedate}{\today}
+\def\thepkg{\pkg*{\packagename}}
 \setcnltx{
   name  = tucseating,
   package  = \packagename,
-  version  = \packageversion,
-  date     = \packagedate,
-  title    = Das \pkg*{tucseating}-Paket,
+  version  = \UseVersionOf{\packagename.sty},
+  date     = \UseDateOf{\packagename.sty},
+  title    = Das \thepkg-Paket,
   info     = Erstellung von Sitzplänen,
   authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
   abstract = {Das Paket ermöglicht es, Sitzpläne, wie sie z. B. für Prüfungen
@@ -53,27 +45,9 @@ title=compact
     ad hoc erstellt werden.},
   url      =https://github.com/tuc-osg/tucseating,
   build-title
-}
-\def\thepkg{\pkg*{\packagename}}
- 
-% %\microtypesetup{disable=true}
-% %\repository{https://github.com/tuc-osg/tucseating}
-% \author{Matthias Werner}
-% \subtitle{Version 0.2}
-% %\email{matthias.werner@informatik.tu-chemnitz.de}
-% \title{Das \pkg*{\packagename}-Paket}
-% \makeatletter
-% \newrobustcmd*\cnltx@tableofcontents{%
-%   \begingroup
-%   \let\tocbasic@listhead\@gobble
-%   \RaggedRight
-%   \tableofcontents
-%   \endgroup
-% }
-% \makeatother
+} 
 
 \begin{document}
-
 
 \section{Einführung}
 Für die Durchführung von Prüfungen benötigen wir mitunter Sitzpläne.
@@ -121,8 +95,8 @@ siehe Abschnitt~\ref{sec:seat-assignment}.
 
 \subsection{Klassenoptionen}
 \label{sec:class-options}
-Durch einige der Optionen werden zwei grundsätzliche Anwendungsfälle
-unterschieden.
+Durch die Nutzung bzw. Nichtnutzung der Option \option{room} werden zwei
+grundsätzliche Anwendungsfälle unterschieden:
 \begin{options}
   \keyval-{room}{Raum} Diesen Optionsschlüssel sollte man nutzen, wenn der gewünschte
   Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist. 
@@ -253,8 +227,6 @@ mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
       \tucsDrawSeating
     \end{document}
 \end{example}
-
-
 
 \section{Sitzplatzbelegung}
 \label{sec:seat-assignment}
