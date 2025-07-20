@@ -10,3 +10,4 @@
 *.xdy
 tucseating-doc-*-cnltx*
 .DS_Store
+build/**
