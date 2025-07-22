@@ -1,5 +1,5 @@
 --[[
-  Accompanying file to tucseating.sty
+  Package: tucseating
   Date:
   2025-07-17
   Version:
