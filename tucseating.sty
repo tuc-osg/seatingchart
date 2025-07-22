@@ -18,7 +18,8 @@
   %% License:     GPLv3
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 
-\ProvidesPackage{\packagename}[\packagedate\space \packageversion]
+\ProvidesPackage{\packagename}[\packagedate\space \packageversion\space Generate
+seating plans]
 \RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
   \PackageError{\packagename}{
@@ -36,7 +37,7 @@
 }
 \RequirePackage{luacode}
 \ExplSyntaxOff
-\newtoggle{tucs@rectshapt}
+\newtoggle{tucs@rectshapt}\toggletrue{tucs@rectshapt}
 \newtoggle{tucs@rnleft}
 \newtoggle{tucs@rnright}
 \newtoggle{tucs@room}
@@ -68,6 +69,9 @@
     }{}
     \gdef\tucs@seatsperrow{#1}
   },
+  layout file.store = \tucsroomfile,
+  layout file.initial:n = rooms1,
+  layout file.usage=load,
   seats per row.usage = preamble,
   seats per row.initial:n = 0,
   room.choice:,
@@ -86,7 +90,7 @@
   },
   remove.usage = preamble,
   shape.choice:,
-  aisle.code:n={
+  aisle.code:n={%
     \keySetAisle{#1}
   },
   blackboard.if = tucs@blackboard,
@@ -150,6 +154,9 @@
 \NewDocumentCommand{\tucsDeclareRoom}{m m}{%
   \DeclareKeys[tucseating]{room/#1.meta:n={#2}}%
 }
+\NewDocumentCommand{\tucsAliasRoom}{m m}{%
+  \DeclareKeys[tucseating]{room/#1.meta:n={room/#2}}%
+}
 \NewDocumentCommand{\tucsRemoveSeatAt}{m m}{
   \luadirect{removeSeatAt(#1,#2)}
 }
@@ -187,13 +194,14 @@
   \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{arc})}
   }
 }
-\InputIfFileExists{rooms1.tsr}{}{
+
+\InputIfFileExists{\tucsroomfile.tsr}{}{
   \PackageError{\packagename}{
-    Can't find room data. This shouldn't happen.}{Please report to the package maintainer.}
+    Can't open room file.}{If you've provided a room file, check whether it is
+    in the path.}
 }
 
 % defaults
-
 \ProcessKeyOptions
 
 \NewDocumentCommand{\tucsConfig}{m}{%

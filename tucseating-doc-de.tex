@@ -17,6 +17,7 @@ scrartcl={headings=small}
 
 \usepackage[oldstyle]{libertine}
 \usepackage[scaled=.81]{DejaVuSansMono}
+\usepackage{enumitem}
 % Since the cnltx class doesn't do examples with lualatex,
 % we can't include our package.
 % Thus, we use readprov to get file information.
@@ -38,9 +39,9 @@ scrartcl={headings=small}
     verschiedener automatischer Platzierungsschemata sind vordefiniert, 
     aber man kann auch feingranular eigene Platzierungen vornehmen.
     Während das Paket zunächst für den internen
-    Gebrauch an der TU Chemnitz gedacht ist und
-    (einige) vordefinierte Raumpläne enthält, sind
-    einerseits sowohl die Raumdaten leicht erweiter-
+    Gebrauch an der TU Chemnitz gedacht war und
+    für (einige) der Räume der TU~Chemnitz vordefinierte Sitzlayouts enthält,
+    sind jedoch einerseits sowohl die Raumdaten leicht erweiter-
     oder ersetzbar, andererseits können Räume auch
     ad hoc erstellt werden.},
   url      =https://github.com/tuc-osg/tucseating,
@@ -60,7 +61,7 @@ Außerdem wird uns von Zeit zu Zeit ein neuer Raum zugewiesen, für den wir noch
 keine Pläne haben.
 
 Dies war die Motivation zur Erschaffung des \thepkg-Pakets. Es \ldots
-\begin{itemize}
+\begin{itemize}[itemsep=0pt]
   \item ermöglicht eine schnelle und einfach Erstellung von Sitzplänen;
   \item trennt das Sitzlayout und das Platzierungsschema voneinander;
   \item bietet eine Reihe von Standardschemata für die Platzierung an;
@@ -72,7 +73,7 @@ Dies war die Motivation zur Erschaffung des \thepkg-Pakets. Es \ldots
 Das \thepkg-Paket arbeitet nur mit Lua\LaTeX\ und benötigt eine hinreichend
 moderne \LaTeX-Version, mindestens vom Juli 2022.
 Es lädt folgende Pakete:
-\begin{itemize}
+\begin{itemize}[nosep]
   \item \pkg{etoolbox} 
   \item \pkg{luacode}
   \item \pkg{tikz}
@@ -83,7 +84,8 @@ Insbesondere wird durch \pkg*{tikz} das Paket \pkg{xcolor} geladen, dessen
 Farbdefinition auch in \thepkg\ verwendet werden.
 
 \section{Sitzlayout}
-Das Paket wird auf wie üblich mit
+\label{sec:layout}
+Das Paket wird wie üblich mit
 %
 %\centerline{
 \cs{usepackage}\oarg{optionen}\{\thepkg\}
@@ -98,8 +100,14 @@ siehe Abschnitt~\ref{sec:seat-assignment}.
 Durch die Nutzung bzw. Nichtnutzung der Option \option{room} werden zwei
 grundsätzliche Anwendungsfälle unterschieden:
 \begin{options}
-  \keyval-{room}{Raum} Diesen Optionsschlüssel sollte man nutzen, wenn der gewünschte
-  Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist. 
+  \keyval-{room}{Raum}\Default{}
+  Diesen Optionsschlüssel sollte man nutzen, wenn der gewünschte
+  Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist.
+  \keyval{room file}{Dateiname}\Default{rooms1}
+  Die Daten für die vordefinierten Räune werden
+  aus \meta{Dateiname}\code{.tsr} gelesen. 
+  Dieser Schlüssel kann genutzt werden, wenn man eigene Räume anlegt, siehe
+  Abschnitt~\ref{sec:new-rooms}.
 \end{options}
 Falls der Raum noch nicht bekannt ist, werden einige Schlüssel-Wert-Paar zur
 Beschreibung des Raumslayout gebraucht.
@@ -159,7 +167,7 @@ Sie können auch später mit \cs{tucsConfig} gesetzt werden, vgl.\ Abschnitt~\re
 \subsection{Späte Optionswahl}
 \label{sec:late-options}
 \begin{commands}
-  \command{tucsConfig}Mit diesem Kommando können außer
+  \command{tucsConfig} Mit diesem Kommando können außer
   \option{room}, \option{shape}, \option{rows} und \option{seats per row} alle
   im Abschnitt~\ref{sec:class-options} genannten Schlüssel auch
   außerhalb von \cs*{documentclass}-Optionen gesetzt werden.
@@ -179,7 +187,7 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
   vollständige Layout, ändern sich also nicht durch bereits entfernte Sitze.
   Wenn die \meta{Sitznummer} negativ ist, wird von rechts aus gezält
   \command{tucsRemoveSeats}[\marg{Liste}]
-  Entfern alle in der Liste vorkommenden Sitze aus dem Layout. Die Liste enthält
+  Entfernt alle in der Liste vorkommenden Sitze aus dem Layout. Die Liste enthält
   dabei kommaseparierte Einträge der Form
   \code{\{\meta{Reihe},\meta{Sitznummer}\}}. Für \meta{Reihe} und
   \meta{Sitznummer} gilt wie bei \cs*{tucsRemoveSeatAt} das urspüngliche Layout.
@@ -187,7 +195,7 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
   rechts in der ersten Reihe entfernt:
   \begin{example}[code-only]
     \tucsRemoveSeats{{1,1},{1,2},{1,3}{1,-1}}
-  \end{example}
+  \end{example}\vspace{-1.3\baselineskip}
   \command{tucsSetAisle}[\Oarg{\meta{Startreihe}-\meta{Endreihe}}\marg{Sitznummer}]
   %\Default{\meta{erste Reihe}-\meta{letzte Reihe}}
   An der Stelle von \meta{Sitznummer} wird durch alle Reihen ein Gang eingefügt. Nutzen Sie das
@@ -237,7 +245,7 @@ nur bedingt nützlich.
 Die Belegung wird in \thepkg\ mit Sitzplatzschemata realisiert. 
 Zur Erzeugung eines Sitzschemas gibt es den Befehl
 \begin{commands}
-  \command{tucsSeatingScheme}[\oarg{Schlüsselliste}\marg{Name}] \vspace{-1.7\baselineskip}
+  \command{tucsSeatingScheme}[\oarg{Schlüsselliste}\marg{Name}] \vspace{-1.3\baselineskip}
   \command{tucsSeatingScheme}[\sarg\oarg{Schlüsselliste}\marg{Schema}]
 Das Pflichtargument enthält in der Standardvariante des Befehls eine Bezeichnung
 für ein vorgegebenes Sitzschema, siehe Abschnitt~\ref{sec:defined-schemes}.
@@ -249,7 +257,7 @@ Reihe mehr Plätze als
 Beispielsweise wird mit
 \begin{example}[code-only]
   \tucsSeatingScheme*{X--}
-\end{example}
+\end{example}\vspace{-1.3\baselineskip}
 jeder dritte Sitz belegt.
 
 Im optionalen Argument kann wieder eine Liste von Schlüssel-Wert-Paaren
@@ -371,7 +379,7 @@ sollen, werden in doppelte geschweifte Klammern gesetzt
 Beispielsweise erzeugt
 \begin{example}[code-only]
   \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
-\end{example}
+\end{example}\vspace{-1.3\baselineskip}
 beim vierten Sitz (von links) in der dritten Reihe die Beschriftung "`III-B"'.
 
 \subsection{Sitzplatzliste}
@@ -382,7 +390,7 @@ In der aktuellen Version erstellt \thepkg\ keine (\LaTeX)-Tabelle, kann aber
 die Tabellenerstellung (mit \LaTeX\ oder einer Tabellenkalkulation)
 unterstützen.
 \begin{commands}
-    \command{tucsSeatingList}[\oarg{Eingabedatei}\marg{Ausgabedatei}]\vspace{-1.7\baselineskip}
+    \command{tucsSeatingList}[\oarg{Eingabedatei}\marg{Ausgabedatei}]\vspace{-1.3\baselineskip}
     \command{tucsSeatingList}[\sarg\oarg{Eingabedatei}\marg{Ausgabedatei}]
     Erstellt eine CVS-Datei \meta{Ausgabedatei} mit den Labels der belegten
     Plätze, jeweils einen pro Zeile.\medskip
@@ -433,7 +441,7 @@ Einsatzes dokumentiert.
     \tucsDrawSeating
   \end{document}
 \end{example}
-\pagebreak
+
 \subsection{Vordefinierter Raum, bogenförmig}
 \label{sec:ex:std-arc}
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
@@ -500,8 +508,56 @@ Einsatzes dokumentiert.
       \tucsDrawSeating[seat width=1cm, seat height=1cm]
   \end{document}
 \end{example}
-\section{Deklaration neuer Räume}
-To be done.
-\section{Fehler}
+\section{Deklaration neuer Raumlayouts}
+\label{sec:new-rooms}
+In der augenblicklichen Version hat das \thepkg-Paket erst eine gewisse Anzahl
+von Räumen mit ihrem Sitzlayout erfasst.
+Nutzer werden daher häufig darauf angewiesen sein, eigene Layouts anzulegen.
+Neben der Möglichkeit zur Ad-hoc-Kreation von Layouts, wie sie im
+Abschnitt~\ref{sec:layout} beschrieben sind, besteht auch die Möglichkeit das
+Paket selbst zu erweitern und damit Layouts für neue Räume anzulegen, die dann
+einfach über den \option{room}-Schlüssel angesprochen werden können.
+Neue Raumlyouts können über zwei Wege integriert werden:
+\begin{itemize}
+\item Die zu dem \thepkg-Paket gehörende Datei \code{room1.tsr} wird erweitert.
+\item Es wird eine eigene \code{.tsr}-Datei angelegt und über die Option \option{layout
+  file} eingebunden.
+\end{itemize}
+Egel welcher Weg gewählt wird, in \code{.tsr}-Dateien können zwei Befehle
+genutzt werden:
+\begin{commands}
+  \command{tucsDeclareRoom}[\marg{Raumbezeichnung}\marg{Schlüsselliste}]
+  Ein neues Raumlayout wird für den Raum \meta{Raumbezeichnung} angelegt.
+  Die Schlüsselliste \emph{muss} die drei Schlüssel
+  \begin{options}
+    \keychoice{shape}{rectangle,arc}\Default*!{}%\vspace{-.3\baselineskip}
+    \keyval-{rows}{Anzahl der Sitzreihen}\Default*!{}%\vspace{-.3\baselineskip} und
+    \keyval-{seats per row}{Sitze pro Sitzreihe}\Default!{}
+    enthalten, die die analoge Bedeutung zu den
+    gleichnamigen Schlüsseln aus Abschnitt~\ref{sec:layout} haben.
+    Diese Angaben zum Basislayout \emph{müssen} von dem Schlüssel
+    \opt{init}\Default! 
+    gefolgt werden.
+    Anschließend kann mit
+    \keyval-{aisle}{Sitznummer}\vspace{-1.3\baselineskip}
+    \keyval{remove}{Liste}
+    das Layout angepasst werden. Die beiden Schlüssel funktionieren analog zu
+    \cs*{tucsSetAisle} und \cs*{tucsRemoveSeats}, vgl.\ Abschnitt~\ref{sec:modify-layout}.
+  \end{options}
+  \begin{example}[code-only]
+    \tucsDeclareRoom{C10.115}{
+      shape=rectangle,
+      rows=21,
+      seats per row=35,
+      init,
+      aisle=18,
+      remove={{1,1},{1,2},{1,3},{1,4},{1,-1},{1,-2},{1,-3},{1,-4}}
+    }
+  \end{example}\vspace{-1.3\baselineskip}
+  \command{tucsAliasRoom}[\marg{Aliasname}\marg{Originalname}]
+  Setzt \meta{Aliasname} als einen Ersatznamen für \meta{Originalname}.
+\end{commands}
+
+\section{Beschränkungen und Fehler}
 To be done.
 \end{document}

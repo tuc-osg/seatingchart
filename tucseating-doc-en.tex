@@ -17,6 +17,7 @@ title=compact
 
 \usepackage[oldstyle]{libertine}
 \usepackage[scaled=.81]{DejaVuSansMono}
+\usepackage{enumitem}
 % Since the cnltx class doesn't do examples with lualatex,
 % we can't include our package.
 % Thus, we use readprov to get file information.
@@ -34,35 +35,21 @@ title=compact
   info     = Generation and visualization of seating plans,
   authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
   abstract={
-    This package allows for easy creation of seating plans, such as those
+    This package allows for easy creation of seating charts, such as those
     required for examinations.
     Several automatic placement schemes are predefined, but custom, fine-grained
     seat assignments can also be specified.
-    While originally intended for internal use at TU Chemnitz and including some
-    predefined room layouts,
-    the package supports easily extensible or replaceable room data—and even the
-    creation of room definitions on thefly.
+    While the package was initially intended for internal use at Chemnitz
+    University of Technology and contains predefined seating layouts for (some)
+    of the rooms of TUC, on the one hand the room data can be easily
+    expanded or replaced, and on the other hand rooms can also be created ad
+    hoc. 
   },
   url      =https://github.com/tuc-osg/tucseating,
   build-title
 }
 \def\thepkg{\pkg*{\packagename}}
  
-% %\microtypesetup{disable=true}
-% %\repository{https://github.com/tuc-osg/tucseating}
-% \author{Matthias Werner}
-% \subtitle{Version 0.2}
-% %\email{matthias.werner@informatik.tu-chemnitz.de}
-% \title{Das \pkg*{\packagename}-Paket}
-% \makeatletter
-% \newrobustcmd*\cnltx@tableofcontents{%
-%   \begingroup
-%   \let\tocbasic@listhead\@gobble
-%   \RaggedRight
-%   \tableofcontents
-%   \endgroup
-% }
-% \makeatother
 
 
 \begin{document}
@@ -76,7 +63,7 @@ requires adapting the files accordingly.
 Moreover, we are sometimes assigned new rooms for which no seating plans exist yet.
 
 This was the motivation for developing the \thepkg\ package. It \ldots
-\begin{itemize}
+\begin{itemize}%[itemsep=0pt]
   \item enables quick and easy creation of seating plans;
   \item separates seat layout from the placement scheme;
   \item offers a set of standard placement schemes;
@@ -105,7 +92,7 @@ This was the motivation for developing the \thepkg\ package. It \ldots
 The \thepkg\ package works only with Lua\LaTeX\ and requires a sufficiently
 modern \LaTeX\ version, at least from July 2022.
 It loads the following packages:
-\begin{itemize}
+\begin{itemize}%[nosep]
   \item \pkg{etoolbox} 
   \item \pkg{luacode}
   \item \pkg{tikz}
@@ -114,20 +101,9 @@ These packages are available in all major \TeX\ distributions and themselves
 depend on other packages.
 In particular, \pkg*{tikz} loads the \pkg{xcolor} package, whose color definitions
 are also used by \thepkg.
-\section{Dependencies}
-% The \thepkg\ package works only with Lua\LaTeX\ and requires a sufficiently
-% recent version of \LaTeX, at least from July 2022.
-% It loads the following packages:
-% \begin{itemize}
-%   \item \pkg{etoolbox} 
-%   \item \pkg{luacode}
-%   \item \pkg{tikz}
-% \end{itemize}
-% These packages are included in all major \TeX\ distributions and may themselves
-% depend on additional packages.
-% In particular, the \pkg*{tikz} package loads \pkg{xcolor}, whose color definitions
-% are also used by \thepkg.
+
 \section{Seat Layout}
+\label{sec:layout}
 The package is loaded as usual with
 %
 %\centerline{
@@ -152,7 +128,11 @@ The use of the option \option{room} distinguishes between two fundamental use ca
 \begin{options}
   \keyval{room}{Room} This option key should be used if the desired room
   is already predefined.
-
+  \keyval{room file}{filename}\Default{rooms1}
+  The data for the predefined rooms is read
+  from \meta{filename}\code{.tsr}.
+  This key can be used when creating your own rooms, see
+  Section~\ref{sec:new-rooms}.
 \end{options}
 If the room is not already known, it can also be created \emph{ad hoc}, whereas
 several key–value options are required to describe the layout: 
@@ -162,8 +142,8 @@ several key–value options are required to describe the layout:
   Specifies whether the seating layout is rectangular (\choices{rectangle}) or curved (\choices{arc}).%
   \footnote{For example, room A10.316 at TU~Chemnitz uses an arc layout.}
 
-  \keyval{rows}{Number of rows}\Default*!{}\vspace{-.3\baselineskip}
-  \keyval{seats per row}{Seats per row}\Default!{}
+  \keyval{rows}{number}\Default*!{}\vspace{-.3\baselineskip}
+  \keyval{seats per row}{number}\Default!{}
   Defines the number of seat rows and seats per row. The maximum number must always be specified here.
   For incomplete rows, seats will be removed later, but no additional seats can be added that lie outside
   the originally defined layout area.
@@ -181,27 +161,36 @@ They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-opti
   \keybool{blackboard}\Default{false}
   Draws a blackboard.
 
-  \keyval{seat distance}{Distance}\Default{2pt}
+  \keyval{seat distance}{distance}\Default{2pt}
   Distance between seats. This also determines the row spacing.
   If you want these two values to differ, you must use the following keys:
 
   \keyval{seat neighbor distance}{Distance}\Default*{2pt}\vspace{-.3\baselineskip}
-  \keyval{row distance}{Distance}\Default{2pt}
+  \keyval{row distance}{distance}\Default{2pt}
 
   \keychoice{rownumbers}{none,left,right,both}\Default{none}
   For rectangular layouts, defines whether to display row numbers on the left, right, or both sides.
   Counting starts at the front (blackboard side).\newline
   \emph{Note:} For arc-shaped layouts, this function is currently not implemented.
 
-  \keyval{rownumber distance}{Distance}\Default{2pt}
+  \keyval{rownumber distance}{distance}\Default{2pt}
   Distance between the row number and the outermost seats,
   if \option*{rownumbers} is not \code{none}.
 
-  \keyval{empty seat background color}{Color}\Default*{lightgray!20}\vspace{-.3\baselineskip}
-  \keyval{empty seat border color}{Color}\Default*{lightgray}\vspace{-.3\baselineskip}
-  \keyval{assigned seat background color}{Color}\Default*{lightgray!30}\vspace{-.3\baselineskip}
-  \keyval{assigned seat border color}{Color}\Default{black}
+  \keyval{empty seat background color}{color}\Default*{lightgray!20}\vspace{-.3\baselineskip}
+  \keyval{empty seat border color}{color}\Default*{lightgray}\vspace{-.3\baselineskip}
+  \keyval{assigned seat background color}{color}\Default*{lightgray!30}\vspace{-.3\baselineskip}
+  \keyval{assigned seat border color}{color}\Default{black}
   Defines background and border colors for empty or assigned seats.
+  The syntax of color names follows the specification of the \pkg*{xcolor}
+  package.
+  If the seats should not be differentiated by color, the keys
+  \keyval-{seat background color}{color}\Default*\vspace{-.3\baselineskip}
+  \keyval-{seat border color}{color}\Default
+  can also be used.
+  \keyval{assigned seat label font}{font command}\Default*{\cs*{small}}\vspace{-.3\baselineskip}
+  \keyval-{assigned seat label color}{color}\Default{black}
+  Sets the size and color of the seat label.
 \end{options}
 % All remaining class options affect the visual appearance of the room.
 % They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.
@@ -262,10 +251,10 @@ For this purpose, \pkg\ provides the following commands:
   is of the form \code{\{\meta{row},\meta{seat number}\}}.
   As with \cs*{tucsRemoveSeatAt}, row and seat numbers refer to the original layout.
   In the following example, the first three seats on the left and the first seat
-  on the right in the first row are removed:
+  on the right in the first row are removed: \vspace{-1.3\baselineskip}
   \begin{example}[code-only]
     \tucsRemoveSeats{{1,1},{1,2},{1,3},{1,-1}}
-  \end{example}
+  \end{example}\vspace{-1.3\baselineskip}
 
   \command{tucsSetAisle}[\Oarg{\meta{start row}-\meta{end row}}\marg{seat number}]
   Inserts an aisle at the position of \meta{seat number} through all rows.
@@ -327,9 +316,9 @@ describing (the beginning of) a row assignment pattern, where
 If the string is shorter than the number of seats in a row, it will be repeated.
 
 For example,
-\begin{example}[code-only]
+\begin{example}[code-only]\vspace{-1.3\baselineskip}
   \tucsSeatingScheme*{X--}
-\end{example}
+\end{example}\vspace{-1.3\baselineskip}
 marks every third seat as occupied.
 
 The optional argument accepts a list of key–value pairs that control the remaining
@@ -451,10 +440,10 @@ For this, the format string uses format specifiers listed in the following table
 Parts of the label that should not be interpreted as format specifiers must be
 wrapped in double braces: \code{{\{\meta{protected string}\}}}.
 
-For example,
+For example,\vspace{-1.3\baselineskip}
 \begin{example}[code-only]
   \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
-\end{example}
+\end{example}\vspace{-1.3\baselineskip}
 produces the label "`III-B"' for the fourth seat (from the left) in the third
 row.
 
@@ -466,7 +455,7 @@ In its current version, \thepkg\ does not create a \LaTeX\ table,
 but it can support table generation (e.g., using \LaTeX\ or a spreadsheet application).
 
 \begin{commands}
-  \command{tucsSeatingList}[\oarg{input file}\marg{output file}]\vspace{-1.7\baselineskip}
+  \command{tucsSeatingList}[\oarg{input file}\marg{output file}]\vspace{-1.3\baselineskip}
   \command{tucsSeatingList}[\sarg\oarg{input file}\marg{output file}]
   Creates a CSV file \meta{output file} containing the labels of the assigned seats,
   one per line.\medskip
@@ -583,7 +572,54 @@ here.
   \end{document}
 \end{example}
 \section{Declaration of New Rooms}
-To be done.
+\label{sec:new-rooms}
+In the current version, the \thepkg package only contains a certain number of
+rooms with their seating layouts. 
+Users will therefore often have to create their own layouts.
+In addition to the option for ad-hoc layout creation, as described in the
+Section~\ref{sec:layout}, it is also possible to extend the package itself and
+thus create layouts for new rooms, which can then be easily accessed via the
+\option{room} key. 
+New room layouts can be integrated in two ways:
+\begin{itemize}
+\item The \code{room1.tsr} file belonging to the \thepkg package is extended.
+\item A separate \code{.tsr} file is created and integrated using the \option{layout
+file} option. 
+\end{itemize}
+Regardless of which approach is chosen, two commands can be used in \code{.tsr} files:
+\begin{commands}
+\command{tucsDeclareRoom}[\marg{room name}\marg{key list}]
+A new room layout is created for the room \meta{room name}.
+The key list \emph{must} contain the three keys
+\begin{options}
+\keychoice{shape}{rectangle,arc}\Default*!{}%\vspace{-.3\baselineskip}
+\keyval-{rows}{number of rows}\Default*!{}%\vspace{-.3\baselineskip} and
+\keyval-{seats per row}{seats per row}\Default!{}
+These keys have the same meaning as the
+keys of the same name from Section~\ref{sec:layout}.
+This information about the base layout \emph{must} be followed by the key
+\opt{init}\Default!
+
+The layout can then be adjusted using
+\keyval-{aisle}{seat number}\vspace{-1.3\baselineskip}
+\keyval{remove}{list}
+These two keys function analogously to
+\cs*{tucsSetAisle} and \cs*{tucsRemoveSeats}, see Section~\ref{sec:modify-layout}.
+\end{options}
+\begin{example}[code-only]
+  \tucsDeclareRoom{C10.115}{
+    shape=rectangle,
+    rows=21,
+    seats per row=35,
+    init,
+    aisle=18,
+    remove={{1,1},{1,2},{1,3},{1,4},{1,-1},{1,-2},{1,-3},{1,-4}}
+  }
+\end{example}\vspace{-1.3\baselineskip}
+\command{tucsAliasRoom}[\marg{Aliasname}\marg{Originalname}]
+Sets \meta{Aliasname} as a replacement name for \meta{Originalname}.
+\end{commands}
+
 \section{Errors}
 To be done.
 \end{document}
