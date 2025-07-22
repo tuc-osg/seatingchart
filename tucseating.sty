@@ -15,12 +15,12 @@
   %% Author:      Matthias Werner
   %% Description: Seatings schemes (for Chemnitz
   %%              University of Technology)
-  %% License:     GPLv3
+  %% License:     LPPL 1.3 or later
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 
-\ProvidesPackage{\packagename}[\packagedate\space \packageversion\space Generate
-seating plans]
-\RequirePackage{translator}
+\ProvidesPackage{\packagename}[\packagedate\space \packageversion\space
+Generation of seating plans]
+%\RequirePackage{translator}
 \IfFormatAtLeastTF{2022/06/01}{}{
   \PackageError{\packagename}{
     \packagename requires at least the TeX format \MessageBreak
@@ -287,8 +287,7 @@ seating plans]
     % A seat that is deeper than it is wide looks a bit silly.
     \ifdimcomp{\tucsseatheight}{>}{\tucsseatwidth}{\setlength{\tucsseatheight}{\tucsseatwidth}}{}%
   }%
-  \tucs@configtikz%  \newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
-  %\newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
+  \tucs@configtikz% 
   %\typeout{*********~Seatwidth:~\the\tucsseatwidth, Seatheight:~\the\tucsseatheight}%
   \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}%
   \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y]
@@ -565,7 +564,7 @@ seating plans]
 \ExplSyntaxOff
 
 \newcommand{\tucsrownumformat}[1]{%
-  #1
+  #1%
 }
 
 \ifboolexpr{
@@ -576,11 +575,9 @@ seating plans]
     number of rows or number of seats per row can't be smaller than 1}{
     Use correct layout options}
 }{}
-%\newlinechar=`\^^J
 
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric}
-\iftoggle{tucs@room}{}{
-      %\typeout{****** Call \string\tucsInitSeating}
-      \tucsInitSeating
+\iftoggle{tucs@room}{}{%
+      \tucsInitSeating%
 }
