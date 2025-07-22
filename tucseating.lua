@@ -1,3 +1,10 @@
+--[[
+  Accompanying file to tucseating.sty
+  Date:
+  2025-07-17
+  Version:
+  v0.3
+--]]
 Seat = {
    id = nil,
    row = 0,
