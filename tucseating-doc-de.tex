@@ -17,6 +17,7 @@ scrartcl={headings=small}
 
 \usepackage[oldstyle]{libertine}
 \usepackage[scaled=.81]{DejaVuSansMono}
+\usepackage{microtype}
 \usepackage{enumitem}
 % Since the cnltx class doesn't do examples with lualatex,
 % we can't include our package.
@@ -185,7 +186,7 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
   Entfernt den Sitz \meta{Sitznummer} in der Reihe \meta{Reihe} aus dem
   Layout. Dabei beziehen sich \meta{Reihe} und \meta{Sitznummer} auf das
   vollständige Layout, ändern sich also nicht durch bereits entfernte Sitze.
-  Wenn die \meta{Sitznummer} negativ ist, wird von rechts aus gezält
+  Wenn die \meta{Sitznummer} negativ ist, wird von rechts aus gezählt
   \command{tucsRemoveSeats}[\marg{Liste}]
   Entfernt alle in der Liste vorkommenden Sitze aus dem Layout. Die Liste enthält
   dabei kommaseparierte Einträge der Form
@@ -212,7 +213,7 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
 \label{sec:drawing}
 \begin{commands}
   
-  \command{tucsDrawSeating}[\sarg\Oarg{seat width=\meta{Breite}, seat height=\meta{Höhe}}]\Default
+  \command{tucsDrawSeating}[\Oarg{seat width=\meta{Breite}, seat height=\meta{Höhe}}]
   Gibt den Sitzplan aus. Dabei versucht \thepkg, die Ausmaße der Sitz so zu
   berechnen, dass der zur Verfügung stehenden Platz des Gesamtplans vollständig
   ausgenutzt wird.
@@ -558,6 +559,18 @@ genutzt werden:
   Setzt \meta{Aliasname} als einen Ersatznamen für \meta{Originalname}.
 \end{commands}
 
-\section{Beschränkungen und Fehler}
-To be done.
+\section{Beschränkungen und Bugs}
+\label{sec:bugs}
+Das Paket ist auf die Erstellung seperater Sitzpläne ausgelegt und kann daher
+nicht dafür genutzt werden, mehrere Sitzpläne in einem Dokument darstellen.
+Ebenfalls können keine Sitzlayouts mit versetzten Sitzreihen dargestellt werden.
+
+Die Anzahl der vordefinierten Räume ist derzeit noch gering.
+
+Im Moment sind keine Bugs bekannt, aber es werden sicherlich welche existieren.
+Bitte nutzen Sie für Bugs-Repots oder Pull-Requests GitHub:
+\url{https://github.com/tuc-osg/tucseating}.
+
+\section{Lizenz}
+\license
 \end{document}

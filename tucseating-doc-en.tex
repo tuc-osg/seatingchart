@@ -70,24 +70,7 @@ This was the motivation for developing the \thepkg\ package. It \ldots
   \item includes a number of predefined rooms with seat layouts;
   \item allows for \emph{ad hoc} creation of new rooms and placement schemes.
 \end{itemize}
-% \section{Introduction}
-% For the organization of examinations, we occasionally need seating plans.
-% Over time, a number of such plans have accumulated in the form of TikZ-supported
-% \LaTeX\ files. 
-% Depending on the number of students in an exam—and on how high we assess
-% the risk of attempted cheating—we use different seating schemes, which means
-% we have to adapt the files accordingly.
-% Additionally, we are sometimes assigned a new room for which we do not yet
-% have a layout.
 
-% This was the motivation for developing the \thepkg\ package. It \ldots
-% \begin{itemize}
-%   \item enables quick and easy creation of seating plans;
-%   \item separates the seat layout from the placement scheme;
-%   \item provides a set of standard schemes for seat assignment;
-%   \item includes a number of predefined rooms with seat layouts;
-%   \item allows for \emph{ad hoc} creation of new rooms and placement schemes.
-% \end{itemize}
 \section{Dependencies}
 The \thepkg\ package works only with Lua\LaTeX\ and requires a sufficiently
 modern \LaTeX\ version, at least from July 2022.
@@ -105,23 +88,12 @@ are also used by \thepkg.
 \section{Seat Layout}
 \label{sec:layout}
 The package is loaded as usual with
-%
-%\centerline{
 \cs{usepackage}\oarg{options}\{\thepkg\}
-%}
+
 This allows the layout of the seats—i.e., their arrangement in the room—
 to be defined right away. Seat assignment is done later;
 see Section~\ref{sec:seat-assignment}.
 
-%\section{Seat Layout}
-% The package is loaded as usual with
-% %
-% %\centerline{
-% \cs{usepackage}\oarg{options}\{\thepkg\}
-% %}
-% At this point, the basic seat layout—i.e., the arrangement of seats in the room—
-% can already be defined. Seat assignment is done later;
-% see Section~\ref{sec:seat-assignment}.
 \subsection{Class Options}
 \label{sec:class-options}
 The use of the option \option{room} distinguishes between two fundamental use cases:
@@ -192,35 +164,6 @@ They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-opti
   \keyval-{assigned seat label color}{color}\Default{black}
   Sets the size and color of the seat label.
 \end{options}
-% All remaining class options affect the visual appearance of the room.
-% They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.
-
-% \begin{options}
-%   \keybool{blackboard}\Default{false}
-%   Draws a blackboard.
-
-%   \keyval{seat distance}{Distance}\Default{2pt}
-%   Distance between seats. This also determines the distance between rows.
-%   If these two should differ, the following options must be used:
-
-%   \keyval{seat neighbor distance}{Distance}\Default*{2pt}
-%   \keyval{row distance}{Distance}\Default{2pt}
-
-%   \keychoice{rownumbers}{none,left,right,both}\Default{none}
-%   For rectangular layouts, specifies whether to display row numbers on the left,
-%   right, or both sides. Rows are counted from the front (blackboard side).
-%   \emph{Note:} This feature is currently not implemented for curved layouts.
-
-%   \keyval{rownumber distance}{Distance}\Default{2pt}
-%   Distance from the row number to the outermost seats,
-%   if \option*{rownumbers} is not \code{none}.
-
-%   \keyval{empty seat background color}{Color}\Default*{lightgray!20}
-%   \keyval{empty seat border color}{Color}\Default*{lightgray}
-%   \keyval{assigned seat background color}{Color}\Default*{lightgray!30}
-%   \keyval{assigned seat border color}{Color}\Default{black}
-%   Colors for unassigned and assigned seats (background and border).
-% \end{options}
 
 \subsection{Late Option Selection}
 \label{sec:late-options}
@@ -251,7 +194,8 @@ For this purpose, \pkg\ provides the following commands:
   is of the form \code{\{\meta{row},\meta{seat number}\}}.
   As with \cs*{tucsRemoveSeatAt}, row and seat numbers refer to the original layout.
   In the following example, the first three seats on the left and the first seat
-  on the right in the first row are removed: \vspace{-1.3\baselineskip}
+  on the right in the first row are removed: \vspace{-.3\baselineskip}
+  
   \begin{example}[code-only]
     \tucsRemoveSeats{{1,1},{1,2},{1,3},{1,-1}}
   \end{example}\vspace{-1.3\baselineskip}
@@ -260,7 +204,8 @@ For this purpose, \pkg\ provides the following commands:
   Inserts an aisle at the position of \meta{seat number} through all rows.
   Use the optional argument if the aisle should not span all rows.
 
-  For horizontal aisles (which split a seat block into front and back instead of left and right),
+  For horizontal aisles (which split a seat block into front and back instead of
+  left and right), 
   please use \cs*{tucsRemoveSeats}.
 
   While this is also possible for vertical aisles, automatically generated
@@ -272,7 +217,8 @@ For this purpose, \pkg\ provides the following commands:
 \label{sec:drawing}
 
 \begin{commands}
-  \command{tucsDrawSeating}[\sarg\Oarg{seat width=\meta{width}, seat height=\meta{height}}]\Default
+  \command{tucsDrawSeating}[\Oarg{seat width=\meta{width}, seat
+    height=\meta{height}}]  
   Renders the seating plan. \thepkg\ attempts to calculate the seat dimensions
   so that the available space for the complete plan is fully utilized.
   Since this may not always meet all needs, the optional argument allows
@@ -378,22 +324,22 @@ The \thepkg\ package defines a set of predefined seating schemes.
 Some of them also have alternative names.
 \begin{options}
   \opt{1x1}
-  Every seat is marked.\\newline Alternative name: \option{all}
+  Every seat is marked.\newline Alternative name: \option{all}
 
   \opt{2x2}
-  One empty seat and one empty row between two occupied ones.\\newline Alternative name: \option{simple}
+  One empty seat and one empty row between two occupied ones.\newline Alternative name: \option{simple}
 
   \opt{2x2-}
   One empty seat between two occupied ones. After a single empty row,
   \emph{two} rows with occupied seats follow.
   This scheme allows the largest number of students in a room during an exam
   while still maintaining minimal lateral distance and enabling supervision
-  to reach every student (from the front or the back).\\newline Alternative name: \option{dense}
+  to reach every student (from the front or the back).\newline Alternative name: \option{dense}
 
   \opt{2x3}
   Occupied seats have two empty seats between them laterally,
   and one empty row between occupied rows.
-  This is considered the preferred default scheme for exams in our group.\\newline Alternative name: \option{sixpack}
+  This is considered the preferred default scheme for exams in our group.\newline Alternative name: \option{sixpack}
 
   \opt{2x3-}
   Rows are occupied as in \option{2x2-}, but the lateral spacing
@@ -438,7 +384,7 @@ For this, the format string uses format specifiers listed in the following table
 
 \noindent
 Parts of the label that should not be interpreted as format specifiers must be
-wrapped in double braces: \code{{\{\meta{protected string}\}}}.
+wrapped in double braces: \code{\{\{\meta{protected string}\}\}}.
 
 For example,\vspace{-1.3\baselineskip}
 \begin{example}[code-only]
@@ -616,10 +562,22 @@ These two keys function analogously to
     remove={{1,1},{1,2},{1,3},{1,4},{1,-1},{1,-2},{1,-3},{1,-4}}
   }
 \end{example}\vspace{-1.3\baselineskip}
-\command{tucsAliasRoom}[\marg{Aliasname}\marg{Originalname}]
-Sets \meta{Aliasname} as a replacement name for \meta{Originalname}.
+\command{tucsAliasRoom}[\marg{alias}\marg{room}]
+Sets \meta{alias} as a replacement name for \meta{room}.
 \end{commands}
 
-\section{Errors}
-To be done.
+\section{Limitations and Bugs}
+\label{sec:bugs}
+The package is designed for creating separate seating charts and therefore cannot
+be used to display multiple seating plans in one document.
+Seat layouts with staggered rows cannot be displayed either.
+
+The number of predefined rooms is currently small.
+
+No bugs are currently known, but some will certainly exist.
+Please use GitHub for bug reports or pull requests:
+\url{https://github.com/tuc-osg/tucseating}.
+
+\section{Licence}
+\license
 \end{document}
