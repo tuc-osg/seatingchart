@@ -568,16 +568,28 @@ Sets \meta{alias} as a replacement name for \meta{room}.
 
 \section{Limitations and Bugs}
 \label{sec:bugs}
-The package is designed for creating separate seating charts and therefore cannot
-be used to display multiple seating plans in one document.
-Seat layouts with staggered rows cannot be displayed either.
+Even though the \thepkg\ package is in practical use, at least in our group, it
+should be considered experimental. 
+The \code{0} in the major version number indicates this.
+In particular, it means that the API is still subject to change.
 
-The number of predefined rooms is currently small.
+The package is subject to some limitations.
+Whether these will be fixed in future versions is not yet known.
+The package is designed for creating separate seating plans and therefore cannot
+be used to display multiple seating plans in one document. 
+Likewise, seating layouts with staggered rows cannot be displayed.
 
-No bugs are currently known, but some will certainly exist.
+The number of predefined rooms is currently relatively small.
+There are plans to include additional rooms from TU Chemnitz in future patches.
+Your collaboration by sending information about seating layouts or
+corresponding patches of \code{rooms1.tsr} is expressly welcome.
+
+There are currently no known bugs, but some will certainly exist.
 Please use GitHub for bug reports or pull requests:
 \url{https://github.com/tuc-osg/tucseating}.
 
-\section{Licence}
-\license
+\section{License}
+Permission is granted to copy, distribute and/or modify this software under the
+terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
+(\url{http://www.latex-project.org/lppl.txt}).
 \end{document}

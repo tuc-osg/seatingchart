@@ -1,9 +1,9 @@
 --[[
   Package: tucseating
   Date:
-  2025-07-17
+  2025-07-23
   Version:
-  v0.3
+  v0.4.0
 --]]
 Seat = {
    id = nil,
