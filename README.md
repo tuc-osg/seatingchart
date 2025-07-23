@@ -9,8 +9,12 @@ be controlled independently of each other.
 
 This package should be considered experimental and requires LuaLaTeX.
 
+## Installation
+`l3build install --full`
+
 ## Documentation
 See tucseating-doc-en.pdf (English) or tucseating-doc-de.pdf (German)
+
 
 ## License
 Copyright 2025 Matthias Werner
