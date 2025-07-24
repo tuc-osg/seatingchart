@@ -1,5 +1,5 @@
--- Build configuration for tucseating
-module = "tucseating"
+-- Build configuration for seatingchart
+module = "seatingchart"
 
 unpackfiles = {}
 sourcefiles= {
@@ -14,8 +14,8 @@ installfiles= {
 }
 
 typesetfiles = {
-   "tucseating-doc-en.tex",
-   "tucseating-doc-de.tex"
+   "seatingchart-doc-en.tex",
+   "seatingchart-doc-de.tex"
 }
 
 typesetopts="-interaction=nonstopmode -shell-escape"
@@ -27,9 +27,9 @@ cleanfiles={
 }
 
 tagfiles={
-    "tucseating.sty",
-    "tucseating.lua",
-    "*.tsr"
+    "seatingchart.sty",
+    "seatingchart.lua",
+    "*.sc"
 }
 
 function update_tag(file,content,tagname,tagdate)

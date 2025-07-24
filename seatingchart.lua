@@ -1,5 +1,5 @@
 --[[
-  Package: tucseating
+  Package: seatingchart
   Date:
   2025-07-23
   Version:
@@ -311,7 +311,7 @@ function generateSeatList(outstream,instream, coor)
 end
 
 function tucsreportmissing(names, index)
-   local report=string.char(10).."\27[34mPackage 'tucseating':"..string.char(10)..[[*******************************************
+   local report=string.char(10).."\27[34mPackage 'seatingchart':"..string.char(10)..[[*******************************************
 The following person(s) couldn't be seated:]]..string.char(10)
 
    for i=index, #names do

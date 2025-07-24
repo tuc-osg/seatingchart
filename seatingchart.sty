@@ -1,7 +1,7 @@
 \ExplSyntaxOn
 \def\packagename{
   %% Name:
-  tucseating
+  seatingchart
 }
 \def\packagedate{
   %% Date:
@@ -41,7 +41,7 @@ Generation of seating plans]
 \newtoggle{tucs@rnleft}
 \newtoggle{tucs@rnright}
 \newtoggle{tucs@room}
-\DeclareKeys[tucseating]{
+\DeclareKeys[seatingchart]{
   shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
   shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
   shape.usage = preamble,
@@ -70,14 +70,17 @@ Generation of seating plans]
     \gdef\tucs@seatsperrow{#1}
   },
   layout file.store = \tucsroomfile,
-  layout file.initial:n = rooms1,
+  layout file.initial:n =tu-chemnitz,
   layout file.usage=load,
   seats per row.usage = preamble,
   seats per row.initial:n = 0,
   room.choice:,
   room/unknown.code:n={
     \PackageError{\packagename}{
-      Room #1 is not in the database}{Check if the room name is correct or define an own room.}
+      Room #1 is not in the layout file ' \packagename-\tucsroomfile.sc'}{%
+      Check if you use the the correct layout file and\MessageBreak
+      whether the room name is correct,\MessageBreak
+      or define an own room.}
   },
   room.usage = load,
   init.code:n={
@@ -152,10 +155,10 @@ Generation of seating plans]
   }
 }
 \NewDocumentCommand{\tucsDeclareRoom}{m m}{%
-  \DeclareKeys[tucseating]{room/#1.meta:n={#2}}%
+  \DeclareKeys[seatingchart]{room/#1.meta:n={#2}}%
 }
 \NewDocumentCommand{\tucsAliasRoom}{m m}{%
-  \DeclareKeys[tucseating]{room/#1.meta:n={room/#2}}%
+  \DeclareKeys[seatingchart]{room/#1.meta:n={room/#2}}%
 }
 \NewDocumentCommand{\tucsRemoveSeatAt}{m m}{
   \luadirect{removeSeatAt(#1,#2)}
@@ -187,7 +190,7 @@ Generation of seating plans]
 }
 \NewDocumentCommand{\tucsInitSeating}{o}{
   \IfValueT{#1}{}
-  \luadirect{require("tucseating.lua")}
+  \luadirect{require("seatingchart.lua")}
   \iftoggle{tucs@rectshapt}{
     \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{rect})}
   }{
@@ -195,9 +198,9 @@ Generation of seating plans]
   }
 }
 
-\InputIfFileExists{\tucsroomfile.tsr}{}{
+\InputIfFileExists{seatingchart-\tucsroomfile.sc}{}{
   \PackageError{\packagename}{
-    Can't open room file.}{If you've provided a room file, check whether it is
+    Can't open room layout file 'seatingchart-\tucsroomfile.sc'}{If you've provided a layout file, check whether it is
     in the path.}
 }
 

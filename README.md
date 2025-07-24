@@ -1,4 +1,4 @@
-# Package tucseating
+# Package seatingchart
 Generation of seating charts
 
 ## Description
@@ -13,7 +13,7 @@ This package should be considered experimental and requires LuaLaTeX.
 `l3build install --full`
 
 ## Documentation
-See tucseating-doc-en.pdf (English) or tucseating-doc-de.pdf (German)
+See seatingchart-doc-en.pdf (English) or seatingchart-doc-de.pdf (German)
 
 
 ## License

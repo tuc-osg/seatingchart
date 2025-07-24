@@ -22,16 +22,16 @@ title=compact
 % we can't include our package.
 % Thus, we use readprov to get file information.
 \usepackage{readprov}
-\ReadFileInfos{tucseating.sty}
+\ReadFileInfos{seatingchart.sty}
 
-\providecommand{\packagename}{tucseating}
+\providecommand{\packagename}{seatingchart}
 \def\thepkg{\pkg*{\packagename}}
 \setcnltx{
-  name  = tucseating,
+  name  = seatingchart,
   package  = \packagename,
   version  = \UseVersionOf{\packagename.sty},
   date     = \UseDateOf{\packagename.sty},
-  title    = The \pkg*{tucseating} Package,
+  title    = The \pkg*{seatingchart} Package,
   info     = Generation and visualization of seating plans,
   authors  = {Matthias Werner[matthias.werner@informatik.tu-chemnitz.de]},
   abstract={
@@ -45,7 +45,7 @@ title=compact
     expanded or replaced, and on the other hand rooms can also be created ad
     hoc. 
   },
-  url      =https://github.com/tuc-osg/tucseating,
+  url      =https://github.com/tuc-osg/seatingchart,
   build-title
 }
 \def\thepkg{\pkg*{\packagename}}
@@ -233,7 +233,7 @@ with a central aisle and one missing seat in the first row.
   % To make better use of the paper, we use landscape format
   % and reduce the margins
   \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
-  \usepackage[shape=rectangle, rows = 8, seats per row=9]{tucseating}
+  \usepackage[shape=rectangle, rows = 8, seats per row=9]{seatingchart}
   \begin{document}
     \tucsSetAisle{5}
     \tucsRemoveSeatAt{1}{1}
@@ -440,7 +440,7 @@ here.
     \usepackage[
       room=C10.115,
       blackboard
-    ]{tucseating}
+    ]{seatingchart}
 
   \begin{document}
     % Default title takes up too much space.
@@ -460,7 +460,7 @@ here.
       room=A10.316,
       blackboard,
       assigned seat label color=blue
-    ]{tucseating}
+    ]{seatingchart}
 
    \begin{document}
      % Default title takes up too much space.
@@ -480,7 +480,7 @@ here.
     \usepackage[
       shape=rectangle, rows=9, seats per row=9,
       assigned seat background color=yellow
-    ]{tucseating}
+    ]{seatingchart}
     
     \begin{document}
       \tucsRemoveSeats{{1,1},{1,-1},{2,1},{2,-1},{3,1},{3,-1}}
@@ -499,7 +499,7 @@ here.
     \usepackage[shape=rectangle, rows=10,seats per row=10,
        assigned seat label color=blue, assigned seat background color=teal,
        empty seat background color=lime!50,
-       seat distance=0pt]{tucseating}
+       seat distance=0pt]{seatingchart}
     \usepackage{stix}
     \begin{document}
       \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
@@ -582,11 +582,11 @@ Likewise, seating layouts with staggered rows cannot be displayed.
 The number of predefined rooms is currently relatively small.
 There are plans to include additional rooms from TU Chemnitz in future patches.
 Your collaboration by sending information about seating layouts or
-corresponding patches of \code{rooms1.tsr} is expressly welcome.
+corresponding patches of \code{seatingchart-*.tsr} is expressly welcome.
 
 There are currently no known bugs, but some will certainly exist.
 Please use GitHub for bug reports or pull requests:
-\url{https://github.com/tuc-osg/tucseating}.
+\url{https://github.com/tuc-osg/seatingchart}.
 
 \section{License}
 Permission is granted to copy, distribute and/or modify this software under the

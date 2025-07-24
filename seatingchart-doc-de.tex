@@ -23,12 +23,12 @@ scrartcl={headings=small}
 % we can't include our package.
 % Thus, we use readprov to get file information.
 \usepackage{readprov}
-\ReadFileInfos{tucseating.sty}
+\ReadFileInfos{seatingchart.sty}
 
-\providecommand{\packagename}{tucseating}
+\providecommand{\packagename}{seatingchart}
 \def\thepkg{\pkg*{\packagename}}
 \setcnltx{
-  name  = tucseating,
+  name  = seatingchart,
   package  = \packagename,
   version  = \UseVersionOf{\packagename.sty},
   date     = \UseDateOf{\packagename.sty},
@@ -45,7 +45,7 @@ scrartcl={headings=small}
     sind jedoch einerseits sowohl die Raumdaten leicht erweiter-
     oder ersetzbar, andererseits können Räume auch
     ad hoc erstellt werden.},
-  url      =https://github.com/tuc-osg/tucseating,
+  url      =https://github.com/tuc-osg/seatingchart,
   build-title
 } 
 
@@ -225,11 +225,8 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
 Das folgende Beispiel zeigt den Code und das Ergebnis für ein einfaches Sitzplanlayout
 mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
-    \documentclass{scrartcl}
-    % Um das Papier gut auszunutzen, nehmen wir es Landscape-Format
-    % und reduzieren die Ränder
-    \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
-    \usepackage[shape=rectangle, rows = 8, seats per row=9]{tucseating}
+    \documentclass{article}
+    \usepackage[shape=rectangle, rows = 8, seats per row=9]{seatingchart}
     \begin{document}
       \tucsSetAisle{5}
       \tucsRemoveSeatAt{1}{1}
@@ -433,7 +430,7 @@ Einsatzes dokumentiert.
     \usepackage[
       room=C10.115,
       blackboard
-    ]{tucseating}
+    ]{seatingchart}
 
   \begin{document}
     % Standardtitelei nimmt viel Platz weg.
@@ -454,7 +451,7 @@ Einsatzes dokumentiert.
       room=A10.316,
       blackboard,
       assigned seat label color=blue
-    ]{tucseating}
+    ]{seatingchart}
 
    \begin{document}
      % Standardtitelei nimmt viel Platz weg.
@@ -473,7 +470,7 @@ Einsatzes dokumentiert.
     \usepackage[
       shape=rectangle, rows=9, seats per row=9,
       assigned seat background color=yellow
-    ]{tucseating}
+    ]{seatingchart}
     
     \begin{document}
       \tucsRemoveSeats{{1,1},{1,-1},{2,1},{2,-1},{3,1},{3,-1}}
@@ -491,7 +488,7 @@ Einsatzes dokumentiert.
     \usepackage[shape=rectangle, rows=10,seats per row=10,
        assigned seat label color=blue, assigned seat background color=teal,
        empty seat background color=lime!50,
-       seat distance=0pt]{tucseating}
+       seat distance=0pt]{seatingchart}
     \usepackage{stix}
     \begin{document}
       \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
@@ -576,11 +573,11 @@ Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
 Es besteht die Absicht, in künftigen Patches weitere Räume der TU~Chemnitz
 aufzunehmen.
 Die Mitarbeit durch Zusenden von Informationen über Sitzlayouts oder
-entsprechende Patches von \code{rooms1.tsr} ist ausdrücklich willkommen.
+entsprechende Patches von \code{seatingchart-*.sc} ist ausdrücklich willkommen.
 
 Im Moment sind keine Bugs bekannt, aber es werden sicherlich welche existieren.
 Bitte nutzen Sie für Bugs-Reports oder Pull-Requests GitHub:
-\url{https://github.com/tuc-osg/tucseating}.
+\url{https://github.com/tuc-osg/seatingchart}.
 
 \section{Lizenz}
 Es ist erlaubt, diese Software unter den Bedingungen der \LaTeX Project Public

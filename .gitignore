@@ -8,6 +8,6 @@
 *.ido
 *.toc
 *.xdy
-tucseating-doc-*-cnltx*
+seatingchart-doc-*-cnltx*
 .DS_Store
 build/**
