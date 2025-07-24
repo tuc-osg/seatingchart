@@ -37,39 +37,39 @@ Generation of seating plans]
 }
 \RequirePackage{luacode}
 \ExplSyntaxOff
-\newtoggle{tucs@rectshapt}\toggletrue{tucs@rectshapt}
-\newtoggle{tucs@rnleft}
-\newtoggle{tucs@rnright}
-\newtoggle{tucs@room}
+\newtoggle{sc@rectshapt}\toggletrue{sc@rectshapt}
+\newtoggle{sc@rnleft}
+\newtoggle{sc@rnright}
+\newtoggle{sc@room}
 \DeclareKeys[seatingchart]{
-  shape/arc.code:n = {\togglefalse{tucs@rectshapt}},
-  shape/rectangle.code:n = {\toggletrue{tucs@rectshapt}},
+  shape/arc.code:n = {\togglefalse{sc@rectshapt}},
+  shape/rectangle.code:n = {\toggletrue{sc@rectshapt}},
   shape.usage = preamble,
   shape.initial:n = rectangle,
   rows.code:n = {
-    \ifdef{\tucs@rows}{
-      \ifnumcomp{\tucs@rows}{>}{0}{
+    \ifdef{\sc@rows}{
+      \ifnumcomp{\sc@rows}{>}{0}{
         \PackageWarningNoLine{\packagename}{Overwriting number of rows.\MessageBreak
           You propably provided both, a room *and*\MessageBreak layout options.\MessageBreak
           Prepare for trouble}
       }{}
     }{}
-    \gdef\tucs@rows{#1}
+    \gdef\sc@rows{#1}
   },
   rows.usage = preamble,
   rows.initial:n = 0,
   seats per row.code = {
-    \ifdef{\tucs@seatsperrow}{
-      \ifnumcomp{\tucs@seatsperrow}{>}{0}{
+    \ifdef{\sc@seatsperrow}{
+      \ifnumcomp{\sc@seatsperrow}{>}{0}{
         \PackageWarningNoLine{\packagename}{Overwriting seats per
           row.\MessageBreak
           You propably provided both, a room *and*\MessageBreak layout options.\MessageBreak
           Prepare for trouble}
       }{}
     }{}
-    \gdef\tucs@seatsperrow{#1}
+    \gdef\sc@seatsperrow{#1}
   },
-  layout file.store = \tucsroomfile,
+  layout file.store = \scroomfile,
   layout file.initial:n =tu-chemnitz,
   layout file.usage=load,
   seats per row.usage = preamble,
@@ -77,65 +77,65 @@ Generation of seating plans]
   room.choice:,
   room/unknown.code:n={
     \PackageError{\packagename}{
-      Room #1 is not in the layout file ' \packagename-\tucsroomfile.sc'}{%
+      Room #1 is not in the layout file ' \packagename-\scroomfile.sc'}{%
       Check if you use the the correct layout file and\MessageBreak
       whether the room name is correct,\MessageBreak
       or define an own room.}
   },
   room.usage = load,
   init.code:n={
-    \toggletrue{tucs@room}
-    \tucsInitSeating
+    \toggletrue{sc@room}
+    \scInitSeating
   },
   init.usage = load,
   remove.code:n = {%
-    \tucsRemoveSeats{#1}
+    \scRemoveSeats{#1}
   },
   remove.usage = preamble,
   shape.choice:,
   aisle.code:n={%
     \keySetAisle{#1}
   },
-  blackboard.if = tucs@blackboard,
+  blackboard.if = sc@blackboard,
   blackboard.initial:n = false,
   rownumbers.choice:,
-  rownumbers/left.code = { \toggletrue{tucs@rnleft} },
-  rownumbers/right.code = { \toggletrue{tucs@rnright} },
+  rownumbers/left.code = { \toggletrue{sc@rnleft} },
+  rownumbers/right.code = { \toggletrue{sc@rnright} },
   rownumbers/both.code:n = {
-    \toggletrue{tucs@rnleft}\toggletrue{tucs@rnright}
+    \toggletrue{sc@rnleft}\toggletrue{sc@rnright}
   },
   rownumbers/none.code:n = {
-    \togglefalse{tucs@rnleft}\togglefalse{tucs@rnright}
+    \togglefalse{sc@rnleft}\togglefalse{sc@rnright}
   },
   rownumbers.initial:n=none,
-  seat neighbor distance.store =\tucs@sdist@x,
-  row distance.store =\tucs@sdist@y,
+  seat neighbor distance.store =\sc@sdist@x,
+  row distance.store =\sc@sdist@y,
   seat distance.meta:n = {
     seat neighbor distance=#1,
     row distance=#1
   },
   seat distance.initial:n=2pt,
   rownumbers.initial:n = none,
-  rownumber distance.store= \tucs@rnsep,
+  rownumber distance.store= \sc@rnsep,
   rownumber distance.initial:n = 2pt,
-  rownumber font.store = \tucs@rnfont,
+  rownumber font.store = \sc@rnfont,
   rownumber font.initial:n = \tiny,
-  rownumber color.store = \tucs@rncolor,
+  rownumber color.store = \sc@rncolor,
   rownumber color.initial:n = darkgray,
-  empty seat background color.store =\tucs@sc@empty,
+  empty seat background color.store =\sc@sc@empty,
   empty seat background color.initial:n = lightgray!20,
-  empty seat border color.store = \tucs@sc@emptyborder,
+  empty seat border color.store = \sc@sc@emptyborder,
   empty seat border color.initial:n = lightgray,
-  empty seat label color.store = \tucs@sc@emptytext,
+  empty seat label color.store = \sc@sc@emptytext,
   empty seat label color.initial:n = lightgray!30,
-  empty seat label font.store = \tucs@s@emptyfont,
-  assigned seat background color.store = \tucs@sc@assigned,
+  empty seat label font.store = \sc@s@emptyfont,
+  assigned seat background color.store = \sc@sc@assigned,
   assigned seat background color.initial:n = lightgray!30,
-  assigned seat border color.store = \tucs@sc@assignedborder,
+  assigned seat border color.store = \sc@sc@assignedborder,
   assigned seat border color.initial:n = black,
-  assigned seat label color.store = \tucs@sc@assignedtext,
+  assigned seat label color.store = \sc@sc@assignedtext,
   assigned seat label color.initial:n = black,
-  assigned seat label font.store = \tucs@s@assignedfont,
+  assigned seat label font.store = \sc@s@assignedfont,
   seat background color.meta:n = {
     empty seat background color=#1,
     assigned seat background color =#1
@@ -154,158 +154,158 @@ Generation of seating plans]
     assigned seat label font = #1
   }
 }
-\NewDocumentCommand{\tucsDeclareRoom}{m m}{%
+\NewDocumentCommand{\scDeclareRoom}{m m}{%
   \DeclareKeys[seatingchart]{room/#1.meta:n={#2}}%
 }
-\NewDocumentCommand{\tucsAliasRoom}{m m}{%
+\NewDocumentCommand{\scAliasRoom}{m m}{%
   \DeclareKeys[seatingchart]{room/#1.meta:n={room/#2}}%
 }
-\NewDocumentCommand{\tucsRemoveSeatAt}{m m}{
+\NewDocumentCommand{\scRemoveSeatAt}{m m}{
   \luadirect{removeSeatAt(#1,#2)}
 }
-\NewDocumentCommand{\tucs@removeSeat}{>{\SplitArgument{1}{,}}m}{
-  \tucsRemoveSeatAt#1
+\NewDocumentCommand{\sc@removeSeat}{>{\SplitArgument{1}{,}}m}{
+  \scRemoveSeatAt#1
 }
-\NewDocumentCommand{\tucsRemoveSeats}{>{\SplitList{,}} m}{
-  \ProcessList{#1}{\tucs@removeSeat}
+\NewDocumentCommand{\scRemoveSeats}{>{\SplitList{,}} m}{
+  \ProcessList{#1}{\sc@removeSeat}
 } 
-\NewDocumentCommand{\tucsAssignSeatAt}{m m m}{
+\NewDocumentCommand{\scAssignSeatAt}{m m m}{
   \luadirect{assignSeatAt(#1,#2,\luastring{#3})}
 }
-\NewDocumentCommand{\tucs@ParseRows}{m}{
+\NewDocumentCommand{\sc@ParseRows}{m}{
 }
-\def\tucs@parserange#1-#2\relax{%
+\def\sc@parserange#1-#2\relax{%
   \def\@firstval{\ifx\relax#1\relax1\else#1\fi}%
-  \def\@lastval{\ifx\relax#2\relax\tucs@rows\else#2\fi}%
+  \def\@lastval{\ifx\relax#2\relax\sc@rows\else#2\fi}%
 }
 \newcommand{\keySetAisle}[1]{
-  \tucsSetAisle[-]{#1}
+  \scSetAisle[-]{#1}
 }
-\NewDocumentCommand{\tucsSetAisle}{O{-}m}{%
+\NewDocumentCommand{\scSetAisle}{O{-}m}{%
   \begingroup
   \edef\@tmp{#1}%
-  \expandafter\tucs@parserange\@tmp\relax
+  \expandafter\sc@parserange\@tmp\relax
   \luadirect{removeAisle(#2,\@firstval,\@lastval)}
   \endgroup
 }
-\NewDocumentCommand{\tucsInitSeating}{o}{
+\NewDocumentCommand{\scInitSeating}{o}{
   \IfValueT{#1}{}
   \luadirect{require("seatingchart.lua")}
-  \iftoggle{tucs@rectshapt}{
-    \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{rect})}
+  \iftoggle{sc@rectshapt}{
+    \luadirect{initSeating(\sc@rows,\sc@seatsperrow,\luastring{rect})}
   }{
-  \luadirect{initSeating(\tucs@rows,\tucs@seatsperrow,\luastring{arc})}
+  \luadirect{initSeating(\sc@rows,\sc@seatsperrow,\luastring{arc})}
   }
 }
 
-\InputIfFileExists{seatingchart-\tucsroomfile.sc}{}{
+\InputIfFileExists{seatingchart-\scroomfile.sc}{}{
   \PackageError{\packagename}{
-    Can't open room layout file 'seatingchart-\tucsroomfile.sc'}{If you've provided a layout file, check whether it is
+    Can't open room layout file 'seatingchart-\scroomfile.sc'}{If you've provided a layout file, check whether it is
     in the path.}
 }
 
 % defaults
 \ProcessKeyOptions
 
-\NewDocumentCommand{\tucsConfig}{m}{%
-  \SetKeys[tucseating]{#1}%
-  \tucs@configtikz%
+\NewDocumentCommand{\scConfig}{m}{%
+  \SetKeys[sceating]{#1}%
+  \sc@configtikz%
 }
 \ExplSyntaxOn
-\newcommand\tucs@configtikz{%
+\newcommand\sc@configtikz{%
   \tikzset{%
     empty~seat/.style={
-      draw=\tucs@sc@emptyborder,
-      fill=\tucs@sc@empty,
-      font=\tucs@s@emptyfont,
-      text=\tucs@sc@empty,
+      draw=\sc@sc@emptyborder,
+      fill=\sc@sc@empty,
+      font=\sc@s@emptyfont,
+      text=\sc@sc@empty,
       inner~sep=0pt
     },
     empty~label/.style={
-      text=\tucs@sc@emptytext,
-      font=\tucs@s@emptyfont
+      text=\sc@sc@emptytext,
+      font=\sc@s@emptyfont
     },
     assigned~seat/.style={
-      draw=\tucs@sc@assignedborder,
-      fill=\tucs@sc@assigned,
-      text=\tucs@sc@assigned,
-      font=\tucs@s@assignedfont,
+      draw=\sc@sc@assignedborder,
+      fill=\sc@sc@assigned,
+      text=\sc@sc@assigned,
+      font=\sc@s@assignedfont,
       inner~sep=0pt
     },
     assigned~label/.style={
-      text=\tucs@sc@assignedtext,
-      font=\tucs@s@assignedfont
+      text=\sc@sc@assignedtext,
+      font=\sc@s@assignedfont
     },
     rownumber/.style={
-      font=\tucs@rnfont,
-      text=\tucs@rncolor,
+      font=\sc@rnfont,
+      text=\sc@rncolor,
       anchor=east
     }%
   }%
 }
 \ExplSyntaxOff
-\newlength\tucsseatwidth%\settowidth{\tucsseatwidth}{xxxx}%
-\newlength\tucsseatheight%\settoheight{\tucsseatheight}{Xy}%
-\DeclareKeys[tucsdrawing]{
+\newlength\scseatwidth%\settowidth{\scseatwidth}{xxxx}%
+\newlength\scseatheight%\settoheight{\scseatheight}{Xy}%
+\DeclareKeys[scdrawing]{
   seat width.code:n={%
-    \setlength{\tucsseatwidth}{#1}%
+    \setlength{\scseatwidth}{#1}%
   },
   seat height.code:n={%
-    \setlength{\tucsseatheight}{#1}%
+    \setlength{\scseatheight}{#1}%
   }
 }
 \ExplSyntaxOn
-\NewDocumentCommand{\tucsDrawSeating}{o}{%
+\NewDocumentCommand{\scDrawSeating}{o}{%
   \par\noindent%
   \IfValueTF{#1}{% 
-    \SetKeys[tucsdrawing]{#1}%
+    \SetKeys[scdrawing]{#1}%
   }{%
-    \newlength\tucsremainingspace%
-    \newlength\tucsrnlength%
-    \setlength{\tucsremainingspace}{\linewidth}%
-    \settowidth{\tucsrnlength}{\tucsrownumformat{99}}%
-    %\typeout{Linewidth: \the\linewidth~(\the\tucsremainingspace)}
-    %\typeout{Numswidth: \the\tucsrnlength~(seats:~\tucs@seatsperrow)}
-    %\typeout{********* Remaining start: \the\tucsremainingspace}%
-    \iftoggle{tucs@rnleft}{\addtolength{\tucsremainingspace}{-\dimeval{\tucsrnlength+\tucs@rnsep}}}{}%
-    %\typeout{********* Remaining~left~considered: \the\tucsremainingspace}%
-    \iftoggle{tucs@rnright}{\addtolength{\tucsremainingspace}{-\dimeval{\tucsrnlength+\tucs@rnsep}}}{}%
-    %\typeout{********* Remaining~right~considered: \the\tucsremainingspace}%
-    \setlength{\tucsseatwidth}{\dimeval{\tucsremainingspace/(\tucs@seatsperrow) - \tucs@sdist@x}}
-    %\typeout{Seatwidth: \the\tucsseatwidth}
-    %\typeout{total: \dimeval{(\tucsseatwidth+2pt)*\tucs@seatsperrow + \tucsrnlength*2 + \tucs@rnsep*2}}
+    \newlength\scremainingspace%
+    \newlength\scrnlength%
+    \setlength{\scremainingspace}{\linewidth}%
+    \settowidth{\scrnlength}{\scrownumformat{99}}%
+    %\typeout{Linewidth: \the\linewidth~(\the\scremainingspace)}
+    %\typeout{Numswidth: \the\scrnlength~(seats:~\sc@seatsperrow)}
+    %\typeout{********* Remaining start: \the\scremainingspace}%
+    \iftoggle{sc@rnleft}{\addtolength{\scremainingspace}{-\dimeval{\scrnlength+\sc@rnsep}}}{}%
+    %\typeout{********* Remaining~left~considered: \the\scremainingspace}%
+    \iftoggle{sc@rnright}{\addtolength{\scremainingspace}{-\dimeval{\scrnlength+\sc@rnsep}}}{}%
+    %\typeout{********* Remaining~right~considered: \the\scremainingspace}%
+    \setlength{\scseatwidth}{\dimeval{\scremainingspace/(\sc@seatsperrow) - \sc@sdist@x}}
+    %\typeout{Seatwidth: \the\scseatwidth}
+    %\typeout{total: \dimeval{(\scseatwidth+2pt)*\sc@seatsperrow + \scrnlength*2 + \sc@rnsep*2}}
     %\typeout{********* Total: \the\pagetotal\ Goal: \the\pagegoal\ Height: \the\textheight}%
     \ifdimequal{\pagetotal}{0pt}{%
-      \setlength{\tucsremainingspace}{\textheight}%
+      \setlength{\scremainingspace}{\textheight}%
     }{%
-      \setlength{\tucsremainingspace}{\dimeval{\pagegoal-\pagetotal}}%
+      \setlength{\scremainingspace}{\dimeval{\pagegoal-\pagetotal}}%
     }%
     %\typeout{********* Total: \the\pagetotal\ Goal: \the\pagegoal\ Height: \the\textheight}%
-    %\typeout{********* Remaining: \the\tucsremainingspace\ Width: \the\textwidth\ Height: \the\textheight}%
-    \iftucs@blackboard%
-      \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/(\tucs@rows + 2) - \tucs@sdist@y}}%
+    %\typeout{********* Remaining: \the\scremainingspace\ Width: \the\textwidth\ Height: \the\textheight}%
+    \ifsc@blackboard%
+      \setlength{\scseatheight}{\dimeval{\scremainingspace/(\sc@rows + 2) - \sc@sdist@y}}%
     \else%
-      \setlength{\tucsseatheight}{\dimeval{\tucsremainingspace/\tucs@rows - \tucs@sdist@y}}%
+      \setlength{\scseatheight}{\dimeval{\scremainingspace/\sc@rows - \sc@sdist@y}}%
     \fi%
     % A seat that is deeper than it is wide looks a bit silly.
-    \ifdimcomp{\tucsseatheight}{>}{\tucsseatwidth}{\setlength{\tucsseatheight}{\tucsseatwidth}}{}%
+    \ifdimcomp{\scseatheight}{>}{\scseatwidth}{\setlength{\scseatheight}{\scseatwidth}}{}%
   }%
-  \tucs@configtikz% 
-  %\typeout{*********~Seatwidth:~\the\tucsseatwidth, Seatheight:~\the\tucsseatheight}%
-  \luadirect{seatDim(\luastring{\tucsseatwidth},\luastring{\tucsseatheight})}%
-  \begin{tikzpicture}[x=\tucsseatwidth+\tucs@sdist@x,y=\tucsseatheight+\tucs@sdist@y]
-      \iftucs@blackboard%
+  \sc@configtikz% 
+  %\typeout{*********~Seatwidth:~\the\scseatwidth, Seatheight:~\the\scseatheight}%
+  \luadirect{seatDim(\luastring{\scseatwidth},\luastring{\scseatheight})}%
+  \begin{tikzpicture}[x=\scseatwidth+\sc@sdist@x,y=\scseatheight+\sc@sdist@y]
+      \ifsc@blackboard%
          \node[rectangle, draw,minimum~width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
-      \iftoggle{tucs@rectshapt}{
-        \iftoggle{tucs@rnleft}{
-          \foreach \r in {1,..., \tucs@rows} {
-            \node[rownumber,xshift=-\fpeval{\tucsseatwidth/2+\tucs@rnsep}] at (\fpeval{(1-\tucs@seatsperrow)/2},\r-1) {\tucsrownumformat{\r}};
+      \iftoggle{sc@rectshapt}{
+        \iftoggle{sc@rnleft}{
+          \foreach \r in {1,..., \sc@rows} {
+            \node[rownumber,xshift=-\fpeval{\scseatwidth/2+\sc@rnsep}] at (\fpeval{(1-\sc@seatsperrow)/2},\r-1) {\scrownumformat{\r}};
           }
         }{}
-        \iftoggle{tucs@rnright}{
-          \foreach \r in {1,..., \tucs@rows} {
-            \node[rownumber,xshift=\fpeval{\tucsseatwidth/2+\tucs@rnsep+\tucsrnlength}] at (\fpeval{(\tucs@seatsperrow-1)/2},\r-1) {\tucsrownumformat{\r}};
+        \iftoggle{sc@rnright}{
+          \foreach \r in {1,..., \sc@rows} {
+            \node[rownumber,xshift=\fpeval{\scseatwidth/2+\sc@rnsep+\scrnlength}] at (\fpeval{(\sc@seatsperrow-1)/2},\r-1) {\scrownumformat{\r}};
           }
         }{}
       }{}
@@ -313,44 +313,44 @@ Generation of seating plans]
     \end{tikzpicture}
 }
 
-\newcount\tucsnumofseats
-\newtoggle{tucsfoundassigned}
+\newcount\scnumofseats
+\newtoggle{scfoundassigned}
 
-\NewDocumentCommand{\tucsSeatingList}{s o m}{
+\NewDocumentCommand{\scSeatingList}{s o m}{
   \luadirect{getNumberOfSeats()}
-  \togglefalse{tucsfoundassigned}
+  \togglefalse{scfoundassigned}
   \loop
-  \luadirect{setupNextlabel(\the\tucsnumofseats)}\relax
-  %\typeout{ i=\the\tucsnumofseats}
-  \iftoggle{tucsfoundassigned}{
-        \setbox0=\hbox{\tucsnextlabel}
-        \luadirect{saveTextLabel(\the\tucsnumofseats)}
+  \luadirect{setupNextlabel(\the\scnumofseats)}\relax
+  %\typeout{ i=\the\scnumofseats}
+  \iftoggle{scfoundassigned}{
+        \setbox0=\hbox{\scnextlabel}
+        \luadirect{saveTextLabel(\the\scnumofseats)}
       }{}
-  \advance \tucsnumofseats by -1
-  \unless\ifnum \tucsnumofseats<2
+  \advance \scnumofseats by -1
+  \unless\ifnum \scnumofseats<2
   \repeat
   \IfBooleanTF{#1}{
-    \def\tucscoor{true}
+    \def\sccoor{true}
   }{
-    \def\tucscoor{nil}
+    \def\sccoor{nil}
   }
   \IfValueTF{#2}{
-     \luadirect{generateSeatList(\luastring{#3}, \luastring{#2}, \tucscoor)}
+     \luadirect{generateSeatList(\luastring{#3}, \luastring{#2}, \sccoor)}
    }{
-     \luadirect{generateSeatList(\luastring{#3}, nil, \tucscoor)}
+     \luadirect{generateSeatList(\luastring{#3}, nil, \sccoor)}
    }
 }
 \ExplSyntaxOff
 
-\DeclareKeys[tucsseatingscheme]{
-  empty seat background color.store =\tucs@sc@empty,
-  empty seat border color.store = \tucs@sc@emptyborder,
-  empty seat label color.store = \tucs@sc@emptytext,
-  empty seat label font.store = \tucs@s@emptyfont,
-  assigned seat background color.store = \tucs@sc@assigned,
-  assigned seat border color.store = \tucs@sc@assignedborder,
-  assigned seat label color.store = \tucs@sc@assignedtext,
-  assigned seat label font.store = \tucs@s@assignedfont,
+\DeclareKeys[scseatingscheme]{
+  empty seat background color.store =\sc@sc@empty,
+  empty seat border color.store = \sc@sc@emptyborder,
+  empty seat label color.store = \sc@sc@emptytext,
+  empty seat label font.store = \sc@s@emptyfont,
+  assigned seat background color.store = \sc@sc@assigned,
+  assigned seat border color.store = \sc@sc@assignedborder,
+  assigned seat label color.store = \sc@sc@assignedtext,
+  assigned seat label font.store = \sc@s@assignedfont,
   seat background color.meta:n = {
     empty seat background color=#1,
     assigned seat background color =#1
@@ -372,7 +372,7 @@ Generation of seating plans]
   start row.store = \tss@startrow,
   start row.initial:n=1,
   end row.store = \tss@endrow,
-  end row.initial:n = \tucs@rows,
+  end row.initial:n = \sc@rows,
   row restart after.store= \tss@rowrestart,
   row restart after.initial:n = 100,%should be sufficient
   aisle counts.store = \tss@aislecnt,
@@ -459,21 +459,21 @@ Generation of seating plans]
   }
 }
 
-\NewDocumentCommand{\tucsConfigScheme}{m}{
-  \SetKeys[tucsseatingscheme]{#1}
+\NewDocumentCommand{\scConfigScheme}{m}{
+  \SetKeys[scseatingscheme]{#1}
   
 }
 
-\NewDocumentCommand{\tucsSeatingScheme}{s o m}{
+\NewDocumentCommand{\scSeatingScheme}{s o m}{
   \IfValueT{#2}{%
-    \SetKeys[tucsseatingscheme]{#2}
+    \SetKeys[scseatingscheme]{#2}
   }%
   \IfBooleanTF{#1}{  %
-    \SetKeys[tucsseatingscheme]{pattern=#3}
+    \SetKeys[scseatingscheme]{pattern=#3}
   }{%
-    \SetKeys[tucsseatingscheme]{scheme=#3}
+    \SetKeys[scseatingscheme]{scheme=#3}
   }%
-  \def\tucspolicy{
+  \def\scpolicy{
     {["aisle~restarts"]=\tss@aislerestart,
       ["rtol"]=\tss@rtol,
       ["aisle counts"]=\tss@aislecnt,
@@ -485,14 +485,14 @@ Generation of seating plans]
       ["last row"]=\tss@endrow,
       ["label text"]=\luastringO{\tss@as@format}
     }}
-  %\typeout{POLICY=\tucspolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
-  \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\tucspolicy)}
+  %\typeout{POLICY=\scpolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
+  \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\scpolicy)}
 }
 \ExplSyntaxOn
 
-\newtoggle{tucs@formatother}
-\newcommand\tucs@format@label[6]{%
-  \togglefalse{tucs@formatother}
+\newtoggle{sc@formatother}
+\newcommand\sc@format@label[6]{%
+  \togglefalse{sc@formatother}
   % absolut row, arabic:  m
   % absolut row, alpha:   a 
   % absolut row, Alpha:   A
@@ -542,19 +542,19 @@ Generation of seating plans]
   }
 }
 
-\NewDocumentCommand{\tucsassignedlabelformat}{o m m m m m}{
+\NewDocumentCommand{\scassignedlabelformat}{o m m m m m}{
   % #2: absolute row
   % #3: absolute seat
   % #4: running row
   % #5: running seat
   % #6: text
   \IfValueTF{#1}{%
-    \def\tucs@format{#1}%
+    \def\sc@format{#1}%
   }{%
-    \def\tucs@format{#6}
+    \def\sc@format{#6}
   }%
-  %\typeout{*** Format: \tucs@format}
-  \expandafter\tl_map_tokens:Nn{\tucs@format}{\tucs@format@label{#2}{#3}{#4}{#5}{#6}}
+  %\typeout{*** Format: \sc@format}
+  \expandafter\tl_map_tokens:Nn{\sc@format}{\sc@format@label{#2}{#3}{#4}{#5}{#6}}
   
 }
 \NewDocumentCommand{\tucemptylabelformat}{m m m m m}{
@@ -566,13 +566,13 @@ Generation of seating plans]
 }
 \ExplSyntaxOff
 
-\newcommand{\tucsrownumformat}[1]{%
+\newcommand{\scrownumformat}[1]{%
   #1%
 }
 
 \ifboolexpr{
-       test {\ifnumcomp{\tucs@rows}{<}{1}} or
-       test {\ifnumcomp{\tucs@seatsperrow}{<}{1}}
+       test {\ifnumcomp{\sc@rows}{<}{1}} or
+       test {\ifnumcomp{\sc@seatsperrow}{<}{1}}
 }{
   \PackageError{\packagename}{Invalid layout option:\MessageBreak
     number of rows or number of seats per row can't be smaller than 1}{
@@ -581,6 +581,6 @@ Generation of seating plans]
 
 \RequirePackage{tikz}
 \usetikzlibrary{shapes.geometric}
-\iftoggle{tucs@room}{}{%
-      \tucsInitSeating%
+\iftoggle{sc@room}{}{%
+      \scInitSeating%
 }

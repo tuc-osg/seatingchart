@@ -200,7 +200,7 @@ function seatassigned(s)
    local height = AllSeats.seatheight
    tex.sprint("\\node[rectangle,assigned seat, minimum width=",width,", minimum height=",height,",rotate=",s.rotate,"] at (",s.x,",",s.y,") {Xy};")
    tex.sprint("\\node[assigned label,minimum width=",width,",rotate=",s.rotate,"] at (",s.x,",",s.y,")"..
-   	      "{\\tucsassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}};")
+   	      "{\\scassignedlabelformat{",s.row,"}{",s.col,"}{",s.rrow,"}{",s.rcol,"}{",s.label,"}};")
 end
 
 function seatremoved(s) 
@@ -226,7 +226,7 @@ function drawSeats()
 end
 
 function getNumberOfSeats()
-   tex.count["tucsnumofseats"]=AllSeats.size
+   tex.count["scnumofseats"]=AllSeats.size
 end
 
 function setupNextlabel(ndx)
@@ -234,8 +234,8 @@ function setupNextlabel(ndx)
    local s = AllSeats[ndx]
    if s and (s.kind ~=nil) and (s.kind == SEATASSIGNED) then
       -- print("S={",s.row,",",s.col,",",s.rrow,",",s.rcol,", '",s.label,"' }")
-      tex.sprint("\\toggletrue{tucsfoundassigned}")
-      tex.sprint("\\def\\tucsnextlabel{\\tucsassignedlabelformat{"..tostring(s.row).."}{"..tostring(s.col).."}{"..tostring(s.rrow).."}{"..tostring(s.rcol).."}{"..tostring(s.label).."}}")
+      tex.sprint("\\toggletrue{scfoundassigned}")
+      tex.sprint("\\def\\scnextlabel{\\scassignedlabelformat{"..tostring(s.row).."}{"..tostring(s.col).."}{"..tostring(s.rrow).."}{"..tostring(s.rcol).."}{"..tostring(s.label).."}}")
    end
 end
 
@@ -305,12 +305,12 @@ function generateSeatList(outstream,instream, coor)
       end
       seatfile:close()
       if index <= #names then
-	 luatexbase.add_to_callback("stop_run", tucsreportmissing(names,index), "Report" )
+	 luatexbase.add_to_callback("stop_run", screportmissing(names,index), "Report" )
       end
    end
 end
 
-function tucsreportmissing(names, index)
+function screportmissing(names, index)
    local report=string.char(10).."\27[34mPackage 'seatingchart':"..string.char(10)..[[*******************************************
 The following person(s) couldn't be seated:]]..string.char(10)
 

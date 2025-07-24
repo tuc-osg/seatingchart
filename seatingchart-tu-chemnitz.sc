@@ -1,19 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Package tucseating
+% Package seatingchart
 % Date:
 %  2025-07-23
 % Version:
 %  v0.4.0
 
 % A10.201
-\tucsDeclareRoom{A10.201}{
+\scDeclareRoom{A10.201}{
   shape=rectangle,
   rows=17,
   seats per row=16,
   init
 }
 % A10.204
-\tucsDeclareRoom{A10.204}{
+\scDeclareRoom{A10.204}{
   shape=rectangle,
   rows=8,
   seats per row=17,
@@ -21,7 +21,7 @@
   remove={{8,1},{8,2},{8,-1},{8,-2},{7,-1},{7,-2}}
 }
 % A10.305
-\tucsDeclareRoom{A10.305}{
+\scDeclareRoom{A10.305}{
   shape=rectangle,
   rows=8,
   seats per row=17,
@@ -29,7 +29,7 @@
   remove={{8,1},{8,2},{8,-1},{8,-2},{7,1},{7,2},{7,-1},{7,-2}}
 }
 % A10.316
-\tucsDeclareRoom{A10.316}{
+\scDeclareRoom{A10.316}{
   shape=arc,
   rows=12,
   seats per row=34,
@@ -49,7 +49,7 @@
   }
 }
 % C10.112
-\tucsDeclareRoom{C10.112}{
+\scDeclareRoom{C10.112}{
   shape=rectangle,
   rows=13,
   seats per row=20,
@@ -57,7 +57,7 @@
   remove={{1,1},{1,-1}}
 }
 % C10.114
-\tucsDeclareRoom{C10.114}{
+\scDeclareRoom{C10.114}{
   shape=rectangle,
   rows=16,
   seats per row=27,
@@ -65,7 +65,7 @@
   remove={{1,1},{1,2},{1,-1},{1,-2},{16,-1},{6,12},{6,13},{6,14},{7,12},{7,13},{7,14}}
 }
 % C10.115
-\tucsDeclareRoom{C10.115}{
+\scDeclareRoom{C10.115}{
   shape=rectangle,
   rows=21,
   seats per row=35,

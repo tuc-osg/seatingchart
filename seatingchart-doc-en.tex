@@ -127,7 +127,7 @@ If you specify \textbf{both} the \option*{room} key \textbf{and} one of the keys
 A warning will be issued in that case.\medskip
 
 All further class options define the visual representation of the room layout.
-They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-options}.
+They can also be set later using \cs{scConfig}; see Section~\ref{sec:late-options}.
 
 \begin{options}
   \keybool{blackboard}\Default{false}
@@ -168,7 +168,7 @@ They can also be set later using \cs{tucsConfig}; see Section~\ref{sec:late-opti
 \subsection{Late Option Selection}
 \label{sec:late-options}
 \begin{commands}
-  \command{tucsConfig}This command can be used to set all keys mentioned in
+  \command{scConfig}This command can be used to set all keys mentioned in
   Section~\ref{sec:class-options}, except for
   \option{room}, \option{shape}, \option{rows}, and \option{seats per row},
   outside of the \cs*{documentclass} options.
@@ -184,40 +184,40 @@ if a folding seat is broken.
 When creating a custom layout, such modifications are typically required.
 For this purpose, \pkg\ provides the following commands:
 \begin{commands}
-  \command{tucsRemoveSeatAt}[\marg{row}\marg{seat number}]
+  \command{scRemoveSeatAt}[\marg{row}\marg{seat number}]
   Removes seat \meta{seat number} in row \meta{row} from the layout.
   The values refer to the original layout and are unaffected by previously removed seats.
   If \meta{seat number} is negative, counting starts from the right.
 
-  \command{tucsRemoveSeats}[\marg{list}]
+  \command{scRemoveSeats}[\marg{list}]
   Removes all seats listed in the comma-separated \meta{list}, where each entry
   is of the form \code{\{\meta{row},\meta{seat number}\}}.
-  As with \cs*{tucsRemoveSeatAt}, row and seat numbers refer to the original layout.
+  As with \cs*{scRemoveSeatAt}, row and seat numbers refer to the original layout.
   In the following example, the first three seats on the left and the first seat
   on the right in the first row are removed: \vspace{-.3\baselineskip}
   
   \begin{example}[code-only]
-    \tucsRemoveSeats{{1,1},{1,2},{1,3},{1,-1}}
+    \scRemoveSeats{{1,1},{1,2},{1,3},{1,-1}}
   \end{example}\vspace{-1.3\baselineskip}
 
-  \command{tucsSetAisle}[\Oarg{\meta{start row}-\meta{end row}}\marg{seat number}]
+  \command{scSetAisle}[\Oarg{\meta{start row}-\meta{end row}}\marg{seat number}]
   Inserts an aisle at the position of \meta{seat number} through all rows.
   Use the optional argument if the aisle should not span all rows.
 
   For horizontal aisles (which split a seat block into front and back instead of
   left and right), 
-  please use \cs*{tucsRemoveSeats}.
+  please use \cs*{scRemoveSeats}.
 
   While this is also possible for vertical aisles, automatically generated
-  seating schemes may treat aisles created via \cs*{tucsSetAisle} differently
-  than those created with \cs*{tucsRemoveSeats}.
+  seating schemes may treat aisles created via \cs*{scSetAisle} differently
+  than those created with \cs*{scRemoveSeats}.
 \end{commands}
 
 \subsection{Output}
 \label{sec:drawing}
 
 \begin{commands}
-  \command{tucsDrawSeating}[\Oarg{seat width=\meta{width}, seat
+  \command{scDrawSeating}[\Oarg{seat width=\meta{width}, seat
     height=\meta{height}}]  
   Renders the seating plan. \thepkg\ attempts to calculate the seat dimensions
   so that the available space for the complete plan is fully utilized.
@@ -235,9 +235,9 @@ with a central aisle and one missing seat in the first row.
   \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
   \usepackage[shape=rectangle, rows = 8, seats per row=9]{seatingchart}
   \begin{document}
-    \tucsSetAisle{5}
-    \tucsRemoveSeatAt{1}{1}
-    \tucsDrawSeating
+    \scSetAisle{5}
+    \scRemoveSeatAt{1}{1}
+    \scDrawSeating
   \end{document}
 \end{example}
 
@@ -252,8 +252,8 @@ In \thepkg, seat assignment is handled via assignment schemes.
 To define such a scheme, the command
 
 \begin{commands}
-  \command{tucsSeatingScheme}[\oarg{key list}\marg{name}] \vspace{-1.7\baselineskip}
-  \command{tucsSeatingScheme}[\sarg\oarg{key list}\marg{pattern}]
+  \command{scSeatingScheme}[\oarg{key list}\marg{name}] \vspace{-1.7\baselineskip}
+  \command{scSeatingScheme}[\sarg\oarg{key list}\marg{pattern}]
 The mandatory argument, in the standard version of the command,
 is a name for a predefined seating scheme (see Section~\ref{sec:defined-schemes}).
 In the starred version, a string of "`\code{X}"’ and "`\code{-}"’ is passed,
@@ -263,7 +263,7 @@ If the string is shorter than the number of seats in a row, it will be repeated.
 
 For example,
 \begin{example}[code-only]\vspace{-1.3\baselineskip}
-  \tucsSeatingScheme*{X--}
+  \scSeatingScheme*{X--}
 \end{example}\vspace{-1.3\baselineskip}
 marks every third seat as occupied.
 
@@ -310,12 +310,12 @@ in the standard one.
   see Section~\ref{sec:seat-label} for details.
 \end{options}
 
-\command{tucsConfigScheme\marg{key list}}
-Sets keys just like the optional argument of \cs*{tucsSeatingScheme},
+\command{scConfigScheme\marg{key list}}
+Sets keys just like the optional argument of \cs*{scSeatingScheme},
 but does not assign seats.
 \end{commands}
 
-Key values set by \cs*{tucsSeatingScheme} or \cs*{tucsConfigScheme}
+Key values set by \cs*{scSeatingScheme} or \cs*{scConfigScheme}
 remain in effect until they are explicitly redefined.
   
 \subsection{Predefined Seating Schemes}
@@ -388,7 +388,7 @@ wrapped in double braces: \code{\{\{\meta{protected string}\}\}}.
 
 For example,\vspace{-1.3\baselineskip}
 \begin{example}[code-only]
-  \tucsSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
+  \scSeatingScheme[assigned seat label=Y{{-}}D]{2x3}
 \end{example}\vspace{-1.3\baselineskip}
 produces the label "`III-B"' for the fourth seat (from the left) in the third
 row.
@@ -401,8 +401,8 @@ In its current version, \thepkg\ does not create a \LaTeX\ table,
 but it can support table generation (e.g., using \LaTeX\ or a spreadsheet application).
 
 \begin{commands}
-  \command{tucsSeatingList}[\oarg{input file}\marg{output file}]\vspace{-1.3\baselineskip}
-  \command{tucsSeatingList}[\sarg\oarg{input file}\marg{output file}]
+  \command{scSeatingList}[\oarg{input file}\marg{output file}]\vspace{-1.3\baselineskip}
+  \command{scSeatingList}[\sarg\oarg{input file}\marg{output file}]
   Creates a CSV file \meta{output file} containing the labels of the assigned seats,
   one per line.\medskip
 
@@ -445,8 +445,8 @@ here.
   \begin{document}
     % Default title takes up too much space.
     \centering\textbf{\Huge\sffamily Seating Plan C10.115}\bigskip
-    \tucsSeatingScheme{sixpack}
-    \tucsDrawSeating
+    \scSeatingScheme{sixpack}
+    \scDrawSeating
   \end{document}
 \end{example}
 \subsection{Predefined Room, Curved}
@@ -465,8 +465,8 @@ here.
    \begin{document}
      % Default title takes up too much space.
      \centering\textbf{\Huge\sffamily Seating Plan A10.316}\bigskip
-     \tucsSeatingScheme[ignore removed seats]{2x2}
-     \tucsDrawSeating
+     \scSeatingScheme[ignore removed seats]{2x2}
+     \scDrawSeating
    \end{document}
 \end{example}
 
@@ -483,11 +483,11 @@ here.
     ]{seatingchart}
     
     \begin{document}
-      \tucsRemoveSeats{{1,1},{1,-1},{2,1},{2,-1},{3,1},{3,-1}}
+      \scRemoveSeats{{1,1},{1,-1},{2,1},{2,-1},{3,1},{3,-1}}
         
-      \tucsSeatingScheme[ignore removed seats,end row=3]{2x3}
-      \tucsSeatingScheme[start row=5, end row=10]{2x4}
-      \tucsDrawSeating
+      \scSeatingScheme[ignore removed seats,end row=3]{2x3}
+      \scSeatingScheme[start row=5, end row=10]{2x4}
+      \scDrawSeating
   \end{document}
 \end{example}
 
@@ -504,17 +504,17 @@ here.
     \begin{document}
       \centering\textbf{\Huge\sffamily Let's play Checkers}\bigskip
 
-      \tucsConfigScheme{assigned seat label={}}
-      \tucsSeatingScheme*[start row=5, end row=5]{X-}
-      \tucsSeatingScheme*[start row=6, end row=6]{-X}
-      \tucsConfigScheme{assigned seat label font=\Huge, assigned seat label={{{\textcolor{white}{$\circledbullet$}}}}}
-      \tucsSeatingScheme*[start row=1, end row=3,row sep=2]{X-}
-      \tucsSeatingScheme*[start row=2, end row=4]{-X}
-      \tucsConfigScheme{assigned seat label={{{\textcolor{yellow}{$\circledbullet$}}}}}
-      \tucsSeatingScheme*[start row=7, end row=9]{X-}
-      \tucsSeatingScheme*[start row=8, end row=10]{-X}
+      \scConfigScheme{assigned seat label={}}
+      \scSeatingScheme*[start row=5, end row=5]{X-}
+      \scSeatingScheme*[start row=6, end row=6]{-X}
+      \scConfigScheme{assigned seat label font=\Huge, assigned seat label={{{\textcolor{white}{$\circledbullet$}}}}}
+      \scSeatingScheme*[start row=1, end row=3,row sep=2]{X-}
+      \scSeatingScheme*[start row=2, end row=4]{-X}
+      \scConfigScheme{assigned seat label={{{\textcolor{yellow}{$\circledbullet$}}}}}
+      \scSeatingScheme*[start row=7, end row=9]{X-}
+      \scSeatingScheme*[start row=8, end row=10]{-X}
 
-      \tucsDrawSeating[seat width=1cm, seat height=1cm]
+      \scDrawSeating[seat width=1cm, seat height=1cm]
   \end{document}
 \end{example}
 \section{Declaration of New Rooms}
@@ -534,7 +534,7 @@ file} option.
 \end{itemize}
 Regardless of which approach is chosen, two commands can be used in \code{.tsr} files:
 \begin{commands}
-\command{tucsDeclareRoom}[\marg{room name}\marg{key list}]
+\command{scDeclareRoom}[\marg{room name}\marg{key list}]
 A new room layout is created for the room \meta{room name}.
 The key list \emph{must} contain the three keys
 \begin{options}
@@ -550,10 +550,10 @@ The layout can then be adjusted using
 \keyval-{aisle}{seat number}\vspace{-1.3\baselineskip}
 \keyval{remove}{list}
 These two keys function analogously to
-\cs*{tucsSetAisle} and \cs*{tucsRemoveSeats}, see Section~\ref{sec:modify-layout}.
+\cs*{scSetAisle} and \cs*{scRemoveSeats}, see Section~\ref{sec:modify-layout}.
 \end{options}
 \begin{example}[code-only]
-  \tucsDeclareRoom{C10.115}{
+  \scDeclareRoom{C10.115}{
     shape=rectangle,
     rows=21,
     seats per row=35,
@@ -562,7 +562,7 @@ These two keys function analogously to
     remove={{1,1},{1,2},{1,3},{1,4},{1,-1},{1,-2},{1,-3},{1,-4}}
   }
 \end{example}\vspace{-1.3\baselineskip}
-\command{tucsAliasRoom}[\marg{alias}\marg{room}]
+\command{scAliasRoom}[\marg{alias}\marg{room}]
 Sets \meta{alias} as a replacement name for \meta{room}.
 \end{commands}
 
