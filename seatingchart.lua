@@ -1,9 +1,9 @@
 --[[
   Package: seatingchart
   Date:
-  2025-07-23
+  2025-07-25
   Version:
-  v0.4.0
+  v0.5.0
 --]]
 Seat = {
    id = nil,

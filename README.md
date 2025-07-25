@@ -3,7 +3,7 @@ Generation of seating charts
 
 ## Description
 This package enables the visualization of seating charts, whereby the
-seating arrangement (i.e. the arrangement of seats in a room) and the
+seating layouts (i.e. the arrangement of seats in a room) and the
 seating scheme (i.e. the selection and labeling of occupied seats) can
 be controlled independently of each other. 
 
@@ -14,7 +14,6 @@ This package should be considered experimental and requires LuaLaTeX.
 
 ## Documentation
 See seatingchart-doc-en.pdf (English) or seatingchart-doc-de.pdf (German)
-
 
 ## License
 Copyright 2025 Matthias Werner

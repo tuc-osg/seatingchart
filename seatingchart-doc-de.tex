@@ -104,11 +104,11 @@ grundsätzliche Anwendungsfälle unterschieden:
   \keyval-{room}{Raum}\Default{}
   Diesen Optionsschlüssel sollte man nutzen, wenn der gewünschte
   Raum ist bereits in der Datenbank von \thepkg\ vorhanden ist.
-  \keyval{room file}{Dateiname}\Default{rooms1}
-  Die Daten für die vordefinierten Räune werden
-  aus \meta{Dateiname}\code{.tsr} gelesen. 
-  Dieser Schlüssel kann genutzt werden, wenn man eigene Räume anlegt, siehe
-  Abschnitt~\ref{sec:new-rooms}.
+  \keyval{layout}{Institution}\Default{tu-chemnitz}
+  Die Daten für die vordefinierten Räume werden
+  aus der Datei \code{seatingchart-}\meta{Institution}\code{.sc} gelesen. 
+  Dieser Schlüssel kann genutzt werden, wenn eigene vordefinierte Räume deklariert
+  wurden, siehe Abschnitt~\ref{sec:new-rooms}.
 \end{options}
 Falls der Raum noch nicht bekannt ist, werden einige Schlüssel-Wert-Paar zur
 Beschreibung des Raumslayout gebraucht.
@@ -223,15 +223,15 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
 \end{commands}
 
 Das folgende Beispiel zeigt den Code und das Ergebnis für ein einfaches Sitzplanlayout
-mit einem Mittelgang und einem fehlenden Sitz in der ersten Reihe.
+mit einem Mittelgang und zwei fehlenden Sitzen in der ersten Reihe.
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
-    \documentclass{article}
-    \usepackage[shape=rectangle, rows = 8, seats per row=9]{seatingchart}
-    \begin{document}
-      \scSetAisle{5}
-      \scRemoveSeatAt{1}{1}
-      \scDrawSeating
-    \end{document}
+  \documentclass{article}
+  \usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
+  \begin{document}
+    \scSetAisle{8}
+    \scRemoveSeats{{1,1},{1,2}}
+    \scDrawSeating
+  \end{document}
 \end{example}
 
 \section{Sitzplatzbelegung}
@@ -303,8 +303,6 @@ führt aber keine Zuweisung von Sitzen aus.
 \end{commands}
 Schlüsselwerte, die durch \cs*{scSeatingScheme} oder \cs*{scConfigScheme}
 gesetzt werden, bleiben erhalten, bis sie explizit neu gesetzt werden.
-% Das Paket \thepkg\ kennt zwei Möglichkeiten der Markierung von Sitzplätzen:
-% manuelle Zuweisung und vordefinierte Sitzschemata.
 
 \subsection{Vordefinierte Sitzschemata}
 \label{sec:defined-schemes}
@@ -420,6 +418,18 @@ unterstützen.
 \label{sec:examples}
 Zur Demonstration des Verhaltens von \thepkg\ sind hier einige Beispiele des
 Einsatzes dokumentiert.
+\subsection{Dichte Belegung für den Beispielraum aus Abschnitt~\ref{sec:drawing}}
+\label{sec:ex-simple}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
+  \documentclass{article}
+  \usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
+  \begin{document}
+    \scSetAisle{8}
+    \scRemoveSeats{{1,1},{1,2}}
+    \scSeatingScheme{2x2-}
+    \scDrawSeating
+  \end{document}
+\end{example}
 \subsection{Vordefinierter Raum, rechteckig}
 \label{sec:ex:std-rect}
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
@@ -460,7 +470,7 @@ Einsatzes dokumentiert.
      \scDrawSeating
    \end{document}
 \end{example}
-\subsection{Eigenes Platzlayout und Sitzschema}
+\subsection{Eigenes Platzlayout und angepasstes Sitzschema}
 \label{sec:ex:own1}
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
   \documentclass{scrartcl}
@@ -508,21 +518,18 @@ Einsatzes dokumentiert.
 \end{example}
 \section{Deklaration neuer Raumlayouts}
 \label{sec:new-rooms}
-In der augenblicklichen Version hat das \thepkg-Paket erst eine gewisse Anzahl
-von Räumen mit ihrem Sitzlayout erfasst.
+In der augenblicklichen Version hat das \thepkg-Paket erst eine relativ geringe Anzahl
+von Räumen der TU~Chemnitz mit ihrem Sitzlayout erfasst.
 Nutzer werden daher häufig darauf angewiesen sein, eigene Layouts anzulegen.
+
 Neben der Möglichkeit zur Ad-hoc-Kreation von Layouts, wie sie im
 Abschnitt~\ref{sec:layout} beschrieben sind, besteht auch die Möglichkeit das
 Paket selbst zu erweitern und damit Layouts für neue Räume anzulegen, die dann
 einfach über den \option{room}-Schlüssel angesprochen werden können.
-Neue Raumlyouts können über zwei Wege integriert werden:
-\begin{itemize}
-\item Die zu dem \thepkg-Paket gehörende Datei \code{room1.tsr} wird erweitert.
-\item Es wird eine eigene \code{.tsr}-Datei angelegt und über die Option \option{layout
-  file} eingebunden.
-\end{itemize}
-Egel welcher Weg gewählt wird, in \code{.tsr}-Dateien können zwei Befehle
-genutzt werden:
+Dazu können eigene \code{seatingchart-*.sc}-Dateien angelegt und über die
+\option{layout} eingebunden werden. 
+
+In einer \code{seatingchart-*.sc} können zwei Befehle genutzt werden:
 \begin{commands}
   \command{scDeclareRoom}[\marg{Raumbezeichnung}\marg{Schlüsselliste}]
   Ein neues Raumlayout wird für den Raum \meta{Raumbezeichnung} angelegt.
@@ -553,9 +560,19 @@ genutzt werden:
     }
   \end{example}\vspace{-1.3\baselineskip}
   \command{scAliasRoom}[\marg{Aliasname}\marg{Originalname}]
-  Setzt \meta{Aliasname} als einen Ersatznamen für \meta{Originalname}.
+  Setzt \meta{Aliasname} als einen Ersatznamen für \meta{Originalname}.  
 \end{commands}
-
+  Wenn Sie wünschen, dass eine Layoutdatei ihrer Institution Bestandteil des
+  Pakets auf CTAN wird, schicken Sie bitte dem Maintainer ihre Datei oder
+  initiieren Sie einen Pull-Request auf
+  \url{https://github.com/tuc-osg/seatingchart}.
+  Geben Sie in diesem Fall der Datei einen aussagekräftigen und
+  unterscheidungsfähigen Namen. Beispielsweise
+  sollte die \emph{Lummerland Maschinenbau Universität}
+  eher \code{seatingchart-lummerland-mu.sc} oder
+  \code{seatingchart-lummerland-machbau-uni.sc} nutzen, als
+  \code{seatingchart-lmu.sc}.
+  
 \section{Beschränkungen und Bugs}
 \label{sec:bugs}
 Auch wenn das \thepkg-Paket zumindest in unserer Gruppe im praktischen Einsatz
@@ -565,17 +582,16 @@ Er bedeutet insbesondere, dass sich die API noch ändern kann.
 
 Das Pakte unterliegt einigen Einschränkungen.
 Ob diese in kommenden Versionen behoben werden, steht noch nicht fest.
-Das Paket ist auf die Erstellung seperater Sitzpläne ausgelegt und kann daher
+Das Paket ist auf die Erstellung separater Sitzpläne ausgelegt und kann daher
 nicht dafür genutzt werden, mehrere Sitzpläne in einem Dokument darstellen.
 Ebenfalls können keine Sitzlayouts mit versetzten Sitzreihen dargestellt werden.
 
 Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
 Es besteht die Absicht, in künftigen Patches weitere Räume der TU~Chemnitz
 aufzunehmen.
-Die Mitarbeit durch Zusenden von Informationen über Sitzlayouts oder
-entsprechende Patches von \code{seatingchart-*.sc} ist ausdrücklich willkommen.
+Layoutdateien von anderen Institutionen sind willkommen.
 
-Im Moment sind keine Bugs bekannt, aber es werden sicherlich welche existieren.
+Bogenförmiges Raumlayout ist bei kleineren Reihenlängen problematisch.
 Bitte nutzen Sie für Bugs-Reports oder Pull-Requests GitHub:
 \url{https://github.com/tuc-osg/seatingchart}.
 

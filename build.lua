@@ -4,12 +4,12 @@ module = "seatingchart"
 unpackfiles = {}
 sourcefiles= {
    "*.sty",
-   "*.tsr",
+   "*.sc",
    "*.lua"
 }
 installfiles= {
    "*.sty",
-   "*.tsr",
+   "*.sc",
    "*.lua"
 }
 
@@ -20,13 +20,17 @@ typesetfiles = {
 
 typesetopts="-interaction=nonstopmode -shell-escape"
 
+docfiles = {
+   "seatingchart-example.tex"
+}
+
 cleanfiles={
     "*-doc-*-cnltx*",
     "*.toc",
     "*.aux"
 }
 
-tagfiles={
+tagfiles = {
     "seatingchart.sty",
     "seatingchart.lua",
     "*.sc"
@@ -39,9 +43,9 @@ function update_tag(file,content,tagname,tagdate)
       handle:close()
       print("Set tagname to '"..tagname.."'")
    end
-   if string.match(file,"%.*") or string.match(file,"*.tsr") then   
+   if string.match(file,"%.*") or string.match(file,"*.sc") then   
       local update, count = string.gsub(content,"Date:\n([%%%s]+)%d%d%d%d%-%d%d%-%d%d","Date:\n%1"..tagdate)
-      update, count = string.gsub(update,"Version:\n([%%%s]+)v%d+%.%d+(%.%d+)?","Version:\n%1"..tagname)
+      update, count = string.gsub(update,"Version:\n([%%%s]+)v%d+%.%d+%.%d+","Version:\n%1"..tagname)
       return update
    end    
    return content

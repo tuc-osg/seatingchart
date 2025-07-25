@@ -100,11 +100,11 @@ The use of the option \option{room} distinguishes between two fundamental use ca
 \begin{options}
   \keyval{room}{Room} This option key should be used if the desired room
   is already predefined.
-  \keyval{room file}{filename}\Default{rooms1}
+  \keyval{layout}{institution}\Default{tu-chemnitz}
   The data for the predefined rooms is read
-  from \meta{filename}\code{.tsr}.
-  This key can be used when creating your own rooms, see
-  Section~\ref{sec:new-rooms}.
+  from \code{seatingchart-}\meta{institution}\code{.sc}.
+  This key can be used if own predefined rooms have been declared, see
+  Section~\ref{sec:new-rooms}. 
 \end{options}
 If the room is not already known, it can also be created \emph{ad hoc}, whereas
 several key–value options are required to describe the layout: 
@@ -227,16 +227,13 @@ For this purpose, \pkg\ provides the following commands:
 \end{commands}
 
 The following example shows the code and the result for a simple seating layout
-with a central aisle and one missing seat in the first row.
+with a central aisle and two missing seats in the first row.
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
-  \documentclass{scrartcl}
-  % To make better use of the paper, we use landscape format
-  % and reduce the margins
-  \usepackage[a4paper,landscape,inner=1cm,outer=1cm,top=1cm,bottom=1cm]{geometry}
-  \usepackage[shape=rectangle, rows = 8, seats per row=9]{seatingchart}
+  \documentclass{article}
+  \usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
   \begin{document}
-    \scSetAisle{5}
-    \scRemoveSeatAt{1}{1}
+    \scSetAisle{8}
+    \scRemoveSeats{{1,1},{1,2}}
     \scDrawSeating
   \end{document}
 \end{example}
@@ -430,6 +427,18 @@ but it can support table generation (e.g., using \LaTeX\ or a spreadsheet applic
 \label{sec:examples}
 To demonstrate the behavior of \thepkg, a few usage examples are documented
 here.
+\subsection{Dense Occupancy for Example Room in Section~\ref{sec:drawing}}
+\label{sec:ex-simple}
+\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
+  \documentclass{article}
+  \usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
+  \begin{document}
+    \scSetAisle{8}
+    \scRemoveSeats{{1,1},{1,2}}
+    \scSeatingScheme{2x2-}
+    \scDrawSeating
+  \end{document}
+\end{example}
 \subsection{Predefined Room, Rectangular}
 \label{sec:ex:std-rect}
 \begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.5}]
@@ -519,20 +528,18 @@ here.
 \end{example}
 \section{Declaration of New Rooms}
 \label{sec:new-rooms}
-In the current version, the \thepkg package only contains a certain number of
-rooms with their seating layouts. 
+In its current version, the \thepkg package only contains a relatively small
+number of rooms at TU Chemnitz with their seating layouts. 
 Users will therefore often have to create their own layouts.
-In addition to the option for ad-hoc layout creation, as described in the
-Section~\ref{sec:layout}, it is also possible to extend the package itself and
-thus create layouts for new rooms, which can then be easily accessed via the
+
+In addition to the option for ad-hoc layout creation, as described in the se
+ction~\ref{sec:layout}, it is also possible to extend the package itself and
+create layouts for new rooms, which can then be easily accessed via the
 \option{room} key. 
-New room layouts can be integrated in two ways:
-\begin{itemize}
-\item The \code{room1.tsr} file belonging to the \thepkg package is extended.
-\item A separate \code{.tsr} file is created and integrated using the \option{layout
-file} option. 
-\end{itemize}
-Regardless of which approach is chosen, two commands can be used in \code{.tsr} files:
+
+For this purpose, custom \code{seatingchart-*.sc} files can be created and
+integrated via the \option{layout}. 
+Two commands can be used in \code{seatingchart-*.sc} files:
 \begin{commands}
 \command{scDeclareRoom}[\marg{room name}\marg{key list}]
 A new room layout is created for the room \meta{room name}.
@@ -565,26 +572,31 @@ These two keys function analogously to
 \command{scAliasRoom}[\marg{alias}\marg{room}]
 Sets \meta{alias} as a replacement name for \meta{room}.
 \end{commands}
+If you would like your institution's layout file to be included in the package
+on CTAN, please send your file to the maintainer or initiate a pull request on 
+\url{https://github.com/tuc-osg/seatingchart}.
+In this case, give the file a meaningful and distinguishable name. For example,
+\emph{University of Lummerland at Lummerland City}
+should use \code{seatingchart-lummerland-uni-lc.sc} rather than
+\code{seatingchart-lu.sc}.
 
 \section{Limitations and Bugs}
 \label{sec:bugs}
-Even though the \thepkg\ package is in practical use, at least in our group, it
+Even though the \thepkg package is in practical use, at least in our group, it
 should be considered experimental. 
-The \code{0} in the major version number indicates this.
+The \code{0} in the major version number indicates this fact.
 In particular, it means that the API is still subject to change.
 
 The package is subject to some limitations.
 Whether these will be fixed in future versions is not yet known.
-The package is designed for creating separate seating plans and therefore cannot
-be used to display multiple seating plans in one document. 
+The package is designed for creating separate seating charts and therefore cannot be used to display multiple seating charts in one document.
 Likewise, seating layouts with staggered rows cannot be displayed.
 
 The number of predefined rooms is currently relatively small.
-There are plans to include additional rooms from TU Chemnitz in future patches.
-Your collaboration by sending information about seating layouts or
-corresponding patches of \code{seatingchart-*.tsr} is expressly welcome.
+There are plans to include additional rooms at TU Chemnitz in future patches.
+Layout files from other institutions are welcome.
 
-There are currently no known bugs, but some will certainly exist.
+Curved room layouts are problematic for smaller row lengths.
 Please use GitHub for bug reports or pull requests:
 \url{https://github.com/tuc-osg/seatingchart}.
 
