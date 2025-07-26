@@ -13,16 +13,15 @@ installfiles= {
    "*.lua"
 }
 
+typesetexe = "lualatex"
+
 typesetfiles = {
    "seatingchart-doc-en.tex",
-   "seatingchart-doc-de.tex"
+   "seatingchart-doc-de.tex",
+   "seatingchart-example.tex"
 }
 
 typesetopts="-interaction=nonstopmode -shell-escape"
-
-docfiles = {
-   "seatingchart-example.tex"
-}
 
 cleanfiles={
     "*-doc-*-cnltx*",

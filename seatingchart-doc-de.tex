@@ -22,12 +22,12 @@ scrartcl={headings=small}
 ]{cnltx-doc}
 
 \usepackage[oldstyle]{libertine}
-\usepackage[scaled=.81]{DejaVuSansMono}
+\setmonofont[
+Scale = MatchLowercase ,
+Ligatures = {NoCommon,NoRequired,NoContextual}
+]{DejaVu Sans Mono}
 \usepackage{microtype}
 \usepackage{enumitem}
-% Since the cnltx class doesn't do examples with lualatex,
-% we can't include our package.
-% Thus, we use readprov to get file information.
 \usepackage{readprov}
 \ReadFileInfos{seatingchart.sty}
 
