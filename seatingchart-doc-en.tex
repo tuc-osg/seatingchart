@@ -1,4 +1,4 @@
-% Patch cnltx-doc class
+% Patch cnltx-doc bundle
 \AddToHook{class/scrartcl/after}{
   \NewCommandCopy{\originalAfterPackage}{\AfterPackage}
   \RenewDocumentCommand{\AfterPackage}{t! m m}{
@@ -7,8 +7,14 @@
     }
   }
 }
+\makeatletter
+\AddToHook{package/cnltx-example/after}{%
+\renewcommand*\cnltx@exe{\ShellEscape}%
+}
 \makeatother
-\typeout{*** Patch cnltx-doc}
+\RequirePackage{luatex85}
+\RequirePackage{shellesc}
+\typeout{*** Patched cnltx-doc bundle}
 \documentclass[
 babel-options={english},
 load-preamble-,

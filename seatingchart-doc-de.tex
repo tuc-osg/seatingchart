@@ -1,4 +1,4 @@
-% Patch cnltx-doc class
+% Patch cnltx-doc bundle
 \AddToHook{class/scrartcl/after}{
   \NewCommandCopy{\originalAfterPackage}{\AfterPackage}
   \RenewDocumentCommand{\AfterPackage}{t! m m}{
@@ -7,8 +7,14 @@
     }
   }
 }
+\makeatletter
+\AddToHook{package/cnltx-example/after}{%
+\renewcommand*\cnltx@exe{\ShellEscape}%
+}
 \makeatother
-\typeout{*** Patch cnltx-doc}
+\RequirePackage{luatex85}
+\RequirePackage{shellesc}
+\typeout{*** Patched cnltx-doc bundle}
 \documentclass[
 babel-options={ngerman},
 load-preamble-,
@@ -224,7 +230,8 @@ Dafür stellt \pkg\ folgende Kommandos zur Verfügung
 
 Das folgende Beispiel zeigt den Code und das Ergebnis für ein einfaches Sitzplanlayout
 mit einem Mittelgang und zwei fehlenden Sitzen in der ersten Reihe.
-\begin{example}[compile,program=lualatex,pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
+\begin{example}[compile=true,program=lualatex,
+  pages=1,add-frame,code-sep=\bigskip,graphics={scale=.25}]
   \documentclass{article}
   \usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
   \begin{document}
