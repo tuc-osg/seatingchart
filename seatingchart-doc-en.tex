@@ -14,6 +14,7 @@
 \makeatother
 \RequirePackage{luatex85}
 \RequirePackage{shellesc}
+\RequirePackage{multicol}
 \typeout{*** Patched cnltx-doc bundle}
 \documentclass[
 babel-options={english},
@@ -539,13 +540,13 @@ In its current version, the \thepkg package only contains a relatively small
 number of rooms at TU Chemnitz with their seating layouts. 
 Users will therefore often have to create their own layouts.
 
-In addition to the option for ad-hoc layout creation, as described in the se
-ction~\ref{sec:layout}, it is also possible to extend the package itself and
+In addition to the option for ad-hoc layout creation, as described in 
+section~\ref{sec:layout}, it is also possible to extend the package itself and 
 create layouts for new rooms, which can then be easily accessed via the
 \option{room} key. 
 
 For this purpose, custom \code{seatingchart-*.sc} files can be created and
-integrated via the \option{layout}. 
+integrated via the \option{layout} key. 
 Two commands can be used in \code{seatingchart-*.sc} files:
 \begin{commands}
 \command{scDeclareRoom}[\marg{room name}\marg{key list}]
