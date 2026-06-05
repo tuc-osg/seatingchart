@@ -5,11 +5,11 @@
 }
 \def\packagedate{
   %% Date:
-  2025-07-25
+  2026-06-05
 }
 \def\packageversion{
   %% Version:
-  v0.5.1
+  v0.5.2
 }
 \ExplSyntaxOff
   %% Author:      Matthias Werner
@@ -473,16 +473,16 @@ Generation of seating plans]
     \SetKeys[scseatingscheme]{scheme=#3}
   }%
   \def\scpolicy{
-    {["aisle~restarts"]=\tss@aislerestart,
-      ["rtol"]=\tss@rtol,
-      ["aisle counts"]=\tss@aislecnt,
-      ["aisle restarts scheme"]=\tss@aislecnt,
-      ["ignore removed seats"]=\tss@ignoreremoved,
-      ["row sep"]=\tss@rowsep,
-      ["row restart"]=\tss@rowrestart,
-      ["first row"]=\tss@startrow,
-      ["last row"]=\tss@endrow,
-      ["label text"]=\luastringO{\tss@as@format}
+    {[\luastring{aisle restarts}]=\tss@aislerestart,
+      [\luastring{rtol}]=\tss@rtol,
+      [\luastring{aisle counts}]=\tss@aislecnt,
+      [\luastring{aisle restarts scheme}]=\tss@aislecnt,
+      [\luastring{ignore removed seats}]=\tss@ignoreremoved,
+      [\luastring{row sep}]=\tss@rowsep,
+      [\luastring{row restart}]=\tss@rowrestart,
+      [\luastring{first row}]=\tss@startrow,
+      [\luastring{last row}]=\tss@endrow,
+      [\luastring{label text}]=\luastringO{\tss@as@format}
     }}
   %\typeout{POLICY=\scpolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\scpolicy)}
