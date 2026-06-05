@@ -3,7 +3,7 @@
   Date:
   2025-07-25
   Version:
-  v0.5.0
+  v0.5.2
 --]]
 Seat = {
    id = nil,
@@ -129,7 +129,7 @@ function seatingSchemeInRows(pat,policy)
    local lrow = policy["last row"]
    local rstep = policy["row sep"]
    local rres  = policy["row restart"]
-   local ltext = policy["label text"]
+   local ltext = policy["label format"]
    local runningrow = 1
    rs={}
    for r = frow, lrow do

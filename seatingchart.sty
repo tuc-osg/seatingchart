@@ -11,6 +11,10 @@
   %% Version:
   v0.5.2
 }
+% Revisions
+% 2025-07-25:  First public version
+% 2026-06-05:  Fix interaction with babel (#2)
+
 \ExplSyntaxOff
   %% Author:      Matthias Werner
   %% Description: Seatings schemes 
@@ -482,7 +486,7 @@ Generation of seating plans]
       [\luastring{row restart}]=\tss@rowrestart,
       [\luastring{first row}]=\tss@startrow,
       [\luastring{last row}]=\tss@endrow,
-      [\luastring{label text}]=\luastringO{\tss@as@format}
+      [\luastring{label format}]=\luastringO{\tss@as@format}
     }}
   %\typeout{POLICY=\scpolicy, startrow=\tss@startrow\ endrow=\tss@endrow}
   \luadirect{seatingSchemeInRows(\luastring{\tss@pattern},\scpolicy)}
