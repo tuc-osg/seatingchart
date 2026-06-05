@@ -8,6 +8,7 @@
 *.ido
 *.toc
 *.xdy
+*.pdf
 seatingchart-doc-*-cnltx*
 .DS_Store
 build/**
