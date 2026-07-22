@@ -16,7 +16,7 @@
       local seat = AllSeats[i]
       values[i] = string.format("%d:%d:%s", seat.row, seat.col, seat.kind)
     end
-    texio.write_nl("log", name .. "=" .. table.concat(values, ","))
+    texio.write_nl("log", name .. "[storage=" .. #AllSeats .. "]=" .. table.concat(values, ","))
   end
 \end{luacode*}
 

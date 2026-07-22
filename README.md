@@ -13,15 +13,11 @@ This package should be considered experimental and requires LuaLaTeX.
 `l3build install --full`
 
 ## Documentation
-The documentation is maintained in the bilingual source `seatingchart.dtx`.
-The build creates `seatingchart-en.pdf` (English) and
-`seatingchart-de.pdf` (German).
+See `seatingchart-en.pdf` (English) or `seatingchart-de.pdf` (German)
 
-The currently unpublished `langselect` and `osgdoc` components from the
-`osglecture` bundle are included in `support/` for documentation builds only.
 
 ## License
-Copyright 2025 Matthias Werner
+Copyright 2025,2026 Matthias Werner
 
 This work may be distributed and/or modified under the conditions of
 the LaTeX Project Public License (LPPL), either version 1.3c of this license or

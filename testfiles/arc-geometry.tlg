@@ -1,0 +1,5 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+(seatingchart-tu-chemnitz.sc)
+ARC-5x20=monotonic:true,min-distance:1.000,max-angle:60.0,storage:100 (seatingchart-tu-chemnitz.sc)
+ARC-2x1=monotonic:true,min-distance:0.000,max-angle:0.0,storage:2

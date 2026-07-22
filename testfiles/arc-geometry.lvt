@@ -1,0 +1,47 @@
+\input regression-test.tex
+\documentclass{article}
+\usepackage{seatingchart}
+
+\begin{document}
+\START
+
+\makeatletter
+\RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
+\makeatother
+
+\begin{luacode*}
+  function sc_test_arc(name)
+    local monotonic = true
+    local minimum = math.huge
+    local maximum_angle = 0
+    for row = 1, AllSeats.rows do
+      local offset = (row - 1) * AllSeats.cols
+      for col = 1, AllSeats.cols do
+        local seat = AllSeats[offset + col]
+        maximum_angle = math.max(maximum_angle, math.abs(seat.rotate))
+        if col > 1 then
+          local previous = AllSeats[offset + col - 1]
+          monotonic = monotonic and previous.x < seat.x
+          local distance = math.sqrt((seat.x-previous.x)^2 + (seat.y-previous.y)^2)
+          minimum = math.min(minimum, distance)
+        end
+      end
+    end
+    if minimum == math.huge then
+      minimum = 0
+    end
+    texio.write_nl("log", string.format(
+      "%s=monotonic:%s,min-distance:%.3f,max-angle:%.1f,storage:%d",
+      name, tostring(monotonic), minimum, maximum_angle, #AllSeats))
+  end
+\end{luacode*}
+
+\begin{seatingchart}[shape=arc,rows=5,seats per row=20]
+  \directlua{sc_test_arc("ARC-5x20")}
+\end{seatingchart}
+
+\begin{seatingchart}[shape=arc,rows=2,seats per row=1]
+  \directlua{sc_test_arc("ARC-2x1")}
+\end{seatingchart}
+
+\END

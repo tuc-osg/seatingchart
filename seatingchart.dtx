@@ -69,7 +69,7 @@ This work is maintained by Matthias Werner.
   build-title
 }
 
-\begin{document}
+\begin{document}  
 
 \section{\ldeen{Einführung}{Introduction}}
 \ldeen{%
@@ -1328,18 +1328,8 @@ Er bedeutet insbesondere, dass sich die API noch ändern kann.
 Even though the @1 package is in practical use, at least in our group, it
 should be considered experimental.
 The @2 in the major version number indicates this fact.
-In particular, it means that the API is still subject to change.
+In particular, it means that the API may still subject to change.
 }{\thepkg}{\code{0}}
-
-\ldeen{%
-Das Pakte unterliegt einigen Einschränkungen.
-Ob diese in kommenden Versionen behoben werden, steht noch nicht fest.
-Sitzlayouts mit versetzten Sitzreihen können nicht dargestellt werden.
-}{%
-The package is subject to some limitations.
-Whether these will be fixed in future versions is not yet known.
-Seating layouts with staggered rows cannot be displayed.
-}
 
 \ldeen{%
 Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
@@ -1353,11 +1343,9 @@ Layout files from other institutions are welcome.
 }
 
 \ldeen{%
-Bogenförmiges Raumlayout ist bei kleineren Reihenlängen problematisch.
 Bitte nutzen Sie für Bugs-Reports oder Pull-Requests GitHub:
 \url{https://github.com/tuc-osg/seatingchart}.
 }{%
-Curved room layouts are problematic for smaller row lengths.
 Please use GitHub for bug reports or pull requests:
 \url{https://github.com/tuc-osg/seatingchart}.
 }
@@ -1617,6 +1605,7 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 \newlength\scseatheight%\settoheight{\scseatheight}{Xy}%
 \newlength\scremainingspace
 \newlength\scrnlength
+\newlength\scarcunit
 \DeclareKeys[scdrawing]{
   seat width.code:n={%
     \setlength{\scseatwidth}{#1}%
@@ -1663,7 +1652,19 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   \sc@configtikz%
   %\typeout{*********~Seatwidth:~\the\scseatwidth, Seatheight:~\the\scseatheight}%
   \luadirect{seatDim(\luastring{\scseatwidth},\luastring{\scseatheight})}%
-  \begin{tikzpicture}[x=\scseatwidth+\sc@sdist@x,y=\scseatheight+\sc@sdist@y]
+  \def\sc@xunit{\scseatwidth+\sc@sdist@x}%
+  \def\sc@yunit{\scseatheight+\sc@sdist@y}%
+  \iftoggle{sc@rectshapt}{}{%
+    % Arc coordinates describe circles and therefore require identical scales
+    % on both axes. Use the larger pitch to prevent seats from overlapping.
+    \setlength{\scarcunit}{\dimexpr\scseatwidth+\sc@sdist@x\relax}%
+    \ifdimcomp{\dimexpr\scseatheight+\sc@sdist@y\relax}{>}{\scarcunit}{%
+      \setlength{\scarcunit}{\dimexpr\scseatheight+\sc@sdist@y\relax}%
+    }{}%
+    \def\sc@xunit{\scarcunit}%
+    \def\sc@yunit{\scarcunit}%
+  }%
+  \begin{tikzpicture}[x=\sc@xunit,y=\sc@yunit]
       \ifsc@blackboard%
          \node[rectangle, draw,minimum~width=0.4\textwidth] at (0,-2) {Tafel};
       \fi
@@ -2078,6 +2079,12 @@ SPECIAL      = 5
 
 function initSeating(rows, cols, shape)
    local cid = 0
+   -- A document may contain several charts. Replacing only the leading
+   -- entries would leave seats from a larger preceding chart behind, because
+   -- drawSeats() deliberately iterates over the array with ipairs().
+   for key in pairs(AllSeats) do
+      AllSeats[key] = nil
+   end
    AllSeats.size=0
    AllSeats.rows=rows
    AllSeats.cols=cols
@@ -2091,18 +2098,32 @@ function initSeating(rows, cols, shape)
 	 end
       end
    elseif shape ==  "arc" then
-      local arc=120
-      local d=8
+      local max_arc=120 * math.pi/180
+      local radius
+      local step
       local rot
       local x
       local y
       local phi
+      -- Choose the innermost radius so that a complete row spans at most
+      -- max_arc while adjacent seat centres remain one unit apart. Increasing
+      -- the radius by one for each row gives the same radial distance.
+      local inner_radius = 1
+      if cols > 1 then
+         inner_radius = 0.5 / math.sin(max_arc/(2*(cols-1)))
+      end
       for r = 1, rows do
+	 radius = inner_radius + r - 1
+	 if cols > 1 then
+	    step = 2 * math.asin(0.5/radius)
+	 else
+	    step = 0
+	 end
 	 for c = 1, cols do
 	    cid = cid+1
-	    phi=(c-(cols+1)/2)/(2*r+(cols/2))*arc*math.pi/180
-	    x = (d+r)*math.sin(phi)
-	    y= (d+r)*math.cos(phi)-d/2
+	    phi = (c-(cols+1)/2) * step
+	    x = radius * math.sin(phi)
+	    y = radius * math.cos(phi) - inner_radius
 	    rot=-phi/math.pi*180
 	    AllSeats[cid] = Seat.new({id=cid, row=r, col=c,
 				      rotate=rot,
