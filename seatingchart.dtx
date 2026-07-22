@@ -62,7 +62,7 @@ This work is maintained by Matthias Werner.
       Dies ist ein API-Bruch; für Rückwärtskompatibilität siehe Abschnitt @1.
     }{
       Warning! Starting with version 0.6, the \env{seatingchart} environment is the central user interface.
-      This is an API break; for backward compatibility, see section @1..
+      This is an API break; for backward compatibility, see section @1.
     }{\ref{sec:legacy}}
   }},
   url = https://github.com/tuc-osg/seatingchart,
@@ -97,7 +97,7 @@ Dies war die Motivation zur Erschaffung des @1-Pakets. Es \ldots
 This was the motivation for developing the @1\ package. It \ldots
 }{\thepkg}
 
-\begin{itemize}%[itemsep=0pt]
+\begin{itemize}[itemsep=0pt]
   \item \ldeen{ermöglicht eine schnelle und einfach Erstellung von Sitzplänen;}{enables quick and easy creation of seating plans;}
   \item \ldeen{trennt das Sitzlayout und das Platzierungsschema voneinander;}{separates seat layout from the placement scheme;}
   \item \ldeen{bietet eine Reihe von Standardschemata für die Platzierung an;}{offers a set of standard placement schemes;}
@@ -156,13 +156,13 @@ placed in its own environment:
 Die Optionen legen das Layout und seine Darstellung fest. Innerhalb eines
 Dokuments dürfen beliebig viele, unterschiedlich konfigurierte Sitzpläne
 vorkommen. Alle @1-Ausführungsbefehle sind nur innerhalb der Umgebung
-gültig; Deklarationsbefehle für Raumdateien sind davon ausgenommen.
+gültig, mit Ausnahme der Deklarationsbefehle für Raumdateien, siehe Abschnitt @2.
 }{%
 The options define the layout and its presentation. A document may contain any
 number of independently configured seating charts. All executing
-@1 commands are available only inside the environment; room
-declaration commands are exempt from this restriction.
-}{\cs*{sc...}}
+@1 commands are available only inside the environment with exception of the room
+declaration commands, cf.\ Section @2.
+}{\cs*{sc...}}{\ref{sec:new-rooms}}
 
 \subsection{\ldeen{Umgebungsoptionen}{Environment Options}}
 \label{sec:class-options}
@@ -175,7 +175,7 @@ The use of the option @1 distinguishes between two fundamental use cases:
 
 \begin{options}
 \ldeen*{%
-  \keyval-@1{Raum}\Default{}
+  \keyval-@1{Raum}\default{}
 }{%
   \keyval@1{Room} This option key should be used if the desired room
 }{{room}}
@@ -192,7 +192,6 @@ The use of the option @1 distinguishes between two fundamental use cases:
 }{%
   \keyval@1{institution}\Default{tu-chemnitz}
 }{{layout}}
-
 \ldeen*{%
   Die Daten für die vordefinierten Räume werden
   aus der Datei @1\meta{Institution}@2 gelesen.
@@ -207,10 +206,10 @@ The use of the option @1 distinguishes between two fundamental use cases:
 
 \end{options}
 \ldeen{%
-Falls der Raum noch nicht bekannt ist, werden einige Schlüssel-Wert-Paar zur
+Falls der Raum noch \textbf{nicht} bekannt ist, werden einige Schlüssel-Wert-Paar zur
 Beschreibung des Raumslayout gebraucht.
 }{%
-If the room is not already known, it can also be created \emph{ad hoc}, whereas
+If the room is \textbf{not} already known, it can also be created \emph{ad hoc}, whereas
 several key–value options are required to describe the layout:
 }
 
@@ -226,17 +225,16 @@ several key–value options are required to describe the layout:
 }
 
 \ldeen*{%
-  \keyval-@1{Anzahl der Sitzreihen}\Default*!{}\vspace{-.3\baselineskip}
+  \keyval-@1{Anzahl der Sitzreihen}\Default*!{}%\vspace{-.3\baselineskip}
 }{%
-  \keyval@1{number}\Default*!{}\vspace{-.3\baselineskip}
+  \keyval@1{number}\Default*!{}%\vspace{-.3\baselineskip}
 }{{rows}}
-
 \ldeen*{%
   \keyval-@1{Sitze pro Sitzreihe}\Default!{}
 }{%
   \keyval@1{number}\Default!{}
 }{{seats per row}}
-
+%
 \ldeen{%
   Besimmt Anzahl der Sitzreihen und Sitze pro Reihe. Dabei muss immer von der
   jeweils maximalen Anzahl ausgegangen werden. Für unvollständige Reihen werden später Sitze
@@ -282,7 +280,7 @@ They can also be set later using @1; see Section~@2.
 }{%
   \keyval@1{distance}\Default{2pt}
 }{{seat distance}}
-
+%
 \ldeen{%
   Abstand der Sitze zueinander. Damit wird auch der Reihenabstand bestimmt.
   Möchte man beides unterschiedlich haben, so muss man die beiden folgenden
@@ -293,18 +291,18 @@ They can also be set later using @1; see Section~@2.
 }
 
 \ldeen*{%
-  \keyval-@1{Abstand}\Default*{2pt}\vspace{-.3\baselineskip}
+  \keyval-@1{Abstand}\Default*{2pt}%\vspace{-.3\baselineskip}
 }{%
-  \keyval@1{Distance}\Default*{2pt}\vspace{-.3\baselineskip}
+  \keyval@1{Distance}\Default*{2pt}%\vspace{-.3\baselineskip}
 }{{seat neighbor distance}}
-
+%
 \ldeen*{%
   \keyval-@1{Abstand}\Default{2pt}
 }{%
   \keyval@1{distance}\Default{2pt}
 }{{row distance}}
 
-  \keychoice{rownumbers}{none,left,right,both}\Default{none}
+\keychoice{rownumbers}{none,left,right,both}\Default{none}
 \ldeen{%
   Legt beim Rechteck-Layout fest, ob links und oder rechts der Reihen die Nummer
   der Sitzreihe angegeben wird. Dabei wird von vorn (Tafel) gezählt.\newline
@@ -321,7 +319,7 @@ They can also be set later using @1; see Section~@2.
 }{%
   \keyval@1{distance}\Default{2pt}
 }{{rownumber distance}}
-
+%
 \ldeen*{%
   Abstand der Reihennummern zu den äußeren Sitzen, wenn @1
   nicht @2 ist.
@@ -331,29 +329,29 @@ They can also be set later using @1; see Section~@2.
 }{\option*{rownumbers}}{\code{none}}
 
 \ldeen*{%
-  \keyval-@1{Farbe}\Default*{lightgray!20}\vspace{-.3\baselineskip}
+  \keyval-@1{Farbe}\Default*{lightgray!20}
 }{%
-  \keyval@1{color}\Default*{lightgray!20}\vspace{-.3\baselineskip}
+  \keyval@1{color}\Default*{lightgray!20}%\vspace{-.3\baselineskip}
 }{{empty seat background color}}
-
+%
 \ldeen*{%
-  \keyval-@1{Farbe}\Default*{lightgray}\vspace{-.3\baselineskip}
+  \keyval-@1{Farbe}\Default*{lightgray}%\vspace{-.3\baselineskip}
 }{%
-  \keyval@1{color}\Default*{lightgray}\vspace{-.3\baselineskip}
+  \keyval@1{color}\Default*{lightgray}%\vspace{-.3\baselineskip}
 }{{empty seat border color}}
-
+%
 \ldeen*{%
-  \keyval-@1{Farbe}\Default*{lightgray!30}\vspace{-.3\baselineskip}
+  \keyval-@1{Farbe}\Default*{lightgray!30}%\vspace{-.3\baselineskip}
 }{%
-  \keyval@1{color}\Default*{lightgray!30}\vspace{-.3\baselineskip}
+  \keyval@1{color}\Default*{lightgray!30}%\vspace{-.3\baselineskip}
 }{{assigned seat background color}}
-
+%
 \ldeen*{%
   \keyval-@1{Farbe}\Default{black}
 }{%
   \keyval@1{color}\Default{black}
 }{{assigned seat border color}}
-
+%
 \ldeen{%
   Legt die Farben für den Hintergrund und die Umrandung von leeren bzw.\ durch
   ein Sitzschema belegten Sitzen fest.
@@ -365,19 +363,19 @@ They can also be set later using @1; see Section~@2.
   package.
   If the seats should not be differentiated by color, the keys
 }
-
+%
 \ldeen*{%
   \keyval-@1{Farbe}\Default*\vspace{-.3\baselineskip}
 }{%
   \keyval-@1{color}\Default*\vspace{-.3\baselineskip}
 }{{seat background color}}
-
+%
 \ldeen*{%
-  \keyval-@1{Farbe}\Default
+  \keyval-@1{Farbe}
 }{%
-  \keyval-@1{color}\Default
+  \keyval-@1{color}
 }{{seat border color}}
-
+%
 \ldeen{%
   verwendet werden.
 }{%
@@ -385,11 +383,11 @@ They can also be set later using @1; see Section~@2.
 }
 
 \ldeen*{%
-  \keyval@1{Fontbefehl}\Default*{@2}\vspace{-.3\baselineskip}
+  \keyval@1{Fontbefehl}\Default*{@2}%\vspace{-.3\baselineskip}
 }{%
-  \keyval@1{font command}\Default*{@2}\vspace{-.3\baselineskip}
+  \keyval@1{font command}\Default*{@2}%\vspace{-.3\baselineskip}
 }{{assigned seat label font}}{\cs*{small}}
-
+%
 \ldeen*{%
   \keyval-@1{Farbe}\Default{black}
 }{%
@@ -421,8 +419,8 @@ They can also be set later using @1; see Section~@2.
   @1, @2, @3, and @4,
   after the \env*{seatingchart} environment has begun.
 }{\option{room}}{\option{shape}}{\option{rows}}{\option{seats per row}}{\ref{sec:class-options}}
-
 \end{commands}
+
 \subsection{\ldeen{Modifikation des Sitzlayouts}{Modifying the Seat Layout}}
 \label{sec:modify-layout}
 \ldeen{%
@@ -448,7 +446,7 @@ For this purpose, \pkg\ provides the following commands:
 }{%
   @1[\marg{row}\marg{seat number}]
 }{\command{scRemoveSeatAt}}
-
+%
 \ldeen{%
   Entfernt den Sitz \meta{Sitznummer} in der Reihe \meta{Reihe} aus dem
   Layout. Dabei beziehen sich \meta{Reihe} und \meta{Sitznummer} auf das
@@ -465,7 +463,7 @@ For this purpose, \pkg\ provides the following commands:
 }{%
   @1[\marg{list}]
 }{\command{scRemoveSeats}}
-
+%
 \ldeen*{%
   Entfernt alle in der Liste vorkommenden Sitze aus dem Layout. Die Liste enthält
   dabei kommaseparierte Einträge der Form
@@ -490,7 +488,7 @@ For this purpose, \pkg\ provides the following commands:
 }{%
   @1[\Oarg{\meta{start row}-\meta{end row}}\marg{seat number}]
 }{\command{scSetAisle}}
-
+%
 \ldeen*{%
   %\Default{\meta{erste Reihe}-\meta{letzte Reihe}}
   An der Stelle von \meta{Sitznummer} wird durch alle Reihen ein Gang eingefügt. Nutzen Sie das
@@ -513,8 +511,8 @@ For this purpose, \pkg\ provides the following commands:
   seating schemes may treat aisles created via @2 differently
   than those created with @1.
 }{\cs*{scRemoveSeats}}{\cs*{scSetAisle}}
-
 \end{commands}
+
 \subsection{\ldeen{Ausgabe}{Output}}
 \label{sec:drawing}
 \begin{commands}
@@ -523,7 +521,7 @@ For this purpose, \pkg\ provides the following commands:
 }{%
   @1[\Oarg{seat width=\meta{width}, seat height=\meta{height}}]
 }{\command{scDrawSeating}}
-
+%
 \ldeen*{%
   Gibt den Sitzplan vorzeitig oder mit expliziten Abmessungen aus. Ohne einen
   Aufruf wird der Plan automatisch am Ende der \env*{seatingchart}-Umgebung
@@ -541,8 +539,8 @@ For this purpose, \pkg\ provides the following commands:
   Since this may not always meet all needs, the optional argument allows
   the width and height of the seats on the plan to be adjusted individually.
 }{\thepkg}
-
 \end{commands}
+
 \ldeen{%
 Das folgende Beispiel zeigt den Code und das Ergebnis für ein einfaches Sitzplanlayout
 mit einem Mittelgang und zwei fehlenden Sitzen in der ersten Reihe.
@@ -563,6 +561,7 @@ with a central aisle and two missing seats in the first row.
     \end{seatingchart}
   \end{document}
 \end{example}
+
 \section{\ldeen{Sitzplatzbelegung}{Seat Assignment}}
 \label{sec:seat-assignment}
 \subsection{\ldeen{Parameter zur Konstruktion von Belegungsschemata}{Parameters for Constructing Assignment Schemes}}
@@ -580,17 +579,16 @@ To define such a scheme, the command
 
 \begin{commands}
 \ldeen*{%
-  @1[\oarg{Schlüsselliste}\marg{Name}] \vspace{-1.3\baselineskip}
+  @1[\oarg{Schlüsselliste}\marg{Name}] %\vspace{-1.3\baselineskip}
 }{%
-  @1[\oarg{key list}\marg{name}] \vspace{-1.7\baselineskip}
+  @1[\oarg{key list}\marg{name}] %\vspace{-1.7\baselineskip}
 }{\command{scSeatingScheme}}
-
 \ldeen*{%
   @1[\sarg\oarg{Schlüsselliste}\marg{Schema}]
 }{%
   @1[\sarg\oarg{key list}\marg{pattern}]
 }{\command{scSeatingScheme}}
-
+%
 \ldeen*{%
 Das Pflichtargument enthält in der Standardvariante des Befehls eine Bezeichnung
 für ein vorgegebenes Sitzschema, siehe Abschnitt~@1.
@@ -607,15 +605,15 @@ describing (the beginning of) a row assignment pattern, where
 @2 denotes an occupied seat and @3 an empty one.
 If the string is shorter than the number of seats in a row, it will be repeated.
 }{\ref{sec:defined-schemes}}{\code{X}}{\code{-}}
-
 \end{commands}
 \ldeen{%
 Beispielsweise wird mit
 }{%
 For example,
 }
-
-\begin{quote}\code{\string\scSeatingScheme*\{X--\}}\end{quote}
+\begin{example}[code-only]
+\string\scSeatingScheme*{X--}
+\end{example}\vspace{-1.3\baselineskip}
 \ldeen{%
 jeder dritte Sitz belegt.
 }{%
@@ -641,7 +639,7 @@ in the standard one.
 }{%
   \keyval-@1{number}\Default{2}
 }{{row sep}}
-
+%
 \ldeen{%
   Legt fest, in jeder wievielten Reihe Sitze belegt werden.
 }{%
@@ -653,19 +651,19 @@ in the standard one.
 }{%
   \keyval-@1{row}
 }{{start row}}
-
+%
 \ldeen{Erste Reihe, auf die das Belegungsschema angewendet wird.}{%
   First row to be included in the assignment.}
-
+%
 \ldeen*{%
   \keyval-@1{Nummer}\Default{\meta{Anzahl Reihen}}
 }{%
   \keyval-@1{row}
 }{{end row}}
-
+%
 \ldeen{Letzte Reihe, auf die das Belegungsschema angewendet wird.}{%
   Last row to be included in the assignment.}
-
+%
 \ldeen{%
   Durch diese beiden Schlüssel wird gesteuert, in welchen Reihen ein Schema
   angewendet wird. Dadurch können unterschiedliche Schemata für verschiedene
@@ -674,13 +672,13 @@ in the standard one.
   Together, these keys control the rows to which a scheme is applied. This
   allows different schemes to be used for different rows.
 }
-
+%
 \ldeen*{%
   \keyval-@1{Anzahl}\Default
 }{%
  \keyval-@1{number}\Default
 }{{row restart after}}
-
+%
 \ldeen*{%
   Das Sitzschema wird nach \meta{Anzahl} Reihen zurückgesetzt. Damit wird es
   möglich, alternanierende Reihenabstände zu erzielen, vergleiche Beispiel in
@@ -689,13 +687,13 @@ in the standard one.
   Resets the seat pattern after \meta{number} rows. This allows for alternating
   row spacing; see the example in Section~@1.
 }{\ref{sec:ex:own1}}
-
+%
 \ldeen*{%
   \keyval-@1{Anzahl}\Default{1}
 }{%
   \keyval-@1{number}\Default{1}
 }{{aisle counts}}
-
+%
 \ldeen{%
   Legt fest, wie viele Sitze ein Gang zählt. Dadurch kann berücksichtigt werden,
   dass ein Gang häufig breiter als ein Sitzplatz ist.
@@ -703,8 +701,8 @@ in the standard one.
   Specifies how many seats wide an aisle should be considered. This allows
   for wider aisles to be taken into account.
 }
-
-  \keybool{aisle restarts scheme}\Default{false}
+%
+\keybool{aisle restarts scheme}\Default{false}
 \ldeen{%
   Startet das Schema nach einem Gang erneut. Der Schlüssel \option*{aisle
     counts} wird damit wirkungslos.
@@ -712,9 +710,9 @@ in the standard one.
   Restarts the scheme after an aisle. In that case, the \option*{aisle counts}
   key has no effect.
 }
-
-  \keybool{ignore aisle}\Default*{false}\vspace{-.3\baselineskip}
-  \keybool{ignore removed seats}\Default{false}
+%
+\keybool{ignore aisle}\Default*{false}\vspace{-.3\baselineskip}
+\keybool{ignore removed seats}\Default{false}
 \ldeen*{%
   Bei der Zählung von Sitzen, die im Platzlabel genutzt werden kann (vgl.\
   Abschnitt~@1) werden auch entfernte Sitze und Gänge
@@ -730,13 +728,13 @@ in the standard one.
   If one of these keys is set, aisles or removed seats are no longer counted.
   This is particularly useful in curved layouts.
 }{\ref{sec:seat-label}}
-
+%
 \ldeen*{%
   \keyval@1{Formatzeichenkette}\Default{m\{\{\string\,\}\}D}
 }{%
   \keyval@1{format string}\Default{m{{\,}}D}
 }{{assigned seat label}}
-
+%
 \ldeen*{%
   Über diesen Schlüssel kann festgelegt werden, wie die belegten Sitze
   beschriftet werden. Voreingestellt ist die Nummer der Reihe, gefolgt von einem
@@ -750,8 +748,8 @@ in the standard one.
   (e.g., \enquote{3\,c}). A number of other formats can be configured;
   see Section~@1 for details.
 }{\ref{sec:seat-label}}
-
 \end{options}
+
 \begin{commands}
 \ldeen*{%
 \command{scConfigScheme\marg{Schlüsselliste}}
@@ -762,7 +760,6 @@ führt aber keine Zuweisung von Sitzen aus.
 Sets keys just like the optional argument of @1,
 but does not assign seats.
 }{\cs*{scSeatingScheme}}
-
 \end{commands}
 \ldeen*{%
 Schlüsselwerte, die durch @1 oder @2
@@ -962,13 +959,13 @@ but it can support table generation (e.g., using \LaTeX\ or a spreadsheet applic
     @1[\oarg{Eingabedatei}\marg{Ausgabedatei}]\vspace{-1.3\baselineskip}
 }{%
   @1[\oarg{input file}\marg{output file}]\vspace{-1.3\baselineskip}
-}{\command{scSeatingList}}
+}{\command{scGenerateSeatingList}}
 
 \ldeen*{%
     @1[\sarg\oarg{Eingabedatei}\marg{Ausgabedatei}]
 }{%
   @1[\sarg\oarg{input file}\marg{output file}]
-}{\command{scSeatingList}}
+}{\command{scGenerateSeatingList}}
 
 \ldeen{%
     Erstellt eine CVS-Datei \meta{Ausgabedatei} mit den Labels der belegten
@@ -1026,6 +1023,116 @@ but it can support table generation (e.g., using \LaTeX\ or a spreadsheet applic
   @1\ will report which entries could not be assigned a seat.
 }{\thepkg}
 
+\end{commands}
+\subsection{\ldeen{Beschriftungen aus einer Datei einlesen}{Importing Labels from a File}}
+\label{sec:seats-import}
+\ldeen{%
+Namen, Kennungen oder andere Beschriftungen können aus einer CSV-Datei direkt
+in den Sitzplan übernommen werden.
+}{%
+Names, identifiers, or other labels can be imported directly into the seating
+plan from a CSV file.
+}
+\ldeen{%
+Es empfiehlt sich, zunächst nur das Layout und das Belegungsschema zu erstellen
+und die Platzbezeichner im Plan anzeigen zu lassen.
+}{%
+It is advisable to first create only the layout and seating scheme and display
+the seat designators in the plan.
+}
+\ldeen*{%
+Für absolute Platznummern dient dazu @1, für Koordinaten beispielsweise @2.
+Erst anhand dieses Kontrollplans sollte die Eingabedatei erstellt und danach
+mit @3 eingelesen werden.
+}{%
+Use @1 for absolute seat numbers, or, for example, @2 for coordinates.
+Only after checking this reference plan should the input file be prepared and
+then imported with @3.
+}{\option*{assigned seat label=l}}{\option*{assigned seat label=m{{,}}n}}{\cs*{scLoadSeatingList}}
+
+\begin{commands}
+\ldeen*{%
+  @1[\oarg{Schlüsselliste}\marg{Eingabedatei}]
+}{%
+  @1[\oarg{key list}\marg{input file}]
+}{\command{scLoadSeatingList}}
+\ldeen{%
+Die Anweisung liest die Beschriftungen aus \meta{Eingabedatei} ein und stellt
+die Beschriftungsformatierung automatisch auf \code{l}, damit der importierte
+Text auf dem jeweiligen Sitz ausgegeben wird.
+}{%
+The command imports labels from \meta{input file} and automatically changes the
+label format to \code{l}, so that the imported text is shown on its seat.
+}
+\begin{options}
+  \keychoice{mode}{sequential,seat,coordinates}\Default{sequential}
+\ldeen{%
+Wählt die Art der Zuordnung zwischen den Datensätzen der Eingabedatei und den
+Plätzen im Layout.
+}{%
+Selects how records in the input file are mapped to seats in the layout.
+}
+\ldeen{%
+Der Wert \code{sequential} ordnet die Datensätze fortlaufend den bereits
+belegten Plätzen zu.
+}{%
+The value \code{sequential} assigns records successively to seats that are
+already occupied.
+}
+\ldeen{%
+Der Wert \code{seat} erwartet die absolute Platznummer in der ersten
+CSV-Spalte.
+}{%
+The value \code{seat} expects the absolute seat number in the first CSV column.
+}
+\ldeen{%
+Der Wert \code{coordinates} erwartet die absolute Reihe und die Platznummer
+innerhalb dieser Reihe in den ersten beiden CSV-Spalten.
+}{%
+The value \code{coordinates} expects the absolute row and the seat number
+within that row in the first two CSV columns.
+}
+
+  \keybool{header}\Default{false}
+\ldeen{%
+Gibt an, ob die erste nichtleere Zeile der Eingabedatei eine Kopfzeile ist und
+daher beim Einlesen übersprungen werden soll.
+}{%
+Specifies whether the first non-empty line of the input file is a header row
+and should therefore be skipped during import.
+}
+\end{options}
+
+\ldeen{
+  Das folgende Beispiel zeigt eine Datei mit absoluten Koordinaten und einem Header.}{
+  The following example shows a file with absolute coordinates and a header.
+}
+\begin{example}[code-only]
+  row,seat,label
+  1,3,Alice
+  2,1,"Bob, ID 123"
+\end{example}
+\ldeen{
+  Entsprechend sollte zum Einlesen folgende Optionen genutzt werden.}{
+  Accordingly, the following options should be used.
+  }
+\begin{example}[code-only]
+  \scLoadSeatingList[mode=coordinates,header]{participants.csv}
+\end{example}
+\ldeen{%
+  In beiden adressierten Modi dürfen auch bislang leere Plätze belegt werden;
+  entfernte Plätze und Gänge bleiben dagegen unverändert.
+}{%
+  In both addressed modes, seats that were previously empty may be assigned;
+  removed seats and aisles remain unchanged.
+}
+\ldeen{%
+CSV-Felder können wie üblich in doppelte Anführungszeichen eingeschlossen werden.
+Um ein doppeltes Anführungszeichen innerhalb eines Feldes darzustellen, muss es verdoppelt werden.
+}{%
+CSV fields may be enclosed in double quotes. A double quote inside a field is
+escaped by doubling it.
+}
 \end{commands}
 \section{\ldeen{Beispiele}{Examples}}
 \label{sec:examples}
@@ -1180,7 +1287,7 @@ Two commands can be used in @1 files:
 }{%
 @1[\marg{room name}\marg{key list}]
 }{\command{scDeclareRoom}}
-
+%
 \ldeen{%
   Ein neues Raumlayout wird für den Raum \meta{Raumbezeichnung} angelegt.
   Die Schlüsselliste \emph{muss} die drei Schlüssel
@@ -1195,19 +1302,19 @@ The key list \emph{must} contain the three keys
 }{%
 \keychoice@1{rectangle,arc}\Default*!{}%\vspace{-.3\baselineskip}
 }{{shape}}
-
+%
 \ldeen*{%
     \keyval-@1{Anzahl der Sitzreihen}\Default*!{}%\vspace{-.3\baselineskip} und
 }{%
 \keyval-@1{number of rows}\Default*!{}%\vspace{-.3\baselineskip} and
 }{{rows}}
-
+%
 \ldeen*{%
     \keyval-@1{Sitze pro Sitzreihe}\Default!{}
 }{%
 \keyval-@1@1\Default!{}
 }{{seats per row}}
-
+%
 \ldeen*{%
     enthalten, die die analoge Bedeutung zu den
     gleichnamigen Schlüsseln aus Abschnitt~@1 haben.
@@ -1229,13 +1336,13 @@ The layout can then be adjusted using
 }{%
 \keyval-@1{seat number}\vspace{-1.3\baselineskip}
 }{{aisle}}
-
+%
 \ldeen*{%
     \keyval@1{Liste}
 }{%
 \keyval@1{list}
 }{{remove}}
-
+%
 \ldeen*{%
     das Layout angepasst werden. Die beiden Schlüssel funktionieren analog zu
     @1 und @2, vgl.\ Abschnitt~@3.
@@ -1243,7 +1350,6 @@ The layout can then be adjusted using
 These two keys function analogously to
 @1 and @2, see Section~@3.
 }{\cs*{scSetAisle}}{\cs*{scRemoveSeats}}{\ref{sec:modify-layout}}
-
 \end{options}
 
 \begin{example}[code-only]
@@ -1262,13 +1368,12 @@ These two keys function analogously to
 }{%
 @1[\marg{alias}\marg{room}]
 }{\command{scAliasRoom}}
-
+%
 \ldeen{%
   Setzt \meta{Aliasname} als einen Ersatznamen für \meta{Originalname}.
 }{%
 Sets \meta{alias} as a replacement name for \meta{room}.
 }
-
 \end{commands}
 \ldeen{%
   Wenn Sie wünschen, dass eine Layoutdatei ihrer Institution Bestandteil des
@@ -1316,22 +1421,35 @@ neue Dokumente sollten die \env*{seatingchart}-Umgebung verwenden.
 The compatibility mode is intended for migrating existing sources; new
 documents should use the \env*{seatingchart} environment.
 }
+\ldeen*{%
+Nur in diesem Modus steht der frühere Name @1 als Alias für @2 zur Verfügung.
+}{%
+Only in this mode is the former name @1 available as an alias for @2.
+}{\cs*{scSeatingList}}{\cs*{scGenerateSeatingList}}
 
 \section{\ldeen{Beschränkungen und Bugs}{Limitations and Bugs}}
 \label{sec:bugs}
 \ldeen*{%
 Auch wenn das @1-Paket zumindest in unserer Gruppe im praktischen Einsatz
-ist, ist es als experimentell zu betrachten.
-Die @2 in der Hauptversionsnummer deutet diesen Umstand an.
-Er bedeutet insbesondere, dass sich die API noch ändern kann.
+ist, ist es noch als experimentell zu betrachten.
+Das @2 in der Versionsnummer deutet diesen Umstand an.
 }{%
 Even though the @1 package is in practical use, at least in our group, it
-should be considered experimental.
-The @2 in the major version number indicates this fact.
-In particular, it means that the API may still subject to change.
-}{\thepkg}{\code{0}}
+should still be considered experimental.
+The @2 in the version number indicates this fact.
+}{\thepkg}{\code{beta}}
 
-\ldeen{%
+\ldeen{Es gibt eine Reihe von Einschränkungen, u.\,a.:}{There are a number of restrictions, including, among others:}
+\begin{itemize}[nosep]
+\item \ldeen{
+  Verschiedene Sitzlayouts können nicht dargestellt werden. 
+  Beispielsweise sind keine versetzten Sitzreihen oder typische Konferenzanordnungen möglich.}{
+    Several seating arrangements cannot be accommodated.
+  For example, staggered rows or typical conference layouts are not possible.
+}
+\item \ldeen*{Der Winkel für das bogenförmige Layout ist auf @1 beschränkt.}{%
+  The angle for the curved layout is limited to @1.}{$120^{\circ}$}
+\item \ldeen{%
 Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
 Es besteht die Absicht, in künftigen Patches weitere Räume der TU~Chemnitz
 aufzunehmen.
@@ -1341,7 +1459,7 @@ The number of predefined rooms is currently relatively small.
 There are plans to include additional rooms at TU Chemnitz in future patches.
 Layout files from other institutions are welcome.
 }
-
+\end{itemize}
 \ldeen{%
 Bitte nutzen Sie für Bugs-Reports oder Pull-Requests GitHub:
 \url{https://github.com/tuc-osg/seatingchart}.
@@ -1367,13 +1485,14 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 %% Revisions:
 %% 2025-07-25:  First public version
 %% 2026-06-05:  Fix interaction with babel (#2)
-%% 2026-07-22:  change to environment and revise build 
+%% 2026-07-22a: Change to environment
+%% 2026-07-22b: Add input list, rivise docunentation => 1.0.0beta
 %% 
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 
 \ProvidesExplPackage{seatingchart}
 {2026/07/22}
-{v0.6.0}
+{1.0.0beta}
 {Generation of seating plans}
 \def\packagename{seatingchart}
 
@@ -1687,7 +1806,7 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 \newcount\scnumofseats
 \newtoggle{scfoundassigned}
 
-\NewDocumentCommand{\scSeatingList}{s o m}{
+\NewDocumentCommand{\scGenerateSeatingList}{s o m}{
   \luadirect{getNumberOfSeats()}
   \togglefalse{scfoundassigned}
   \loop
@@ -1710,6 +1829,27 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
    }{
      \luadirect{generateSeatList(\luastring{#3}, nil, \sccoor)}
    }
+}
+\DeclareKeys[scseatinginput]{
+  mode.choice:,
+  mode/sequential.code:n = {\def\sc@inputmode{sequential}},
+  mode/seat.code:n = {\def\sc@inputmode{seat}},
+  mode/coordinates.code:n = {\def\sc@inputmode{coordinates}},
+  mode.initial:n = sequential,
+  header.if = sc@inputheader,
+  header.initial:n = false
+}
+\NewDocumentCommand{\scLoadSeatingList}{O{}m}{
+  % Each invocation starts with the documented defaults; key settings from an
+  % earlier import in the same seatingchart must not leak into this one.
+  \def\sc@inputmode{sequential}%
+  \sc@inputheaderfalse
+  \SetKeys[scseatinginput]{#1}%
+  % Imported values are the labels to display, independently of the label
+  % format previously used to inspect the seat designators.
+  \scConfigScheme{assigned~seat~label=l}%
+  \luadirect{loadSeatingList(\luastring{#2},
+    \luastring{\sc@inputmode},\ifsc@inputheader true\else false\fi)}%
 }
 \ExplSyntaxOff
 
@@ -1959,7 +2099,8 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 \let\sc@active@SetAisle\scSetAisle
 \let\sc@active@Config\scConfig
 \let\sc@active@DrawSeating\scDrawSeating
-\let\sc@active@SeatingList\scSeatingList
+\let\sc@active@GenerateSeatingList\scGenerateSeatingList
+\let\sc@active@LoadSeatingList\scLoadSeatingList
 \let\sc@active@ConfigScheme\scConfigScheme
 \let\sc@active@SeatingScheme\scSeatingScheme
 
@@ -1970,7 +2111,8 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   \let\scSetAisle\sc@active@SetAisle
   \let\scConfig\sc@active@Config
   \let\scDrawSeating\sc@active@DrawSeating
-  \let\scSeatingList\sc@active@SeatingList
+  \let\scGenerateSeatingList\sc@active@GenerateSeatingList
+  \let\scLoadSeatingList\sc@active@LoadSeatingList
   \let\scConfigScheme\sc@active@ConfigScheme
   \let\scSeatingScheme\sc@active@SeatingScheme
 }
@@ -1981,7 +2123,8 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   \let\scSetAisle\sc@outsideenvironmenterror
   \let\scConfig\sc@outsideenvironmenterror
   \let\scDrawSeating\sc@outsideenvironmenterror
-  \let\scSeatingList\sc@outsideenvironmenterror
+  \let\scGenerateSeatingList\sc@outsideenvironmenterror
+  \let\scLoadSeatingList\sc@outsideenvironmenterror
   \let\scConfigScheme\sc@outsideenvironmenterror
   \let\scSeatingScheme\sc@outsideenvironmenterror
 }
@@ -2036,6 +2179,7 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 \iftoggle{sc@legacy}{%
   \toggletrue{sc@active}%
   \sc@enablecommands
+  \let\scSeatingList\scGenerateSeatingList
   \scInitSeating
   \sc@layoutactions
 }{%
@@ -2048,7 +2192,7 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   Date:
   2026-07-22
   Version:
-  v0.6.0
+  1.0.0beta
 ]]
 Seat = {
    id = nil,
@@ -2320,6 +2464,109 @@ function saveTextLabel(ndx)
 	    local rep = n.replace
 	    AllSeats[ndx].textlabel=AllSeats[ndx].textlabel..string.char(rep.char)
 	 end
+      end
+   end
+end
+
+local function parseCSVLine(line)
+   local fields={}
+   local field={}
+   local quoted=false
+   local index=1
+   while index <= #line do
+      local char=string.sub(line,index,index)
+      if char == '"' then
+         if quoted and string.sub(line,index+1,index+1) == '"' then
+            table.insert(field,'"')
+            index=index+1
+         else
+            quoted=not quoted
+         end
+      elseif char == ',' and not quoted then
+         table.insert(fields,table.concat(field))
+         field={}
+      else
+         table.insert(field,char)
+      end
+      index=index+1
+   end
+   table.insert(fields,table.concat(field))
+   return fields
+end
+
+local function trim(value)
+   return (string.gsub(value,"^%s*(.-)%s*$","%1"))
+end
+
+local function seatingInputLabel(fields,first)
+   local labels={}
+   for index=first,#fields do
+      table.insert(labels,trim(fields[index]))
+   end
+   return table.concat(labels,", ")
+end
+
+local function setImportedLabel(seat,label)
+   if seat == nil or seat.kind == SEATREMOVED or seat.kind == AISLE then
+      return false
+   end
+   seat.kind=SEATASSIGNED
+   seat.label=label
+   return true
+end
+
+function loadSeatingList(filename,mode,header)
+   local input=io.open(filename,"r")
+   if not input then
+      tex.sprint("\\PackageError{\\packagename}{Can't read seating input file}{Check the file name and path.}")
+      return
+   end
+
+   local records={}
+   for line in input:lines() do
+      line=string.gsub(line,"\r$","")
+      if line ~= "" then
+         table.insert(records,parseCSVLine(line))
+      end
+   end
+   input:close()
+   if header and #records > 0 then
+      table.remove(records,1)
+   end
+
+   if mode == "sequential" then
+      local record=1
+      for _,seat in ipairs(AllSeats) do
+         if seat.kind == SEATASSIGNED and records[record] ~= nil then
+            seat.label=seatingInputLabel(records[record],1)
+            record=record+1
+         end
+      end
+      if record <= #records then
+         texio.write_nl("term and log","Package seatingchart Warning: "..
+            tostring(#records-record+1).." seating input record(s) could not be assigned")
+      end
+      return
+   end
+
+   for record,fields in ipairs(records) do
+      local seat
+      local label
+      if mode == "seat" then
+         seat=AllSeats[tonumber(trim(fields[1] or ""))]
+         label=seatingInputLabel(fields,2)
+      elseif mode == "coordinates" then
+         local row=tonumber(trim(fields[1] or ""))
+         local col=tonumber(trim(fields[2] or ""))
+         if row and col and row >= 1 and row <= AllSeats.rows and
+            col >= 1 and col <= AllSeats.cols then
+            seat=AllSeats[(row-1)*AllSeats.cols+col]
+         end
+         label=seatingInputLabel(fields,3)
+      end
+      if not setImportedLabel(seat,label) then
+         texio.write_nl("term and log","Package seatingchart Warning: seating input record "..
+            tostring(record).." refers to an unavailable seat")
       end
    end
 end

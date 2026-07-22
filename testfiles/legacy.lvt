@@ -5,6 +5,12 @@
 \begin{document}
 \START
 
+\ifx\scSeatingList\scGenerateSeatingList
+  \TYPE{OLD-NAME=LEGACY-ALIAS}
+\else
+  \TYPE{OLD-NAME=LEGACY-NOT-ALIAS}
+\fi
+
 \makeatletter
 \RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
 \let\scDrawSeating\sc@active@DrawSeating

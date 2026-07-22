@@ -13,7 +13,7 @@ This package should be considered experimental and requires LuaLaTeX.
 `l3build install --full`
 
 ## Documentation
-See `seatingchart-en.pdf` (English) or `seatingchart-de.pdf` (German)
+See `seatingchart-en.pdf` (English) or `seatingchart-de.pdf` (German).
 
 
 ## License

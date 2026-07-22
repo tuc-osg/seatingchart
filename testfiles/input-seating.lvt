@@ -1,0 +1,46 @@
+\input regression-test.tex
+\documentclass{article}
+\usepackage{seatingchart}
+
+\begin{document}
+\START
+
+\ifdefined\scSeatingList
+  \TYPE{OLD-NAME=NORMAL-DEFINED}
+\else
+  \TYPE{OLD-NAME=NORMAL-UNDEFINED}
+\fi
+
+\makeatletter
+\RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
+\makeatother
+
+\begin{luacode*}
+  function sc_test_input(name)
+    local values={}
+    for index,seat in ipairs(AllSeats) do
+      if seat.kind == SEATASSIGNED then
+        table.insert(values,string.format("%d:%s",index,seat.label))
+      end
+    end
+    texio.write_nl("log",name .. "=" .. table.concat(values,"|"))
+  end
+\end{luacode*}
+
+\begin{seatingchart}[shape=rectangle,rows=1,seats per row=4]
+  \scSeatingScheme*{X-}
+  \scLoadSeatingList{input-sequential.csv}
+  \directlua{sc_test_input("SEQUENTIAL")}
+\end{seatingchart}
+
+\begin{seatingchart}[shape=rectangle,rows=1,seats per row=4]
+  \scLoadSeatingList[mode=seat,header]{input-seats.csv}
+  \directlua{sc_test_input("SEAT")}
+\end{seatingchart}
+
+\begin{seatingchart}[shape=rectangle,rows=2,seats per row=3]
+  \scLoadSeatingList[mode=coordinates]{input-coordinates.csv}
+  \directlua{sc_test_input("COORDINATES")}
+\end{seatingchart}
+
+\END
