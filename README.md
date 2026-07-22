@@ -7,7 +7,7 @@ seating layouts (i.e. the arrangement of seats in a room) and the
 seating scheme (i.e. the selection and labeling of occupied seats) can
 be controlled independently of each other. 
 
-This package should be considered experimental and requires LuaLaTeX.
+This package requires LuaLaTeX.
 
 ## Installation
 `l3build install --full`
