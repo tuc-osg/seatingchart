@@ -1,4 +1,3 @@
--- Build configuration for seatingchart
 module = "seatingchart"
 
 checkengines = { "luatex" }
@@ -24,12 +23,34 @@ typesetsuppfiles = {
   "*.cls"
 }
 
+--[[ 
+  Include the ready-to-install tree in the CTAN upload.  In particular, this
+  carries the files generated from the dtx source (.sty, .lua, and .sc). 
+]]
+packtdszip = true
+
+
+
 docfiles = {
-  "*.dtx",
-  "*.pdf",
-  "README.md",
+  "seatingchart-en.pdf",
+  "seatingchart-de.pdf",
+  "seatingchart-example.pdf",
   "seatingchart-example.tex",
   "example-infile.csv"
+}
+
+--[[ 
+  build.lua should be part of the release sources so that the unpacked CTAN archive
+  can run the same documentation and regression-test targets. 
+]]
+textfiles = {
+  "README.md",
+  "build.lua"
+}
+
+excludefiles = {
+  "*~",
+  "config-*.lua"
 }
 
 cleanfiles = {
@@ -43,8 +64,10 @@ cleanfiles = {
 
 tagfiles = { "seatingchart.dtx" }
 
--- The documentation is maintained in one bilingual .dtx source. langselect
--- obtains the target language from the second component of the job name.
+--[[ 
+  The documentation is maintained in one bilingual .dtx source,
+  langselect obtains the target language from the second component of the job name. 
+]]
 function typeset(file, dir, cmd)
   dir = dir or "."
   local extension = file:match("%.([^.]*)$")
@@ -74,6 +97,22 @@ function typeset(file, dir, cmd)
     end
   end
 
+--[[ 
+  l3build normally derives *one* PDF name from each typeset source.
+  However, we use langselect. Thus, the dtx driver deliberately
+  creates one PDF *per language* (in this case English and German).
+  Thus, we publish both names explicitly where the CTAN collector
+  expects documentation files. 
+]]
+  if extension == "dtx" then
+    for _, job in ipairs(jobs) do
+      local errorlevel = cp(job .. ".pdf", dir, docfiledir)
+      if errorlevel ~= 0 then
+        return errorlevel
+      end
+    end
+  end
+
   return 0
 end
 
@@ -90,6 +129,75 @@ function rerun_needed(job, dir)
     or log:find("There were undefined references")
     or log:find("Rerun LaTeX")
 end
+
+--[[ 
+  Preserve the development layout for files which l3build does not normally
+  ship in a CTAN source archive.  Keeping these directories intact makes the
+  extracted archive immediately usable with `l3build check` and `l3build doc`. 
+]]
+local l3build_copyctan = copyctan
+function copyctan()
+  local errorlevel = l3build_copyctan()
+  if errorlevel and errorlevel ~= 0 then
+    return errorlevel
+  end
+
+  local package_dir = ctandir .. "/" .. ctanpkg
+  local release_dirs = {
+    { source = supportdir, target = package_dir .. "/support",
+      patterns = { "*.sty", "*.cls" } },
+    { source = testfiledir, target = package_dir .. "/testfiles",
+      patterns = { "*.lvt", "*.tlg" } },
+    { source = testsuppdir, target = package_dir .. "/testfiles/support",
+      patterns = { "*.csv" } }
+  }
+
+  for _, directory in ipairs(release_dirs) do
+    mkdir(directory.target)
+    for _, pattern in ipairs(directory.patterns) do
+      errorlevel = cp(pattern, directory.source, directory.target)
+      if errorlevel ~= 0 then
+        return errorlevel
+      end
+    end
+  end
+
+  return 0
+end
+
+--[[
+  Collect all user-facing artifacts in build/result instead of leaving
+  generated files in the package root.
+]]
+local l3build_ctan = ctan
+function ctan()
+  local errorlevel = l3build_ctan()
+  if errorlevel ~= 0 then
+    return errorlevel
+  end
+
+  mkdir(resultdir)
+  local artifacts = {
+    { name = "seatingchart-en.pdf", source = docfiledir },
+    { name = "seatingchart-de.pdf", source = docfiledir },
+    { name = "seatingchart-example.pdf", source = docfiledir },
+    { name = ctanzip .. ".zip", source = ctandir },
+    { name = ctanpkg .. ".tds.zip", source = tdsdir }
+  }
+  for _, artifact in ipairs(artifacts) do
+    if fileexists(artifact.source .. "/" .. artifact.name) then
+      rm(resultdir, artifact.name)
+      cp(artifact.name, artifact.source, resultdir)
+    end
+    rm(currentdir, artifact.name)
+  end
+
+  return 0
+end
+
+-- target_list captures the original function before build.lua is loaded.
+-- Point the public target explicitly at the wrapper above.
+target_list.ctan.func = ctan
 
 local function update_lua_tag(content, tagname, tagdate)
   local updated = content:gsub(
@@ -111,8 +219,10 @@ function update_tag(file, content, tagname, tagdate)
     print("Set tagname to '" .. tagname .. "'")
   end
 
-  -- l3build passes --date through without validation or normalisation. Accept
-  -- both common input forms and derive the format required by each target.
+  --[[
+    l3build passes --date through without validation or normalisation. 
+    We accept both common input forms and derive the format required by each target.
+  ]]
   local iso_date = tagdate:gsub("/", "-")
 
   if file:match("%.lua$") then
@@ -129,9 +239,12 @@ function update_tag(file, content, tagname, tagdate)
       1
     )
 
-    -- Lua has no \Provides... declaration. Restrict its independent metadata
-    -- update to the docstrip guard so that no other embedded file becomes a
-    -- second source for the package version.
+--[[
+  Lua has no \Provides... declaration. Restrict its independent metadata
+  update to the docstrip guard so that no other embedded file becomes a
+  second source for the package version.
+  NOTE: Has to be adapted in case of several lua files.
+]]
     updated = updated:gsub(
       "(%%<%*lua>\n)(.-)(\n%%</lua>)",
       function(opening, lua, closing)
