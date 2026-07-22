@@ -48,7 +48,6 @@ function typeset(file, dir, cmd)
   local jobs
 
   if extension == "dtx" then
-    cp("seatingchart-doc-*.tex", unpackdir, dir)
     jobs = { module .. "-en", module .. "-de" }
   else
     jobs = { file:match("([^/]+)%.[^.]+$") }

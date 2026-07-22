@@ -1,8 +1,9 @@
 \documentclass{article}
-\usepackage[shape=rectangle, rows = 9, seats per row=15]{seatingchart}
+\usepackage{seatingchart}
 \begin{document}
-  \scSetAisle{8}
-  \scRemoveSeats{{1,1},{1,2}}
-  \scSeatingScheme{2x2-}
-  \scDrawSeating
+  \begin{seatingchart}[shape=rectangle, rows=9, seats per row=15]
+    \scSetAisle{8}
+    \scRemoveSeats{{1,1},{1,2}}
+    \scSeatingScheme{2x2-}
+  \end{seatingchart}
 \end{document}
