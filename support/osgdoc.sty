@@ -1,0 +1,642 @@
+%%
+%% This is file `osgdoc.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% osgdoc.dtx  (with options: `pkg')
+%% 
+%% ========================================================================
+%%  osgdoc tools - support for documentation
+%% 
+%%  (C) 2022-2026 Matthias Werner
+%%  E-mail: matthias.werner@informatik.tu-chemnitz.de
+%% 
+%%  Released under the LaTeX Project Public License v1.3c or later
+%%  See http://www.latex-project.org/lppl.txt
+%% ========================================================================
+%% 
+\ProvidesExplPackage
+{osgdoc}
+{2026-06-11}
+{0.0.7}
+{small tools for documentation}
+\sys_if_engine_luatex:TF{
+  \def\error{}
+  \RequirePackage{luacode}
+}{
+  \def\error{\errmessage{LuaLaTeX~is~required~to~use~this~package.}\endinput}
+}
+\error
+\RequirePackage{luacode}
+\RequirePackage{fancyvrb}
+\fvset{formatcom=\color{blue},numbers=left}
+
+\begin{luacode*}
+  function texassert(v, msg)
+    if v then
+      return v
+    end
+    tex.error("Error", {msg or "assertion failed"})
+  end
+\end{luacode*}
+\NewDocumentCommand{\AutoDocInput}{O{tex} m m}{
+  \directlua{
+    autodoc.autodoc_process(
+      \luastring{#2},
+      \luastring{#3},
+      \luastring{#1}
+    )
+  }
+}
+
+\begin{luacode*}
+autodoc = autodoc or {}
+
+local verbtempfiles = {}
+local syntaxes = {
+  ["tex"] = {
+    guard_prefix = "%%",
+    comment_kind = "tex",
+  },
+
+  ["lua"] = {
+    guard_prefix = "%-%-",
+    comment_kind = "lua",
+  },
+
+  ["tex/lua"] = {
+    guard_prefix = "%%",
+    comment_kind = "lua",
+  },
+}
+
+local function get_syntax(mode)
+  mode = mode or "tex"
+
+  local syntax = syntaxes[mode]
+
+  if syntax then
+    return syntax
+  end
+
+  tex.error(
+    "AutoDocInput: unknown syntax mode `" .. tostring(mode) .. "'",
+    {
+      "Supported syntax modes are:",
+      "  tex",
+      "  lua",
+      "  tex/lua",
+    }
+  )
+
+  return syntaxes.tex
+end
+
+local function quote_pattern(text)
+  return (text:gsub("(%W)", "%%%1"))
+end
+
+local function guard_contains_symbol(expression, symbol)
+  if not expression then
+    return false
+  end
+
+  local atomchars = "%w_%-"
+  local quoted_symbol = quote_pattern(symbol)
+
+  local pattern =
+    "%f[" .. atomchars .. "]"
+    .. quoted_symbol
+    .. "%f[^" .. atomchars .. "]"
+
+  return expression:find(pattern) ~= nil
+end
+
+local function guard_expression(line, syntax, guard_kind)
+  local operator
+
+  if guard_kind == "open" then
+    operator = "%*"
+  elseif guard_kind == "close" then
+    operator = "/"
+  else
+    error("Unknown guard kind: " .. tostring(guard_kind))
+  end
+
+  return line:match(
+    "^%s*"
+    .. syntax.guard_prefix
+    .. "%s*<%s*"
+    .. operator
+    .. "%s*(.-)%s*>%s*$"
+  )
+end
+
+local function is_opening_guard(line, syntax, symbol)
+  local expression = guard_expression(line, syntax, "open")
+  return guard_contains_symbol(expression, symbol)
+end
+
+local function is_closing_guard(line, syntax, symbol)
+  local expression = guard_expression(line, syntax, "close")
+  return guard_contains_symbol(expression, symbol)
+end
+
+local function tex_comment_text(line)
+  -- A guard is not a documentation comment.
+  if line:match("^%s*%%%s*<") then
+    return nil
+  end
+
+  return line:match("^%s*%%+%s?(.*)$")
+end
+
+local function lua_line_comment_text(line)
+  -- Again: a Lua guard is not a documentation comment.
+  if line:match("^%s*%-%-%s*<") then
+    return nil
+  end
+
+  if line:match("^%s*%-%-%[(=*)%[") then
+    return nil
+  end
+
+  if line:match("^%s*%-%-%[%s*$") then
+    return nil
+  end
+
+  return line:match("^%s*%-%-+%s?(.*)$")
+end
+
+local function comment_text(line, syntax)
+  if syntax.comment_kind == "tex" then
+    return tex_comment_text(line)
+  end
+
+  return lua_line_comment_text(line)
+end
+
+
+local function lua_long_comment_start(line)
+  local equals, rest =
+    line:match("^%s*%-%-%[(=*)%[%s?(.*)$")
+
+  if equals ~= nil then
+    return {
+      pseudo = false,
+      equals = equals,
+      text = rest,
+    }
+  end
+
+  local rest_pseudo =
+    line:match("^%s*%-%-%[%s?(.*)$")
+
+  if rest_pseudo ~= nil then
+    return {
+      pseudo = true,
+      equals = "",
+      text = rest_pseudo,
+    }
+  end
+
+  return nil
+end
+
+local function lua_long_comment_line(line, long_comment)
+  if long_comment.pseudo then
+    local text = line:match("^(.-)%s*%-%-%]%s*$")
+
+    if text ~= nil then
+      return text, true
+    end
+
+    return line, false
+  end
+
+  local delimiter =
+    "%]"
+    .. quote_pattern(long_comment.equals)
+    .. "%]"
+
+  local text =
+    line:match("^(.-)%s*" .. delimiter .. "%s*$")
+
+  if text ~= nil then
+    return text, true
+  end
+
+  return line, false
+end
+
+local function unique_temp_name()
+  local name = string.format(
+    "osgdoc-%s-%04d.tmp",
+    tex.jobname,
+    #verbtempfiles + 1
+  )
+  verbtempfiles[#verbtempfiles + 1] = name
+  return name
+end
+
+function autodoc.autodoc_process(filename, guard, mode)
+  local syntax = get_syntax(mode)
+  local first = true
+  local input = io.open(filename, "r")
+
+  if not input then
+    tex.error(
+      "AutoDocInput: cannot open `" .. filename .. "'"
+    )
+    return
+  end
+  local OUTSIDE = 0
+  local OUTSIDE_VERBATIM = 1
+  local START = 2
+  local VERBATIM = 3
+  local COMMENT = 4
+  local LONG_COMMENT = 5
+
+  local state = OUTSIDE
+
+  local long_comment = nil
+  local long_comment_return_state = nil
+
+  local verbatim_file = nil
+  local verbatim_filename = nil
+
+  local line_number = 0
+
+  local function warn(message)
+    tex.warning(
+      string.format(
+        "AutoDocInput: %s in %s:%d",
+        message,
+        filename,
+        line_number
+      )
+    )
+  end
+
+  local function print_documentation(text)
+    tex.print(text or "")
+  end
+
+  local function open_verbatim(first_line)
+    if verbatim_file ~= nil then
+      tex.error(
+        "AutoDocInput: internal error",
+        {
+          string.format(
+            "Attempt to open a second verbatim file in %s:%d.",
+            filename,
+            line_number
+          )
+        }
+      )
+      return false
+    end
+
+    verbatim_filename = unique_temp_name()
+
+    verbatim_file = io.open(verbatim_filename, "w")
+
+    if not verbatim_file then
+      tex.error(
+        "AutoDocInput: cannot open temporary file",
+        {verbatim_filename}
+      )
+      verbatim_filename = nil
+      return false
+    end
+
+    verbatim_file:write(first_line, "\n")
+    return true
+  end
+
+  local function write_verbatim(line)
+    if verbatim_file == nil then
+      tex.error(
+        "AutoDocInput: internal parser error",
+        {
+          string.format(
+            "VERBATIM state without an open file in %s:%d.",
+            filename,
+            line_number
+          )
+        }
+      )
+      return false
+    end
+
+    verbatim_file:write(line, "\n")
+    return true
+  end
+
+  local function close_verbatim()
+    if verbatim_file == nil then
+      return
+    end
+
+    verbatim_file:close()
+    verbatim_file = nil
+
+    if first then
+      tex.print(
+        "\\VerbatimInput[firstnumber=1]{"
+          .. verbatim_filename
+          .. "}"
+      )
+      first = false
+    else
+      tex.print(
+        "\\VerbatimInput[firstnumber=last]{"
+          .. verbatim_filename
+          .. "}"
+      )
+    end
+    verbatim_filename = nil
+  end
+
+  local function begin_long_comment(start, return_state)
+    long_comment = start
+    long_comment_return_state = return_state
+    state = LONG_COMMENT
+
+    if start.text == "" then
+      return
+    end
+
+    local text, finished =
+      lua_long_comment_line(start.text, long_comment)
+
+    print_documentation(text)
+
+    if finished then
+      state = long_comment_return_state
+      long_comment_return_state = nil
+      long_comment = nil
+    end
+  end
+
+  for line in input:lines() do
+    line_number = line_number + 1
+
+    if state == LONG_COMMENT then
+      local text, finished =
+        lua_long_comment_line(line, long_comment)
+
+      print_documentation(text)
+
+      if finished then
+        state = long_comment_return_state
+        long_comment_return_state = nil
+        long_comment = nil
+      end
+
+    else
+      local opening =
+        is_opening_guard(line, syntax, guard)
+
+      local closing =
+        is_closing_guard(line, syntax, guard)
+
+      local documentation =
+        comment_text(line, syntax)
+
+      local long_start = nil
+
+      if syntax.comment_kind == "lua" then
+        long_start = lua_long_comment_start(line)
+      end
+
+      if state == OUTSIDE then
+        if opening then
+          state = START
+        end
+
+      elseif state == OUTSIDE_VERBATIM then
+        if opening then
+          if verbatim_file == nil then
+            tex.error(
+              "AutoDocInput: internal parser error",
+              {
+                string.format(
+                  "OUTSIDE_VERBATIM without an open file in %s:%d.",
+                  filename,
+                  line_number
+                )
+              }
+            )
+            state = START
+          else
+            state = VERBATIM
+          end
+        end
+
+      elseif state == START then
+        if closing then
+          -- Leerer Guard-Bereich; es wurde keine Datei ge^^c3^^b6ffnet.
+          state = OUTSIDE
+
+        elseif opening then
+          warn("cascading opening guards")
+
+        elseif long_start then
+          begin_long_comment(long_start, COMMENT)
+
+        elseif documentation ~= nil then
+          print_documentation(documentation)
+          state = COMMENT
+
+        else
+          if open_verbatim(line) then
+            state = VERBATIM
+          else
+            state = OUTSIDE
+          end
+        end
+
+      elseif state == VERBATIM then
+        if closing then
+          state = OUTSIDE_VERBATIM
+          -- Don't close file here! A later contiuation is possible.
+
+        elseif opening then
+          warn("cascading opening guards")
+
+        elseif long_start then
+          close_verbatim()
+          begin_long_comment(long_start, COMMENT)
+
+        elseif documentation ~= nil then
+          close_verbatim()
+          print_documentation(documentation)
+          state = COMMENT
+
+        else
+          write_verbatim(line)
+        end
+
+      elseif state == COMMENT then
+        if closing then
+          state = OUTSIDE
+
+        elseif opening then
+          warn("cascading opening guards")
+
+        elseif long_start then
+          begin_long_comment(long_start, COMMENT)
+
+        elseif documentation ~= nil then
+          print_documentation(documentation)
+
+        else
+          if open_verbatim(line) then
+            state = VERBATIM
+          else
+            state = OUTSIDE
+          end
+        end
+
+      else
+        tex.error(
+          "AutoDocInput: invalid parser state",
+          {
+            string.format(
+              "Invalid state %s in %s:%d.",
+              tostring(state),
+              filename,
+              line_number
+            )
+          }
+        )
+        break
+      end
+    end
+  end
+
+  if state == LONG_COMMENT then
+    warn("unterminated Lua long comment")
+  end
+
+  -- A file can be open in both, VERBATIM or OUTSIDE_VERBATIM
+  if verbatim_file ~= nil then
+    close_verbatim()
+  end
+
+  input:close()
+end
+
+luatexbase.add_to_callback(
+  "stop_run",
+  function()
+    for _, filename in ipairs(verbtempfiles) do
+      os.remove(filename)
+    end
+  end,
+  "cleanup osgdoc verbatim temporary files"
+)
+\end{luacode*}
+
+\NewDocumentCommand{\UseVersionOf}{m}
+{
+   \directlua{fileinfo.useversion(\luastring{#1})}
+}
+
+\NewDocumentCommand{\UseDateOf}{m}
+{
+   \directlua{fileinfo.usedate(\luastring{#1})}
+}
+
+\begin{luacode*}
+fileinfo = fileinfo or {}
+
+fileinfo.data = {}
+
+function fileinfo.getinfo(filename)
+   filename = kpse.find_file(filename)
+   local f = texassert(io.open(filename, "r"),"Can't read '"..filename.."'")
+   local s = f:read("*a")
+   f:close()
+   local ftype = nil
+   local name,date,version,descr = s:match(
+      "\\ProvidesExplPackage%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}")
+   ftype = "package"
+   if name == nil then
+      name,date,descr = s:match(
+ "\\ProvidesPackage{([^}]*)}%s*%[(%d%d%d%d[%-/]%d%d[%-/]%d%d)%s?([^%]]*)%]")
+      if name ~= nil then
+ descr = descr or "??"
+ version = descr:match("^v?(%d+[%p%d]*%l*)%s")
+      end
+   end
+
+   if name == nil then
+      name,date,version,descr = s:match(
+ "\\ProvidesExplClass%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}")
+      ftype = "class"
+      if name == nil then
+ name,date,descr = s:match(
+    "\\ProvidesClass{([^}]*)}%s*%[(%d%d%d%d[%-/]%d%d[%-/]%d%d)%s?([^%]]*)%]")
+ if name ~= nil then
+    descr = descr or "??"
+    version = descr:match("^v?(%d+(%p%d+)*%l*)%s")
+ end
+      end
+   end
+   if name == nil then
+      name,date,version,descr = s:match(
+ "\\ProvidesExplFile%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}%s*{([^}]*)}")
+      ftype = "file"
+      if name == nil then
+ name,date,descr = s:match(
+    "\\ProvidesFile{([^}]*)}%s*%[(%d%d%d%d[%-/]%d%d[%-/]%d%d)%s?([^%]]*)%]")
+ if name ~= nil then
+    descr = descr or "??"
+    version = descr:match("^v?(%d+(%p%d+)*%l*)%s")
+ end
+      end
+   end
+   if name ~= nil then
+      date = date or "??"
+      version = version or "??"
+      fileinfo.data["name"] = name
+      fileinfo.data["date"] = date
+      fileinfo.data["version"] = version
+      fileinfo.data["descr"] = descr
+      fileinfo.data["type"] = ftype
+   end
+end
+
+function fileinfo.useversion(filename)
+   if fileinfo.data["name"] == nil then
+      fileinfo.getinfo(filename)
+   end
+   local res = fileinfo.data["version"]
+   if res == nil then
+      tex.print("??")
+   else
+      tex.print(res)
+   end
+end
+
+function fileinfo.usedate(filename)
+   if fileinfo.data["name"] == nil then
+      fileinfo.getinfo(filename)
+   end
+   local res = fileinfo.data["date"]
+   if res == nil then
+      tex.print("??")
+   else
+      tex.print(res)
+   end
+end
+\end{luacode*}
+%% 
+%%  This work is "maintained" (as per LPPL maintenance status) by
+%%  Matthias Werner.
+%%
+%% End of file `osgdoc.sty'.
+
