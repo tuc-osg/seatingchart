@@ -1,0 +1,33 @@
+\input regression-test.tex
+\documentclass{article}
+\usepackage{seatingchart}
+
+\begin{document}
+\START
+
+\makeatletter
+\RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
+\makeatother
+
+\begin{luacode*}
+  function sc_test_dump(name)
+    local values = {}
+    for i = 1, AllSeats.size do
+      local seat = AllSeats[i]
+      values[i] = string.format("%d:%d:%s", seat.row, seat.col, seat.kind)
+    end
+    texio.write_nl("log", name .. "=" .. table.concat(values, ","))
+  end
+\end{luacode*}
+
+\begin{seatingchart}[shape=rectangle,rows=2,seats per row=3]
+  \scRemoveSeatAt{1}{2}
+  \scAssignSeatAt{2}{3}{assigned}
+  \directlua{sc_test_dump("FIRST")}
+\end{seatingchart}
+
+\begin{seatingchart}[shape=rectangle,rows=1,seats per row=2]
+  \directlua{sc_test_dump("SECOND")}
+\end{seatingchart}
+
+\END

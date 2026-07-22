@@ -1,0 +1,20 @@
+\input regression-test.tex
+\documentclass{article}
+\usepackage{seatingchart}
+
+\begin{document}
+\START
+
+\makeatletter
+\RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
+\makeatother
+
+\scConfig{seat distance=1pt}
+\scRemoveSeatAt{1}{1}
+\scSeatingScheme{dense}
+
+\begin{seatingchart}[shape=rectangle,rows=1,seats per row=1]
+  \TYPE{INSIDE-ENVIRONMENT}
+\end{seatingchart}
+
+\END

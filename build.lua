@@ -1,6 +1,9 @@
 -- Build configuration for seatingchart
 module = "seatingchart"
 
+checkengines = { "luatex" }
+stdengine = "luatex"
+
 sourcefiles = { "*.dtx" }
 unpackfiles = { "*.dtx" }
 installfiles = {

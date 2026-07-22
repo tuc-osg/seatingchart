@@ -1,0 +1,25 @@
+\input regression-test.tex
+\documentclass{article}
+\usepackage[legacy,shape=rectangle,rows=2,seats per row=3]{seatingchart}
+
+\begin{document}
+\START
+
+\makeatletter
+\RenewDocumentCommand{\sc@active@DrawSeating}{o}{\toggletrue{sc@drawn}}
+\let\scDrawSeating\sc@active@DrawSeating
+\makeatother
+
+\scRemoveSeatAt{1}{2}
+\scAssignSeatAt{2}{1}{legacy}
+\begin{luacode*}
+  local values = {}
+  for i = 1, AllSeats.size do
+    local seat = AllSeats[i]
+    values[i] = string.format("%d:%d:%s", seat.row, seat.col, seat.kind)
+  end
+  texio.write_nl("log", "LEGACY=" .. table.concat(values, ","))
+\end{luacode*}
+\scDrawSeating
+
+\END

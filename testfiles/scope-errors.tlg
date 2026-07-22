@@ -1,0 +1,25 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+! Package seatingchart Error: Command only available inside the seatingchart environment.
+See the seatingchart package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+l. ...\scConfig
+              {seat distance=1pt}
+Wrap seating-chart commands in \begin{seatingchart}...\end{seatingchart}, or load the package with the legacy option.
+! Package seatingchart Error: Command only available inside the seatingchart environment.
+See the seatingchart package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+l. ...\scRemoveSeatAt
+                    {1}{1}
+Wrap seating-chart commands in \begin{seatingchart}...\end{seatingchart}, or load the package with the legacy option.
+! Package seatingchart Error: Command only available inside the seatingchart environment.
+See the seatingchart package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+l. ...\scSeatingScheme
+                     {dense}
+Wrap seating-chart commands in \begin{seatingchart}...\end{seatingchart}, or load the package with the legacy option.
+(seatingchart-tu-chemnitz.sc)
+INSIDE-ENVIRONMENT
