@@ -130,10 +130,9 @@ function rerun_needed(job, dir)
     or log:find("Rerun LaTeX")
 end
 
---[[ 
-  Preserve the development layout for files which l3build does not normally
-  ship in a CTAN source archive.  Keeping these directories intact makes the
-  extracted archive immediately usable with `l3build check` and `l3build doc`. 
+--[[
+  Include the support files required to rebuild the documentation from the
+  CTAN source archive. Regression tests are intentionally not shipped.
 ]]
 local l3build_copyctan = copyctan
 function copyctan()
@@ -145,11 +144,7 @@ function copyctan()
   local package_dir = ctandir .. "/" .. ctanpkg
   local release_dirs = {
     { source = supportdir, target = package_dir .. "/support",
-      patterns = { "*.sty", "*.cls" } },
-    { source = testfiledir, target = package_dir .. "/testfiles",
-      patterns = { "*.lvt", "*.tlg" } },
-    { source = testsuppdir, target = package_dir .. "/testfiles/support",
-      patterns = { "*.csv" } }
+      patterns = { "*.sty", "*.cls" } }
   }
 
   for _, directory in ipairs(release_dirs) do

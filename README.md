@@ -1,5 +1,5 @@
-# Package seatingchart
-Generation of seating charts
+# Seatingchart
+LaTeX package to generate seating charts
 
 ## Description
 This package enables the visualization of seating charts, whereby the
@@ -14,7 +14,6 @@ This package requires LuaLaTeX.
 
 ## Documentation
 See `seatingchart-en.pdf` (English) or `seatingchart-de.pdf` (German).
-
 
 ## License
 Copyright 2025,2026 Matthias Werner

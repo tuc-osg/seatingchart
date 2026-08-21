@@ -74,11 +74,11 @@ This work is maintained by Matthias Werner.
 \section{\ldeen{Einführung}{Introduction}}
 \ldeen{%
 Für die Durchführung von Prüfungen benötigen wir mitunter Sitzpläne.
-So haben sich über die einige mit Pläne  in Form von TikZ-unterstützten
+So haben sich über die Zeit einige Pläne in Form von TikZ-unterstützten
 \LaTeX-Dateien angesammelt.
 Je nach Anzahl der Studierenden in einer Prüfung (und für wie groß wir die
 Gefahr eines Betrugsversuches bewerten) nutzen wir unterschiedliche
-Platzierungsschemata, so dass wir die Dateien in anpassen müssen.
+Platzierungsschemata, so dass wir die Dateien jeweils anpassen müssen.
 Außerdem wird uns von Zeit zu Zeit ein neuer Raum zugewiesen, für den wir noch
 keine Pläne haben.
 }{%
@@ -1429,16 +1429,6 @@ Only in this mode is the former name @1 available as an alias for @2.
 
 \section{\ldeen{Beschränkungen und Bugs}{Limitations and Bugs}}
 \label{sec:bugs}
-\ldeen*{%
-Auch wenn das @1-Paket zumindest in unserer Gruppe im praktischen Einsatz
-ist, ist es noch als experimentell zu betrachten.
-Das @2 in der Versionsnummer deutet diesen Umstand an.
-}{%
-Even though the @1 package is in practical use, at least in our group, it
-should still be considered experimental.
-The @2 in the version number indicates this fact.
-}{\thepkg}{\code{beta}}
-
 \ldeen{Es gibt eine Reihe von Einschränkungen, u.\,a.:}{There are a number of restrictions, including, among others:}
 \begin{itemize}[nosep]
 \item \ldeen{
@@ -1450,17 +1440,28 @@ The @2 in the version number indicates this fact.
 \item \ldeen*{Der Winkel für das bogenförmige Layout ist auf @1 beschränkt.}{%
   The angle for the curved layout is limited to @1.}{$120^{\circ}$}
 \item \ldeen{%
-Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
-Es besteht die Absicht, in künftigen Patches weitere Räume der TU~Chemnitz
-aufzunehmen.
-Layoutdateien von anderen Institutionen sind willkommen.
-}{%
-The number of predefined rooms is currently relatively small.
-There are plans to include additional rooms at TU Chemnitz in future patches.
-Layout files from other institutions are welcome.
-}
+  Die Anzahl der vordefinierten Räume ist derzeit noch eher gering.
+  Es besteht die Absicht, in künftigen Patches weitere Räume der TU~Chemnitz
+  aufzunehmen.
+  Layoutdateien von anderen Institutionen sind willkommen.
+  }{%
+  The number of predefined rooms is currently relatively small.
+  There are plans to include additional rooms at TU Chemnitz in future patches.
+  Layout files from other institutions are welcome.
+  }
+  \item \ldeen*{Der Quellcode ist ein wilder Mix aus @1 und @2 (sowie Lua).
+  }{
+    The source code is a wild mix of @1 and @2 (as well as Lua).
+  }{\LaTeX2$_{\epsilon}$}{\LaTeX3}
 \end{itemize}
-\ldeen{%
+\ldeen*{%
+Auch wenn das @1-Paket zumindest in unserer Gruppe im praktischen Einsatz
+ist, könnte es noch Fehler enthalten.
+}{%
+Even though the @1 package is in practical use, at least in our group, it
+could contain bugs.
+}{\thepkg}|%
+|\ldeen{%
 Bitte nutzen Sie für Bugs-Reports oder Pull-Requests GitHub:
 \url{https://github.com/tuc-osg/seatingchart}.
 }{%
@@ -1487,12 +1488,12 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 %% 2026-06-05:  Fix interaction with babel (#2)
 %% 2026-07-22a: Change to environment
 %% 2026-07-22b: Add input list, rivise docunentation => 1.0.0beta
-%% 
+%% 2026-08-21:  small fixes => 1.0.1
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 
 \ProvidesExplPackage{seatingchart}
-{2026/07/22}
-{1.0.0beta}
+{2026/08/21}
+{1.0.1}
 {Generation of seating plans}
 \def\packagename{seatingchart}
 
@@ -1503,6 +1504,8 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   }{Update your LaTeX.}
 }
 \RequirePackage{etoolbox}
+% We need xparse for \cs{\GetDocumentCommandArgSpec}
+\RequirePackage{xparse}
 \sys_if_engine_luatex:TF{}{
  \PackageError{\packagename}{
    LuaLaTeX~is~required~to~use~this~package.\MessageBreak
@@ -1972,7 +1975,6 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
 
 \NewDocumentCommand{\scConfigScheme}{m}{
   \SetKeys[scseatingscheme]{#1}
-
 }
 
 \NewDocumentCommand{\scSeatingScheme}{s o m}{
@@ -2116,17 +2118,40 @@ terms of the \LaTeX\ Project Public License (LPPL), version 1.3c or later
   \let\scConfigScheme\sc@active@ConfigScheme
   \let\scSeatingScheme\sc@active@SeatingScheme
 }
+
+% For each public command, declare a private "outside environment" twin
+% with a matching (introspected) argument specification, so it consumes
+% exactly as many arguments as the real implementation would.
+\ExplSyntaxOn
+\cs_new_protected:Npn \sc_make_disabled_twin:Nc #1#2
+  {
+    \GetDocumentCommandArgSpec #1
+    \exp_args:Nco \NewDocumentCommand {#2} { \ArgumentSpecification }
+      { \sc@outsideenvironmenterror }
+  }
+\sc_make_disabled_twin:Nc \scRemoveSeatAt {sc@disabled@RemoveSeatAt}
+\sc_make_disabled_twin:Nc \scRemoveSeats {sc@disabled@RemoveSeats}
+\sc_make_disabled_twin:Nc \scAssignSeatAt {sc@disabled@AssignSeatAt}
+\sc_make_disabled_twin:Nc \scSetAisle {sc@disabled@SetAisle}
+\sc_make_disabled_twin:Nc \scConfig {sc@disabled@Config}
+\sc_make_disabled_twin:Nc \scDrawSeating {sc@disabled@DrawSeating}
+\sc_make_disabled_twin:Nc \scGenerateSeatingList {sc@disabled@GenerateSeatingList}
+\sc_make_disabled_twin:Nc \scLoadSeatingList {sc@disabled@LoadSeatingList}
+\sc_make_disabled_twin:Nc \scConfigScheme {sc@disabled@ConfigScheme}
+\sc_make_disabled_twin:Nc \scSeatingScheme {sc@disabled@SeatingScheme}
+\ExplSyntaxOff
+
 \newcommand{\sc@disablecommands}{%
-  \let\scRemoveSeatAt\sc@outsideenvironmenterror
-  \let\scRemoveSeats\sc@outsideenvironmenterror
-  \let\scAssignSeatAt\sc@outsideenvironmenterror
-  \let\scSetAisle\sc@outsideenvironmenterror
-  \let\scConfig\sc@outsideenvironmenterror
-  \let\scDrawSeating\sc@outsideenvironmenterror
-  \let\scGenerateSeatingList\sc@outsideenvironmenterror
-  \let\scLoadSeatingList\sc@outsideenvironmenterror
-  \let\scConfigScheme\sc@outsideenvironmenterror
-  \let\scSeatingScheme\sc@outsideenvironmenterror
+  \let\scRemoveSeatAt\sc@disabled@RemoveSeatAt
+  \let\scRemoveSeats\sc@disabled@RemoveSeats
+  \let\scAssignSeatAt\sc@disabled@AssignSeatAt
+  \let\scSetAisle\sc@disabled@SetAisle
+  \let\scConfig\sc@disabled@Config
+  \let\scDrawSeating\sc@disabled@DrawSeating
+  \let\scGenerateSeatingList\sc@disabled@GenerateSeatingList
+  \let\scLoadSeatingList\sc@disabled@LoadSeatingList
+  \let\scConfigScheme\sc@disabled@ConfigScheme
+  \let\scSeatingScheme\sc@disabled@SeatingScheme
 }
 
 \ExplSyntaxOn
